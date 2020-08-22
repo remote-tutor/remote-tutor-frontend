@@ -23,7 +23,6 @@
                     <ValidationProvider v-slot="{errors}" rules="required">
                       <v-text-field
                         label="Username"
-                        name="username"
                         prepend-icon="mdi-account"
                         type="text"
                         v-model="user.username"
@@ -35,7 +34,6 @@
                       <v-text-field
                         id="password"
                         label="Password"
-                        name="password"
                         prepend-icon="mdi-lock"
                         :append-icon="hiddenPassword ? 'mdi-eye' : 'mdi-eye-off'"
                         @click:append="hiddenPassword = !hiddenPassword"
@@ -60,6 +58,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "Login",
 
@@ -76,8 +76,30 @@ export default {
   },
 
   methods: {
-    login() {
-      this.$refs.observer.validate();
+    async login() {
+      this.loading = true;
+      let isValid = await this.$refs.observer.validate();
+      if (isValid) {
+        let formData = new FormData()
+        formData.append('username', this.user.username)
+        formData.append('password', this.user.password)
+        axios({
+          method: "POST",
+          url: "//localhost:3000/login",
+          data: formData
+        })
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.log(error.response);
+          })
+          .finally(() => {
+            this.loading = false;
+          });
+      } else {
+        this.loading = false;
+      }
     },
   },
 };
