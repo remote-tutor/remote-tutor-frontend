@@ -98,6 +98,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "Register",
 
@@ -117,8 +119,31 @@ export default {
   },
 
   methods: {
-    register() {
-      this.$refs.observer.validate();
+    async register() {
+      let isValid = await this.$refs.observer.validate();
+      if (isValid) {
+          let formData = new FormData()
+          formData.append('fullName', this.user.fullName)
+          formData.append('username', this.user.username)
+          formData.append('password', this.user.password)
+          formData.append('confirmPassword', this.user.confirmPassword)
+        axios({
+          method: "POST",
+          url: "//localhost:3000/register",
+          data: formData,
+        })
+          .then((response) => {
+            console.log("Response");
+            console.log(response);
+          })
+          .catch((error) => {
+            console.log("Error");
+            console.log(error.response);
+          })
+          .finally(() => {
+            this.loading = false;
+          });
+      }
     },
   },
 };
