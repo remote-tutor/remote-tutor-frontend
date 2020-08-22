@@ -8,28 +8,44 @@
               <v-toolbar color="primary" dark flat>
                 <v-toolbar-title>Login</v-toolbar-title>
                 <v-spacer></v-spacer>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-btn href="/register" icon large v-on="on">
+                      <v-icon>mdi-account-plus-outline</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Register</span>
+                </v-tooltip>
               </v-toolbar>
               <v-card-text>
-                <v-form>
-                  <v-text-field
-                    label="Username"
-                    name="username"
-                    prepend-icon="mdi-account"
-                    type="text"
-                    :v-model="user.username"
-                  ></v-text-field>
+                <ValidationObserver ref="observer">
+                  <form>
+                    <ValidationProvider v-slot="{errors}" rules="required">
+                      <v-text-field
+                        label="Username"
+                        name="username"
+                        prepend-icon="mdi-account"
+                        type="text"
+                        v-model="user.username"
+                        :error-messages="errors"
+                      ></v-text-field>
+                    </ValidationProvider>
 
-                  <v-text-field
-                    id="password"
-                    label="Password"
-                    name="password"
-                    prepend-icon="mdi-lock"
-                    :append-icon="hiddenPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                    @click:append="hiddenPassword = !hiddenPassword"
-                    :type="hiddenPassword ? 'password' : 'text'"
-                    :v-model="user.password"
-                  ></v-text-field>
-                </v-form>
+                    <ValidationProvider v-slot="{errors}" rules="required">
+                      <v-text-field
+                        id="password"
+                        label="Password"
+                        name="password"
+                        prepend-icon="mdi-lock"
+                        :append-icon="hiddenPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                        @click:append="hiddenPassword = !hiddenPassword"
+                        :type="hiddenPassword ? 'password' : 'text'"
+                        v-model="user.password"
+                        :error-messages="errors"
+                      ></v-text-field>
+                    </ValidationProvider>
+                  </form>
+                </ValidationObserver>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -60,7 +76,9 @@ export default {
   },
 
   methods: {
-    async login() {},
+    login() {
+      this.$refs.observer.validate();
+    },
   },
 };
 </script>
