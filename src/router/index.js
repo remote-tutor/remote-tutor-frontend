@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
+import Announcements from '../views/announcements/Announcements.vue'
 
 Vue.use(VueRouter)
 
@@ -35,6 +36,14 @@ const routes = [
     component: Register,
     meta: {
       title: 'Create New User'
+    }
+  },
+  {
+    path: '/announcements',
+    name: 'Announcements',
+    component: Announcements,
+    meta: {
+      title: 'Announcements'
     }
   }
 ]
