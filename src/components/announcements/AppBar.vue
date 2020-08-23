@@ -40,7 +40,10 @@ export default {
   methods: {
     createPlaceholder() {
       if (this.placeholderExists) {
-        this.$emit("placeholderAlreadyExists");
+        this.$store.dispatch("viewScnackbar", {
+          text: "Please fill the unfinished one first",
+          color: "error",
+        });
       } else {
         this.placeholderExists = true;
         this.$emit("createPlaceholder");
