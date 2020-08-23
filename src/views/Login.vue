@@ -2,6 +2,11 @@
   <v-app id="inspire">
     <v-main>
       <v-container class="fill-height" fluid>
+        <Snackbar
+          :visible="snackbarSettings.visible"
+          :text="snackbarSettings.text"
+          :color="snackbarSettings.color"
+        ></Snackbar>
         <v-row align="center" justify="center">
           <v-col cols="12" sm="8" md="4">
             <v-card class="elevation-12">
@@ -59,9 +64,13 @@
 
 <script>
 import axios from "axios";
+import Snackbar from "@/components/shared/Snackbar.vue";
 
 export default {
   name: "Login",
+  components: {
+    Snackbar,
+  },
 
   data() {
     return {
@@ -72,6 +81,11 @@ export default {
         username: "",
         password: "",
       },
+      snackbarSettings: {
+        visible: false,
+        text: "",
+        color: "",
+      },
     };
   },
 
@@ -80,19 +94,23 @@ export default {
       this.loading = true;
       let isValid = await this.$refs.observer.validate();
       if (isValid) {
-        let formData = new FormData()
-        formData.append('username', this.user.username)
-        formData.append('password', this.user.password)
+        let formData = new FormData();
+        formData.append("username", this.user.username);
+        formData.append("password", this.user.password);
         axios({
           method: "POST",
           url: "//localhost:3000/login",
-          data: formData
+          data: formData,
         })
           .then((response) => {
-            console.log(response);
+            this.snackbarSettings.text = response.data.message;
+            this.snackbarSettings.visible = true;
+            this.snackbarSettings.color = "success";
           })
           .catch((error) => {
-            console.log(error.response);
+            this.snackbarSettings.text = error.response.data.message;
+            this.snackbarSettings.visible = true;
+            this.snackbarSettings.color = "error";
           })
           .finally(() => {
             this.loading = false;
