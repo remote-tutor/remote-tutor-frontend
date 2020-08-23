@@ -71,14 +71,14 @@ export default {
         data: formData,
       })
         .then((response) => {
-          this.$emit("responseReturned", {
-            message: response.data.message,
+          this.$store.dispatch("viewScnackbar", {
+            text: response.data.message,
             color: "success",
           });
         })
         .catch((error) => {
-          this.$emit("responseReturned", {
-            message: error.response.data.message,
+          this.$store.dispatch("viewScnackbar", {
+            text: error.response.data.message,
             color: "error",
           });
         });

@@ -1,12 +1,6 @@
 <template>
-  <v-app id="inspire">
     <v-main>
       <v-container class="fill-height" fluid>
-        <Snackbar
-          :visible="snackbarSettings.visible"
-          :text="snackbarSettings.text"
-          :color="snackbarSettings.color"
-        ></Snackbar>
         <v-row align="center" justify="center">
           <v-col cols="12" sm="8" md="4">
             <v-card class="elevation-12">
@@ -99,18 +93,13 @@
         </v-row>
       </v-container>
     </v-main>
-  </v-app>
 </template>
 
 <script>
 import axios from "axios";
-import Snackbar from "@/components/shared/Snackbar.vue";
 
 export default {
   name: "Register",
-  components: {
-    Snackbar,
-  },
 
   data() {
     return {
@@ -123,11 +112,6 @@ export default {
         username: "",
         password: "",
         confirmPassword: "",
-      },
-      snackbarSettings: {
-        visible: false,
-        text: "",
-        color: "",
       },
     };
   },
@@ -147,14 +131,16 @@ export default {
           data: formData,
         })
           .then((response) => {
-            this.snackbarSettings.text = response.data.message;
-            this.snackbarSettings.visible = true;
-            this.snackbarSettings.color = "success";
+            this.$store.dispatch("viewScnackbar", {
+              text: response.data.message,
+              color: "success",
+            });
           })
           .catch((error) => {
-            this.snackbarSettings.text = error.response.data.message;
-            this.snackbarSettings.visible = true;
-            this.snackbarSettings.color = "error";
+            this.$store.dispatch("viewScnackbar", {
+              text: error.response.data.message,
+              color: "error",
+            });
           })
           .finally(() => {
             this.loading = false;

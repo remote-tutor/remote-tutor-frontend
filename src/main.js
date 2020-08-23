@@ -7,11 +7,13 @@ import { ValidationObserver, ValidationProvider } from 'vee-validate';
 Vue.component('ValidationObserver', ValidationObserver);
 Vue.component('ValidationProvider', ValidationProvider);
 import './plugins/vee-validate';
+import store from './store'
 
 Vue.config.productionTip = false
 
 new Vue({
   vuetify,
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')
