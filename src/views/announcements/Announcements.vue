@@ -2,6 +2,7 @@
   <v-app>
     <AnnouncementsAppBar
       :admin="admin"
+      :placeholderExists="placeholderExists"
       @createPlaceholder="createPlaceholder"
     ></AnnouncementsAppBar>
     <v-main>
@@ -12,8 +13,11 @@
           :staticTitle="announcement.Title"
           :staticTopic="announcement.Topic"
           :staticContent="announcement.Content"
-          :id="announcement.Id"
+          :id.sync="announcement.Id"
+          :isNew="announcement.isNew"
           :admin="admin"
+          @deleteNewAnnouncement="deleteNewAnnouncement"
+          @placeholderFilled="placeholderFilled"
         ></Announcement>
       </v-container>
     </v-main>
@@ -36,6 +40,7 @@ export default {
     return {
       announcements: [],
       admin: true,
+      placeholderExists: false,
     };
   },
   methods: {
@@ -53,14 +58,22 @@ export default {
       });
     },
     createPlaceholder() {
+      this.placeholderExists = true
       this.announcements.unshift({
         Id: 0,
         Title: "",
         Topic: "",
         Content: "",
+        isNew: true,
       });
-      console.log(this.announcements)
     },
+    deleteNewAnnouncement() {
+      this.announcements.shift()
+      this.placeholderFilled();
+    },
+    placeholderFilled() {
+      this.placeholderExists = false
+    }
   },
   created() {
     this.getAnnouncements();

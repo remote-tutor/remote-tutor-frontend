@@ -30,12 +30,12 @@
       <v-card-text v-else class="text-left text--primary">{{content}}</v-card-text>
 
       <v-card-actions v-if="admin">
-        <v-btn color="primary" v-if="editMode" @click="updateAnnouncement">Save</v-btn>
+        <v-btn color="primary" v-if="editMode" @click="pushAnnouncement" :loading="loading">Save</v-btn>
         <v-btn color="primary" v-else @click="changeEditMode">Edit</v-btn>
-        <v-btn color="secondary" v-if="editMode" @click="changeEditMode">Cancel</v-btn>
+        <v-btn color="secondary" v-if="editMode" @click="cancelChanges">Cancel</v-btn>
 
         <v-spacer></v-spacer>
-        <v-btn color="error">Delete</v-btn>
+        <v-btn color="error" v-if="!this.new">Delete</v-btn>
       </v-card-actions>
     </v-card>
   </v-col>
@@ -45,28 +45,47 @@
 import axios from "axios";
 export default {
   name: "Announcement",
-  props: ["staticTitle", "staticTopic", "staticContent", "admin", "id"],
+  props: [
+    "staticTitle",
+    "staticTopic",
+    "staticContent",
+    "admin",
+    "id",
+    "isNew",
+  ],
   data() {
     return {
       editMode: false,
       title: this.staticTitle,
       topic: this.staticTopic,
       content: this.staticContent,
+      new: false,
+      loading: false,
     };
   },
   methods: {
     changeEditMode() {
       this.editMode = !this.editMode;
     },
-    updateAnnouncement() {
+    cancelChanges() {
+      if (this.new) {
+        this.$emit("deleteNewAnnouncement");
+      } else {
+        this.changeEditMode();
+      }
+    },
+    pushAnnouncement() {
+      this.loading = true
       let formData = new FormData();
       formData.append("id", this.id);
       formData.append("title", this.title);
       formData.append("topic", this.topic);
       formData.append("content", this.content);
+      let method = this.new ? "POST" : "PUT";
+      this.new = false;
       this.changeEditMode();
       axios({
-        method: "PUT",
+        method: method,
         url: "//localhost:3000/announcement",
         data: formData,
       })
@@ -75,14 +94,24 @@ export default {
             text: response.data.message,
             color: "success",
           });
+          this.$emit('update:id', this.id)
+          this.$emit("placeholderFilled")
         })
         .catch((error) => {
           this.$store.dispatch("viewScnackbar", {
             text: error.response.data.message,
             color: "error",
           });
+        }).finally(() => {
+          this.loading = false
         });
     },
+  },
+  created() {
+    if (this.isNew) {
+      this.new = true;
+      this.editMode = true;
+    }
   },
 };
 </script>

@@ -31,12 +31,7 @@
 <script>
 export default {
   name: "AnnouncementsAppBar",
-  props: ["admin"],
-  data() {
-    return {
-      placeholderExists: false,
-    };
-  },
+  props: ["admin", "placeholderExists"],
   methods: {
     createPlaceholder() {
       if (this.placeholderExists) {
@@ -45,7 +40,6 @@ export default {
           color: "error",
         });
       } else {
-        this.placeholderExists = true;
         this.$emit("createPlaceholder");
       }
     },
