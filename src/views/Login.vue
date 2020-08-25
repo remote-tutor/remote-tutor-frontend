@@ -87,13 +87,14 @@ export default {
           data: formData,
         })
           .then((response) => {
-            this.$store.dispatch("viewScnackbar", {
+            this.$store.dispatch("viewSnackbar", {
               text: response.data.message,
               color: "success",
             });
+            this.$store.dispatch("setUserToken", response.data.token)
           })
           .catch((error) => {
-            this.$store.dispatch("viewScnackbar", {
+            this.$store.dispatch("viewSnackbar", {
               text: error.response.data.message,
               color: "error",
             });

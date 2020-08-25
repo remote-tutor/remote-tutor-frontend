@@ -35,7 +35,7 @@ export default {
   methods: {
     createPlaceholder() {
       if (this.placeholderExists) {
-        this.$store.dispatch("viewScnackbar", {
+        this.$store.dispatch("viewSnackbar", {
           text: "Please fill the unfinished one first",
           color: "error",
         });
