@@ -8,8 +8,13 @@
         v-model="announcementData.title"
         prepend-icon="mdi-format-text"
       ></v-text-field>
-      <v-card-title class="headline" v-else>{{announcementData.title}}</v-card-title>
-
+      <v-card-title class="headline" v-else>
+        {{announcementData.title}}
+        <v-spacer></v-spacer>
+        <div>
+          <div class="text-body-1">{{announcementData.created_at}}</div>
+        </div>
+      </v-card-title>
       <v-text-field
         v-if="editMode"
         label="Topic"
@@ -59,6 +64,7 @@ export default {
     "staticTitle",
     "staticTopic",
     "staticContent",
+    "staticCreatedAt",
     "admin",
     "id",
     "isNew",
@@ -71,6 +77,7 @@ export default {
         title: this.staticTitle || "",
         topic: this.staticTopic || "",
         content: this.staticContent || "",
+        created_at: this.staticCreatedAt || "",
       },
       new: false,
       loading: false,
@@ -107,7 +114,11 @@ export default {
             text: response.data.message,
             color: "success",
           });
-          this.announcementData.id = response.data.id;
+          this.announcementData.id = response.data.announcement.id;
+          this.announcementData.created_at = response.data.announcement.created_at.substring(
+            0,
+            10
+          );
           this.$emit("placeholderFilled", {
             announcementData: this.announcementData,
             new: this.new,

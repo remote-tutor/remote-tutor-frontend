@@ -21,6 +21,7 @@
           :staticTitle="announcement.title"
           :staticTopic="announcement.topic"
           :staticContent="announcement.content"
+          :staticCreatedAt="announcement.created_at.substring(0, 10)"
           :id="announcement.id"
           :isNew="announcement.isNew"
           :admin="admin"
