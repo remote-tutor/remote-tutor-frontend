@@ -27,6 +27,7 @@
           :admin="admin"
           @deleteAnnouncement="deleteAnnouncement"
         ></Announcement>
+        <BottomPagination :length="totalPages" @pageChanged="pageChanged"></BottomPagination>
       </v-container>
     </v-main>
   </v-app>
@@ -36,6 +37,7 @@
 // @ is an alias to /src
 import Announcement from "@/components/announcements/Announcement.vue";
 import AnnouncementsAppBar from "@/components/announcements/AppBar.vue";
+import BottomPagination from "@/components/announcements/BottomPagination.vue";
 import api from "@/gateways/api.js";
 
 export default {
@@ -43,12 +45,16 @@ export default {
   components: {
     AnnouncementsAppBar,
     Announcement,
+    BottomPagination,
   },
   data() {
     return {
       announcements: [],
       admin: true,
       placeholderExists: false,
+      currentPage: 1,
+      length: 5,
+      totalPages: 1,
       searchValues: {
         title: "",
         topic: "",
@@ -62,16 +68,17 @@ export default {
         method: "GET",
         url: "/announcements",
         params: {
-          start: this.announcements.length,
+          length: this.length,
+          currentPage: this.currentPage,
           title: this.searchValues.title,
           topic: this.searchValues.topic,
           content: this.searchValues.content,
         },
       })
         .then((response) => {
-          this.announcements = this.announcements.concat(
-            response.data.announcements
-          );
+          this.announcements = response.data.announcements;
+          let totalAnnouncements = response.data.total;
+          this.totalPages = Math.ceil(totalAnnouncements / this.length);
         })
         .catch((error) => {
           this.$store.dispatch("viewSnackbar", {
@@ -102,6 +109,10 @@ export default {
     filterAnnouncements(options) {
       this.announcements = [];
       this.searchValues = Object.assign({}, options.searchValues);
+      this.getAnnouncements();
+    },
+    pageChanged(options) {
+      this.currentPage = options.currentPage;
       this.getAnnouncements();
     },
   },
