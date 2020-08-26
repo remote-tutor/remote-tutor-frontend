@@ -7,14 +7,17 @@
 
       <v-spacer></v-spacer>
 
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn>
-            <v-icon v-bind="attrs" v-on="on">mdi-magnify</v-icon>
-          </v-btn>
+      <v-bottom-sheet v-model="sheet" inset>
+        <template v-slot:activator="{ on: sheet, attrs }">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on: tooltip }">
+              <v-icon v-bind="attrs" v-on="{ ...tooltip, ...sheet }">mdi-magnify</v-icon>
+            </template>
+            <span>Search</span>
+          </v-tooltip>
         </template>
-        <span>Search</span>
-      </v-tooltip>
+        <Search @closeSearchSheet="closeSearchSheet" @search="search"></Search>
+      </v-bottom-sheet>
 
       <v-tooltip bottom v-if="admin">
         <template v-slot:activator="{ on, attrs }">
@@ -29,9 +32,18 @@
 </template>
 
 <script>
+import Search from "@/components/announcements/Search.vue";
 export default {
   name: "AnnouncementsAppBar",
+  components: {
+    Search,
+  },
   props: ["admin", "placeholderExists"],
+  data() {
+    return {
+      sheet: false,
+    };
+  },
   methods: {
     createPlaceholder() {
       if (this.placeholderExists) {
@@ -42,6 +54,15 @@ export default {
       } else {
         this.$emit("createPlaceholder");
       }
+    },
+    closeSearchSheet() {
+      this.sheet = false;
+    },
+    search(options) {
+      this.closeSearchSheet();
+      this.$emit("search", {
+        searchValues: options.searchValues,
+      });
     },
   },
 };

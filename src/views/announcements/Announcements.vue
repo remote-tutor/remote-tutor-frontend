@@ -4,6 +4,7 @@
       :admin="admin"
       :placeholderExists="placeholderExists"
       @createPlaceholder="createPlaceholder"
+      @search="filterAnnouncements"
     ></AnnouncementsAppBar>
     <v-main>
       <v-container>
@@ -47,6 +48,11 @@ export default {
       announcements: [],
       admin: true,
       placeholderExists: false,
+      searchValues: {
+        title: "",
+        topic: "",
+        content: "",
+      },
     };
   },
   methods: {
@@ -56,6 +62,9 @@ export default {
         url: "/announcements",
         params: {
           start: this.announcements.length,
+          title: this.searchValues.title,
+          topic: this.searchValues.topic,
+          content: this.searchValues.content,
         },
       })
         .then((response) => {
@@ -89,8 +98,13 @@ export default {
         }
       }
     },
+    filterAnnouncements(options) {
+      this.announcements = [];
+      this.searchValues = Object.assign({}, options.searchValues);
+      this.getAnnouncements();
+    },
   },
-  created() {
+  mounted() {
     this.getAnnouncements();
   },
 };

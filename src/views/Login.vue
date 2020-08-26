@@ -9,7 +9,7 @@
               <v-spacer></v-spacer>
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                  <v-btn href="/register" icon large v-on="on">
+                  <v-btn to="/register" icon large v-on="on">
                     <v-icon>mdi-account-plus-outline</v-icon>
                   </v-btn>
                 </template>
