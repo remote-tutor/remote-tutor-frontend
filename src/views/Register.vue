@@ -9,7 +9,7 @@
                 <v-spacer></v-spacer>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                    <v-btn href="/login" icon large v-on="on">
+                    <v-btn to="/login" icon large v-on="on">
                       <v-icon>mdi-login</v-icon>
                     </v-btn>
                   </template>
