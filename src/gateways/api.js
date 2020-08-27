@@ -1,7 +1,7 @@
 import axios from "axios";
 import store  from '../store'
 
-const url = process.env.VUE_APP_WISP_API_URL || "//localhost:3000";
+const url = process.env.VUE_APP_WISP_API_URL || "//192.168.1.100:3000";
 
 let api = axios.create({
     baseURL: url

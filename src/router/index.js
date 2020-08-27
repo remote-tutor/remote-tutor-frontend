@@ -4,6 +4,7 @@ import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Announcements from '../views/announcements/Announcements.vue'
+import PendingStudents from '../views/admin/PendingStudents.vue'
 
 Vue.use(VueRouter)
 
@@ -45,6 +46,14 @@ const routes = [
     meta: {
       title: 'Announcements'
     }
+  },
+  {
+    path: '/students',
+    name: 'Students',
+    component: PendingStudents,
+    meta: {
+      title: 'Students'
+    } 
   }
 ]
 
