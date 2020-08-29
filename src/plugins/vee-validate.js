@@ -1,4 +1,4 @@
-import { required, email, confirmed } from 'vee-validate/dist/rules';
+import { required, email, confirmed, excluded } from 'vee-validate/dist/rules';
 import { extend } from 'vee-validate';
 
 extend('required', {
@@ -14,6 +14,11 @@ extend('email', {
 extend('confirmed', {
     ...confirmed,
     message: 'These fields must match',
+})
+
+extend('excluded', {
+    ...excluded,
+    message: 'You must select a valid option'
 })
 
 // extend('min', {
