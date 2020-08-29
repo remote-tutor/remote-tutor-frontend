@@ -6,6 +6,7 @@ import Register from '../views/Register.vue'
 import Announcements from '../views/announcements/Announcements.vue'
 import PendingStudents from '../views/admin/PendingStudents.vue'
 import CreateQuiz from '../views/admin/CreateQuiz.vue'
+import CreateQuestion from '../views/admin/CreateQuestion.vue'
 
 Vue.use(VueRouter)
 
@@ -62,6 +63,14 @@ const routes = [
     component: CreateQuiz,
     meta: {
       title: 'New Quiz'
+    } 
+  },
+  {
+    path: '/create-question/:quizID',
+    name: 'CreateQuestion',
+    component: CreateQuestion,
+    meta: {
+      title: 'New Question'
     } 
   }
 ]
