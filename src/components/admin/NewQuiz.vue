@@ -89,9 +89,8 @@ export default {
   methods: {
     async saveQuiz() {
       let isValid = await this.$refs.observer.validate();
-      console.log(this.startDate);
       if (isValid) {
-        this.loading = true
+        this.loading = true;
         let formData = new FormData();
         formData.append("title", this.quiz.title);
         formData.append("year", this.quiz.year);
@@ -101,14 +100,20 @@ export default {
           method: "POST",
           url: "/quizzes",
           data: formData,
-        }).then((response) => {
-          this.$store.dispatch("viewSnackbar", {
-            text: response.data.message,
-            color: "success",
+        })
+          .then((response) => {
+            this.$store.dispatch("viewSnackbar", {
+              text: response.data.message,
+              color: "success",
+            });
+            this.$router.push({
+              name: "CreateQuestion",
+              params: { quizID: response.data.quiz.id },
+            });
+          })
+          .finally(() => {
+            this.loading = false;
           });
-        }).finall(() => {
-          this.loading = false
-        });
       }
     },
   },
