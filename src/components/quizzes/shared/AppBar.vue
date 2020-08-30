@@ -7,7 +7,7 @@
 
       <v-spacer></v-spacer>
 
-      <v-bottom-sheet v-model="sheet" inset>
+      <v-bottom-sheet v-model="sheet" inset v-if="iconsNeeded">
         <template v-slot:activator="{ on: sheet, attrs }">
           <v-tooltip bottom>
             <template v-slot:activator="{ on: tooltip }">
@@ -19,7 +19,7 @@
         <Search @closeSearchSheet="closeSearchSheet" @search="search"></Search>
       </v-bottom-sheet>
 
-      <v-tooltip bottom v-if="admin">
+      <v-tooltip bottom v-if="admin && iconsNeeded">
         <template v-slot:activator="{ on, attrs }">
           <v-btn @click="createPlaceholder">
             <v-icon v-bind="attrs" v-on="on">mdi-plus-circle</v-icon>
@@ -38,7 +38,7 @@ export default {
   components: {
     Search,
   },
-  props: ["admin", "placeholderExists"],
+  props: ["admin", "placeholderExists", "iconsNeeded"],
   data() {
     return {
       sheet: false,
