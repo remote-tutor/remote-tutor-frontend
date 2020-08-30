@@ -66,8 +66,8 @@ const routes = [
     } 
   },
   {
-    path: '/create-question/:quizID',
-    name: 'CreateQuestion',
+    path: '/quiz/questions/:quizID',
+    name: 'QuizQuestions',
     component: Questions,
     meta: {
       title: 'New Question'

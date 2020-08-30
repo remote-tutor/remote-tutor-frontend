@@ -8,7 +8,7 @@
     <v-main>
       <v-container>
         <Question v-if="placeholderExists" :isNew="true"
-                  @deleteNewAnnouncement="deleteNewQuestion"
+                  @deleteNewQuestion="deleteNewQuestion"
                   @placeholderFilled="placeholderFilled"
                   :admin="admin">
         </Question>
@@ -21,6 +21,7 @@
                   :staticCorrectAnswer="question.correctAnswer"
                   :staticChoices="question.choices"
                   :isNew="question.isNew"
+                  @deleteQuestion="deleteQuestion"
         ></Question>
       </v-container>
     </v-main>
@@ -71,6 +72,13 @@ export default {
         this.questions.unshift(questionData);
       }
     },
+    deleteQuestion(options) {
+      this.questions.forEach((question, index) => {
+        if (options.id === question.question.id) {
+          this.questions.splice(index, 1)
+        }
+      })
+    }
   },
   mounted() {
     this.getQuestions()

@@ -65,8 +65,17 @@
       <v-card-actions>
         <v-btn color="primary" v-if="!editMode" @click="changeEditMode">Edit</v-btn>
         <v-btn color="primary" v-if="editMode" @click="addChoice">Add Choice</v-btn>
-        <v-btn color="secondary" v-if="editMode" @click="sendChoices" :loading="loading">Save</v-btn>
+        <v-btn color="success" v-if="editMode" @click="sendChoices" :loading="loading">Save</v-btn>
+
         <v-spacer></v-spacer>
+<!--        <v-btn color="secondary" v-if="editMode" class="mr-2">Cancel</v-btn>-->
+        <ConfirmationDialog
+            v-if="!this.new"
+            buttonText="Delete"
+            mainText="Delete This Item?"
+            message="You won't be able to restore the deleted question"
+            @confirm="deleteQuestion"
+        ></ConfirmationDialog>
       </v-card-actions>
     </v-card>
   </v-col>
@@ -75,11 +84,13 @@
 <script>
 import api from "@/gateways/api.js";
 import Choice from "@/components/quizzes/admins/Choice.vue";
+import ConfirmationDialog from "@/components/utils/ConfirmationDialog.vue";
 
 export default {
   name: "Question",
   components: {
     Choice,
+    ConfirmationDialog,
   },
   props: ['staticID', 'staticText', 'staticTotalMark', 'staticChoices', 'staticCorrectAnswer', 'isNew'],
   data() {
@@ -98,6 +109,7 @@ export default {
       },
       totalCreatedChoices: 0,
       canCreateNew: true,
+      new: false
     };
   },
 
@@ -222,6 +234,23 @@ export default {
       }).catch(error => {
         console.log(error)
       });
+    },
+    deleteQuestion() {
+      let formData = new FormData()
+      formData.append("id", this.questionData.question.id)
+      api({
+        method: "DELETE",
+        url: "/quizzes/questions/mcq",
+        data: formData,
+      }).then((response) => {
+        this.$store.dispatch("viewSnackbar", {
+          text: response.data.message,
+          color: "success",
+        });
+        this.$emit("deleteQuestion", {
+          id: this.questionData.question.id,
+        });
+      })
     },
     changeEditMode() {
       this.editMode = !this.editMode

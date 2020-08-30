@@ -107,7 +107,7 @@ export default {
               color: "success",
             });
             this.$router.push({
-              name: "CreateQuestion",
+              name: "QuizQuestions",
               params: { quizID: response.data.quiz.id },
             });
           })
