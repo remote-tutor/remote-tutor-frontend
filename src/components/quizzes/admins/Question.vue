@@ -1,82 +1,100 @@
 <template>
-  <v-card class="elevation-12">
-    <v-toolbar color="primary" flat dark>
-      <v-spacer></v-spacer>
+  <v-col cols="12">
+    <v-card class="elevation-12">
+      <v-toolbar color="primary" flat dark>
+        <v-spacer></v-spacer>
 
-      <span>Marks</span>
-      <v-col cols="3" md="2">
-        <ValidationObserver ref="markObserver">
-          <ValidationProvider v-slot="{errors}" rules="required|numeric|max:1">
-            <v-text-field
-              solo
-              rounded
-              v-model="question.marks"
-              v-click-outside="validateMark"
-              class="mt-10"
-              :error-messages="errors"
-            ></v-text-field>
-          </ValidationProvider>
+        <span>Marks</span>
+        <v-col cols="3" md="2">
+          <ValidationObserver ref="markObserver">
+            <ValidationProvider v-slot="{errors}" rules="required|numeric|max:1">
+              <v-text-field v-if="editMode"
+                            solo
+                            rounded
+                            v-model="questionData.question.totalMark"
+                            v-click-outside="validateMark"
+                            class="mt-10"
+                            :error-messages="errors"
+              ></v-text-field>
+              <template v-else>
+                <v-btn icon large :readonly="true">
+                  {{ questionData.question.totalMark }}
+                </v-btn>
+              </template>
+            </ValidationProvider>
+          </ValidationObserver>
+        </v-col>
+      </v-toolbar>
+      <v-card-text>
+        <ValidationObserver ref="observer">
+          <form>
+            <ValidationProvider v-slot="{errors}" rules="required">
+              <v-textarea v-if="editMode"
+                          label="Question Text"
+                          type="text"
+                          v-model="questionData.question.text"
+                          prepend-icon="mdi-script-text"
+                          rows="2"
+                          :error-messages="errors"
+              ></v-textarea>
+              <v-card-title class="headline" v-else>
+                {{ questionData.question.text }}
+              </v-card-title>
+            </ValidationProvider>
+            <v-row align="center" justify="center">
+              <v-switch :readonly="!editMode" :disabled="!editMode" v-model="questionData.mcq"
+                        :label="questionData.mcq ? 'MCQ' : 'Long Answer'"></v-switch>
+            </v-row>
+            <div v-if="questionData.mcq">
+              <v-radio-group v-model="questionData.correctAnswer" :readonly="!editMode" :disabled="!editMode">
+                <Choice
+                    v-for="choice in questionData.choices"
+                    :key="choice.id"
+                    :staticText="choice.text"
+                    :value="choice.id"
+                    :id="choice.id"
+                    :editMode="editMode"
+                    @changeText="changeText"
+                    @clearChoice="clearChoice"
+                ></Choice>
+              </v-radio-group>
+            </div>
+          </form>
         </ValidationObserver>
-      </v-col>
-    </v-toolbar>
-    <v-card-text>
-      <ValidationObserver ref="observer">
-        <form>
-          <ValidationProvider v-slot="{errors}" rules="required">
-            <v-textarea
-              label="Question Text"
-              type="text"
-              v-model="question.text"
-              prepend-icon="mdi-script-text"
-              rows="2"
-              :error-messages="errors"
-            ></v-textarea>
-          </ValidationProvider>
-          <v-row align="center" justify="center">
-            <v-switch v-model="question.mcq" :label="question.mcq ? 'MCQ' : 'Long Answer'"></v-switch>
-          </v-row>
-          <div v-if="question.mcq">
-            <v-radio-group v-model="question.selected">
-              <Choice
-                v-for="choice in question.choices"
-                :key="choice.id"
-                :staticText="choice.text"
-                :value="choice.value"
-                :id="choice.id"
-                @changeText="changeText"
-                @clearChoice="clearChoice"
-              ></Choice>
-            </v-radio-group>
-          </div>
-        </form>
-      </ValidationObserver>
-    </v-card-text>
-    <v-card-actions>
-      <v-btn color="secondary" @click="addChoice">Add Choice</v-btn>
-      <v-spacer></v-spacer>
-      <v-btn color="primary" @click="sendChoices" :loading="loading">Submit</v-btn>
-    </v-card-actions>
-  </v-card>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn color="primary" v-if="!editMode" @click="changeEditMode">Edit</v-btn>
+        <v-btn color="primary" v-if="editMode" @click="addChoice">Add Choice</v-btn>
+        <v-btn color="secondary" v-if="editMode" @click="sendChoices" :loading="loading">Save</v-btn>
+        <v-spacer></v-spacer>
+      </v-card-actions>
+    </v-card>
+  </v-col>
 </template>
 
 <script>
 import api from "@/gateways/api.js";
 import Choice from "@/components/quizzes/admins/Choice.vue";
+
 export default {
-  name: "NewQuestion",
+  name: "Question",
   components: {
     Choice,
   },
-
+  props: ['staticID', 'staticText', 'staticTotalMark', 'staticChoices', 'staticCorrectAnswer', 'isNew'],
   data() {
     return {
+      editMode: false,
       loading: false,
-      question: {
-        text: "",
-        marks: 1,
+      questionData: {
+        question: {
+          id: this.staticID || 0,
+          text: this.staticText || "",
+          totalMark: this.staticTotalMark || 1,
+        },
         mcq: true,
-        choices: [],
-        selected: -1,
+        choices: this.staticChoices || [],
+        correctAnswer: this.staticCorrectAnswer || -1,
       },
       totalCreatedChoices: 0,
       canCreateNew: true,
@@ -85,21 +103,20 @@ export default {
 
   methods: {
     validateMark() {
-      this.$refs.markObserver.validate();
+      if (this.$refs.markObserver !== undefined) {
+        this.$refs.markObserver.validate();
+      }
     },
     async addChoice() {
       let isValid = await this.$refs.observer.validate();
       if (isValid) {
-        if (this.question.choices.length === 0) {
-          this.sendQuestion();
+        if (this.questionData.choices.length === 0) {
+          await this.pushQuestion();
         }
-      }
-      if (isValid) {
         if (this.canCreateNew) {
-          this.question.choices.push({
+          this.questionData.choices.push({
             id: this.totalCreatedChoices,
             text: "",
-            databaseID: 0,
           });
           this.totalCreatedChoices++;
         }
@@ -108,7 +125,7 @@ export default {
     },
     changeText(options) {
       let id = options.id;
-      this.question.choices.forEach((element) => {
+      this.questionData.choices.forEach((element) => {
         if (element.id === id) {
           element.text = options.text;
         }
@@ -117,74 +134,104 @@ export default {
     },
     clearChoice(options) {
       let id = options.id;
-      this.question.choices.forEach((element, index) => {
+      this.questionData.choices.forEach((element, index) => {
         if (element.id === id) {
-          this.question.choices.splice(index, 1);
+          if (this.questionData.correctAnswer === element.id) {
+            this.questionData.correctAnswer = -1
+          }
+          this.questionData.choices.splice(index, 1);
         }
       });
       this.updateCanCreateNew();
     },
     updateCanCreateNew() {
       this.canCreateNew = true;
-      this.question.choices.forEach((element) => {
+      this.questionData.choices.forEach((element) => {
         if (element.text === "") {
           this.canCreateNew = false;
         }
       });
     },
-    async sendQuestion() {
-      let validQuestion = await this.$refs.observer.validate();
-      if (validQuestion) {
-        let formData = new FormData();
-        formData.append("text", this.question.text);
-        formData.append("totalMark", this.question.marks);
-        formData.append("quizID", this.$route.params.quizID);
+    async pushQuestion() {
+      let formData = new FormData();
+      formData.append("id", this.questionData.question.id);
+      formData.append("text", this.questionData.question.text);
+      formData.append("totalMark", this.questionData.question.totalMark);
+      formData.append("quizID", this.$route.params.quizID);
+      formData.append("correctAnswer", this.questionData.correctAnswer);
+      let method = this.new ? "POST" : "PUT";
+      api({
+        method: method,
+        url: "/quizzes/questions/mcq",
+        data: formData,
+      }).then((response) => {
+        this.questionData.question.id = response.data.mcq.question.id;
+      });
 
-        api({
-          method: "POST",
-          url: "/quizzes/questions/mcq",
-          data: formData,
-        }).then((response) => {
-          this.question.id = response.data.mcq.question.id;
-        });
-      }
     },
     async sendChoices() {
       let validQuestion = await this.$refs.observer.validate();
-      if (validQuestion) {
-        this.question.choices.forEach((choice, index) => {
-          let formData = new FormData();
-          formData.append("text", choice.text);
-          formData.append("mcqID", this.question.id);
-          api({
-            method: "POST",
-            url: "/quizzes/choices",
-            data: formData,
-          }).then((response) => {
-            this.question.choices[index].databaseID = response.data.choice.id;
-            this.updateQuestion();
-          });
+      let choicesLength = this.questionData.choices.length
+      if (choicesLength === 0) {
+        this.$store.dispatch("viewSnackbar", {
+          text: "Please add choices before submitting",
+          color: "error",
+        });
+      } else if (this.questionData.correctAnswer === -1) {
+        this.$store.dispatch("viewSnackbar", {
+          text: "You must select an answer",
+          color: "error",
         });
       }
+      validQuestion = validQuestion && (choicesLength > 0) && (this.questionData.correctAnswer !== -1);
+      if (validQuestion) {
+        this.loading = true
+        await Promise.all(
+            this.questionData.choices.map(async (choice, index) => {
+              await this.pushChoice(choice, index)
+            }));
+
+        this.changeEditMode()
+
+        this.$emit("placeholderFilled", {
+          questionData: this.questionData,
+          new: this.new,
+        });
+        this.new = false;
+        await this.pushQuestion();
+        this.loading = false
+      }
+
     },
-    updateQuestion() {
-      // Update the question to save the correct answer
+    async pushChoice(choice, index) {
       let formData = new FormData();
-      this.question.choices.forEach((choice) => {
-        if (choice.id === this.question.selected) {
-          formData.append("correctAnswer", choice.databaseID);
-        }
-      });
-      formData.append("id", this.question.id);
-      formData.append("correctAnswer", this.question.selected);
-      formData.append("totalMark", this.question.marks);
-      formData.append("text", this.question.text);
-      api({
-        method: "PUT",
-        url: "/quizzes/questions/mcq",
+      formData.append("id", choice.id)
+      formData.append("text", choice.text);
+      formData.append("mcqID", this.questionData.question.id);
+      let method = this.new ? "POST" : "PUT";
+      await api({
+        method: method,
+        url: "/quizzes/choices",
         data: formData,
+      }).then((response) => {
+        let oldID = choice.id
+        this.questionData.choices[index].id = response.data.choice.id;
+        if (oldID === this.questionData.correctAnswer) {
+          this.questionData.correctAnswer = this.questionData.choices[index].id
+        }
+      }).catch(error => {
+        console.log(error)
       });
     },
+    changeEditMode() {
+      this.editMode = !this.editMode
+    },
+  },
+  created() {
+    if (this.isNew) {
+      this.new = true;
+      this.editMode = true;
+    }
   },
 };
 </script>

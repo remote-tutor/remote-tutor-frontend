@@ -6,7 +6,7 @@ import Register from '../views/users/Register.vue'
 import Announcements from '../views/announcements/Announcements.vue'
 import PendingStudents from '../views/students/admins/PendingStudents.vue'
 import CreateQuiz from '../views/quizzes/admins/CreateQuiz.vue'
-import CreateQuestion from '../views/quizzes/admins/CreateQuestion.vue'
+import Questions from '../views/quizzes/admins/Questions.vue'
 
 Vue.use(VueRouter)
 
@@ -68,7 +68,7 @@ const routes = [
   {
     path: '/create-question/:quizID',
     name: 'CreateQuestion',
-    component: CreateQuestion,
+    component: Questions,
     meta: {
       title: 'New Question'
     } 
