@@ -54,7 +54,7 @@
 
 <script>
 import api from "@/gateways/api.js";
-import ConfirmationDialog from "@/components/announcements/admins/ConfirmationDialog.vue";
+import ConfirmationDialog from "@/components/utils/ConfirmationDialog.vue";
 export default {
   name: "Announcement",
   components: {
