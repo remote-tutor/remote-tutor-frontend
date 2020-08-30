@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import Search from "@/components/announcements/Search.vue";
+import Search from "@/components/announcements/shared/Search.vue";
 export default {
   name: "AnnouncementsAppBar",
   components: {

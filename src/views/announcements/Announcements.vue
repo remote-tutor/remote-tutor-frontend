@@ -35,9 +35,9 @@
 
 <script>
 // @ is an alias to /src
-import Announcement from "@/components/announcements/Announcement.vue";
-import AnnouncementsAppBar from "@/components/announcements/AppBar.vue";
-import BottomPagination from "@/components/announcements/BottomPagination.vue";
+import Announcement from "@/components/announcements/shared/Announcement.vue";
+import AnnouncementsAppBar from "@/components/announcements/shared/AppBar.vue";
+import BottomPagination from "@/components/announcements/shared/BottomPagination.vue";
 import api from "@/gateways/api.js";
 
 export default {

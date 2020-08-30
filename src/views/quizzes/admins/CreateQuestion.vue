@@ -12,8 +12,8 @@
 </template>
 
 <script>
-import AnnouncementsAppBar from "@/components/announcements/AppBar.vue";
-import NewQuestion from '@/components/admin/NewQuestion.vue'
+import AnnouncementsAppBar from "@/components/announcements/shared/AppBar.vue";
+import NewQuestion from '@/components/quizzes/admins/Question.vue'
 export default {
     name: "CreateQuestion",
     components: {

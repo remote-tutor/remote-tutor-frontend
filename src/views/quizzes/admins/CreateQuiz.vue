@@ -5,20 +5,20 @@
     ></AnnouncementsAppBar>
     <v-main>
         <v-container>
-            <StudentsTable :pending="true"></StudentsTable>
+            <NewQuiz></NewQuiz>
         </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import AnnouncementsAppBar from "@/components/announcements/AppBar.vue";
-import StudentsTable from '@/components/admin/StudentsTable.vue'
+import AnnouncementsAppBar from "@/components/announcements/shared/AppBar.vue";
+import NewQuiz from '@/components/quizzes/admins/Quiz.vue'
 export default {
-    name: "PendingStudents",
+    name: "CreateQuiz",
     components: {
         AnnouncementsAppBar,
-        StudentsTable,
+        NewQuiz,
     }
 };
 </script>
