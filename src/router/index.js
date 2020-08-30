@@ -5,8 +5,8 @@ import Login from '../views/users/Login.vue'
 import Register from '../views/users/Register.vue'
 import Announcements from '../views/announcements/Announcements.vue'
 import PendingStudents from '../views/students/admins/PendingStudents.vue'
-import CreateQuiz from '../views/quizzes/admins/CreateQuiz.vue'
 import Questions from '../views/quizzes/admins/Questions.vue'
+import Quizzes from '../views/quizzes/shared/Quizzes.vue'
 
 Vue.use(VueRouter)
 
@@ -58,12 +58,12 @@ const routes = [
     } 
   },
   {
-    path: '/create-quiz',
-    name: 'CreateQuiz',
-    component: CreateQuiz,
+    path: '/quizzes',
+    name: 'Quizzes',
+    component: Quizzes,
     meta: {
-      title: 'New Quiz'
-    } 
+      title: 'Quizzes'
+    }
   },
   {
     path: '/quiz/questions/:quizID',

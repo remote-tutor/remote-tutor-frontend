@@ -2,6 +2,7 @@
   <v-app>
     <QuizzesAppBar
         :admin="admin"
+        :iconsNeeded="true"
         :placeholderExists="placeholderExists"
         @createPlaceholder="createPlaceholder"
     ></QuizzesAppBar>
