@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import Login from '../views/Login.vue'
-import Register from '../views/Register.vue'
+import Login from '../views/users/Login.vue'
+import Register from '../views/users/Register.vue'
 import Announcements from '../views/announcements/Announcements.vue'
-import PendingStudents from '../views/admin/PendingStudents.vue'
-import CreateQuiz from '../views/admin/CreateQuiz.vue'
-import CreateQuestion from '../views/admin/CreateQuestion.vue'
+import PendingStudents from '../views/students/admins/PendingStudents.vue'
+import CreateQuiz from '../views/quizzes/admins/CreateQuiz.vue'
+import CreateQuestion from '../views/quizzes/admins/CreateQuestion.vue'
 
 Vue.use(VueRouter)
 

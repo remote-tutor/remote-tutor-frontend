@@ -61,7 +61,7 @@
 
 <script>
 import api from "@/gateways/api.js";
-import Choice from "@/components/quizzes/Choice.vue";
+import Choice from "@/components/quizzes/admins/Choice.vue";
 export default {
   name: "NewQuestion",
   components: {
