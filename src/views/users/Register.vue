@@ -96,7 +96,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import api from "@/gateways/api";
 
 export default {
   name: "Register",
@@ -125,23 +125,11 @@ export default {
         formData.append("username", this.user.username);
         formData.append("password", this.user.password);
         formData.append("confirmPassword", this.user.confirmPassword);
-        axios({
+        api({
           method: "POST",
-          url: "//localhost:3000/register",
+          url: "/register",
           data: formData,
         })
-          .then((response) => {
-            this.$store.dispatch("viewSnackbar", {
-              text: response.data.message,
-              color: "success",
-            });
-          })
-          .catch((error) => {
-            this.$store.dispatch("viewSnackbar", {
-              text: error.response.data.message,
-              color: "error",
-            });
-          })
           .finally(() => {
             this.loading = false;
           });

@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
 import Login from '../views/users/Login.vue'
 import Register from '../views/users/Register.vue'
 import Announcements from '../views/announcements/Announcements.vue'
@@ -12,11 +11,6 @@ Vue.use(VueRouter)
 
 const DEFAULT_TITLE = "Remote Tutor"
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
   {
     path: '/about',
     name: 'About',
@@ -43,6 +37,7 @@ const routes = [
   },
   {
     path: '/announcements',
+    alias: '/',
     name: 'Announcements',
     component: Announcements,
     meta: {

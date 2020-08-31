@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import api from "@/gateways/api.js";
 
 export default {
   name: "Login",
@@ -81,23 +81,14 @@ export default {
         let formData = new FormData();
         formData.append("username", this.user.username);
         formData.append("password", this.user.password);
-        axios({
+        api({
           method: "POST",
-          url: "//localhost:3000/login",
+          url: "/login",
           data: formData,
         })
           .then((response) => {
-            this.$store.dispatch("viewSnackbar", {
-              text: response.data.message,
-              color: "success",
-            });
             this.$store.dispatch("setUserToken", response.data.token)
-          })
-          .catch((error) => {
-            this.$store.dispatch("viewSnackbar", {
-              text: error.response.data.message,
-              color: "error",
-            });
+            this.$router.push({name: 'Announcements'})
           })
           .finally(() => {
             this.loading = false;

@@ -163,13 +163,8 @@ export default {
       formData.append("id", item.id)
       api({
         method: "DELETE",
-        url: "/quizzes",
+        url: "/admin/quizzes",
         data: formData
-      }).then(response => {
-        this.$store.dispatch("viewSnackbar", {
-          text: response.data.message,
-          color: "success",
-        });
       }).catch(error => {
         console.log(error)
       })

@@ -45,6 +45,12 @@
               </v-list-item-icon>
               <v-list-item-title>Grades</v-list-item-title>
             </v-list-item>
+            <v-list-item @click="logout">
+              <v-list-item-icon>
+                <v-icon>mdi-logout</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Logout</v-list-item-title>
+            </v-list-item>
           </v-list-item-group>
         </v-list>
 
@@ -61,6 +67,12 @@ export default {
     return {
       open: this.staticOpen || false,
       selected: 1,
+    }
+  },
+  methods: {
+    logout() {
+      this.$store.dispatch("setUserToken", "")
+      this.$router.push({ name: 'Login' })
     }
   },
   watch: {

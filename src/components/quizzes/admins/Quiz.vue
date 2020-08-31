@@ -108,14 +108,10 @@ export default {
         formData.append("endTime", Date.parse(this.quiz.endTime));
         api({
           method: this.method,
-          url: "/quizzes",
+          url: "/admin/quizzes",
           data: formData,
         })
             .then((response) => {
-              this.$store.dispatch("viewSnackbar", {
-                text: response.data.message,
-                color: "success",
-              });
               this.$emit("save", {
                 quiz: response.data.quiz
               })

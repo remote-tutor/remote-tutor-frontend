@@ -126,11 +126,7 @@ export default {
         url: "/students",
         data: formData,
       })
-        .then((response) => {
-          this.$store.dispatch("viewSnackbar", {
-            text: response.data.message,
-            color: "success",
-          });
+        .then(() => {
           this.getStudents();
         })
         .catch((error) => {

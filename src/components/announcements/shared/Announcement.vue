@@ -103,17 +103,13 @@ export default {
       formData.append("topic", this.announcementData.topic);
       formData.append("content", this.announcementData.content);
       let method = this.new ? "POST" : "PUT";
-      this.changeEditMode();
       api({
         method: method,
-        url: "/announcements",
+        url: "/admin/announcements",
         data: formData,
       })
         .then((response) => {
-          this.$store.dispatch("viewSnackbar", {
-            text: response.data.message,
-            color: "success",
-          });
+          this.changeEditMode();
           this.announcementData.id = response.data.announcement.id;
           this.announcementData.created_at = response.data.announcement.created_at.substring(
             0,
@@ -125,12 +121,6 @@ export default {
           });
           this.new = false;
         })
-        .catch((error) => {
-          this.$store.dispatch("viewSnackbar", {
-            text: error.response.data.message,
-            color: "error",
-          });
-        })
         .finally(() => {
           this.loading = false;
         });
@@ -140,24 +130,14 @@ export default {
       formData.append("id", this.announcementData.id);
       api({
         method: "DELETE",
-        url: "/announcements",
+        url: "/admin/announcements",
         data: formData,
       })
-        .then((response) => {
-          this.$store.dispatch("viewSnackbar", {
-            text: response.data.message,
-            color: "success",
-          });
+        .then(() => {
           this.$emit("deleteAnnouncement", {
             id: this.announcementData.id,
           });
         })
-        .catch((error) => {
-          this.$store.dispatch("viewSnackbar", {
-            text: error.response.data.message,
-            color: "error",
-          });
-        });
     },
   },
   created() {

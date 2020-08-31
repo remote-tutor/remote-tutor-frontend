@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-app-bar color="black" dense dark app clipped-left>
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="drawer = !drawer" v-if="!$vuetify.breakpoint.mdAndUp"></v-app-bar-nav-icon>
 
       <v-toolbar-title>Quizzes</v-toolbar-title>
 
@@ -45,6 +45,7 @@ export default {
   data() {
     return {
       sheet: false,
+      drawer: false,
     };
   },
   methods: {

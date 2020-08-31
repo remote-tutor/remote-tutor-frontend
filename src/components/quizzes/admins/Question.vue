@@ -174,11 +174,11 @@ export default {
       let method = this.new ? "POST" : "PUT";
       api({
         method: method,
-        url: "/quizzes/questions/mcq",
+        url: "/admin/quizzes/questions/mcq",
         data: formData,
       }).then((response) => {
         this.questionData.question.id = response.data.mcq.question.id;
-      });
+      })
 
     },
     async sendChoices() {
@@ -223,7 +223,7 @@ export default {
       let method = this.new ? "POST" : "PUT";
       await api({
         method: method,
-        url: "/quizzes/choices",
+        url: "/admin/quizzes/choices",
         data: formData,
       }).then((response) => {
         let oldID = choice.id
@@ -240,13 +240,9 @@ export default {
       formData.append("id", this.questionData.question.id)
       api({
         method: "DELETE",
-        url: "/quizzes/questions/mcq",
+        url: "/admin/quizzes/questions/mcq",
         data: formData,
-      }).then((response) => {
-        this.$store.dispatch("viewSnackbar", {
-          text: response.data.message,
-          color: "success",
-        });
+      }).then(() => {
         this.$emit("deleteQuestion", {
           id: this.questionData.question.id,
         });

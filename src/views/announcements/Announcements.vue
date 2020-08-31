@@ -80,12 +80,6 @@ export default {
           let totalAnnouncements = response.data.total;
           this.totalPages = Math.ceil(totalAnnouncements / this.length);
         })
-        .catch((error) => {
-          this.$store.dispatch("viewSnackbar", {
-            text: error.response.data.message,
-            color: "error",
-          });
-        });
     },
     createPlaceholder() {
       this.placeholderExists = true;
