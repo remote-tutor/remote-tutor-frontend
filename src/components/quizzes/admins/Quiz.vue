@@ -117,7 +117,7 @@ export default {
                 color: "success",
               });
               this.$emit("save", {
-                quiz: this.quiz
+                quiz: response.data.quiz
               })
             })
             .finally(() => {
