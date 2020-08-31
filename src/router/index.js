@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import Login from '../views/Login.vue'
-import Register from '../views/Register.vue'
+import Login from '../views/users/Login.vue'
+import Register from '../views/users/Register.vue'
 import Announcements from '../views/announcements/Announcements.vue'
-import PendingStudents from '../views/admin/PendingStudents.vue'
-import CreateQuiz from '../views/admin/CreateQuiz.vue'
-import CreateQuestion from '../views/admin/CreateQuestion.vue'
+import PendingStudents from '../views/students/admins/PendingStudents.vue'
+import Questions from '../views/quizzes/admins/Questions.vue'
+import Quizzes from '../views/quizzes/shared/Quizzes.vue'
 
 Vue.use(VueRouter)
 
@@ -58,17 +58,17 @@ const routes = [
     } 
   },
   {
-    path: '/create-quiz',
-    name: 'CreateQuiz',
-    component: CreateQuiz,
+    path: '/quizzes',
+    name: 'Quizzes',
+    component: Quizzes,
     meta: {
-      title: 'New Quiz'
-    } 
+      title: 'Quizzes'
+    }
   },
   {
-    path: '/create-question/:quizID',
-    name: 'CreateQuestion',
-    component: CreateQuestion,
+    path: '/quiz/questions/:quizID',
+    name: 'QuizQuestions',
+    component: Questions,
     meta: {
       title: 'New Question'
     } 

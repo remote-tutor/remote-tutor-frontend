@@ -4,13 +4,12 @@
       <ValidationProvider v-slot="{errors}" rules="required">
         <v-row>
           <v-col>
-            <v-text-field
+            <v-text-field v-if="editMode"
               v-model="text"
               filled
               label="Answer"
               :error-messages="errors"
               @input="changeText"
-              @chnge="changed"
               append-icon="mdi-close"
               @click:append="clearChoice"
             ></v-text-field>
@@ -26,7 +25,7 @@
 // import api from "@/gateways/api.js";
 export default {
   name: "Choice",
-  props: ["staticText", "value", "id"],
+  props: ["staticText", "value", "id", "editMode"],
 
   data() {
     return {
@@ -45,9 +44,6 @@ export default {
         this.$emit("clearChoice", {
             id: this.id
         })
-    },
-    changed() {
-        console.log("changed")
     },
   },
 };
