@@ -1,7 +1,7 @@
 <template>
   <div>
-    <v-app-bar color="black" dense dark>
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
+    <v-app-bar color="black" dense dark app clipped-left>
+      <v-app-bar-nav-icon @click="drawer = !drawer" v-if="!$vuetify.breakpoint.mdAndUp"></v-app-bar-nav-icon>
 
       <v-toolbar-title>Announcements</v-toolbar-title>
 
@@ -28,20 +28,25 @@
         <span>Create</span>
       </v-tooltip>
     </v-app-bar>
+    <Drawer :static-open="drawer" @closedDrawer="(options) => this.drawer = options.value"></Drawer>
   </div>
 </template>
 
 <script>
-import Search from "@/components/announcements/shared/Search.vue";
+import Search from "@/components/announcements/Search.vue";
+import Drawer from "@/components/utils/Drawer";
+
 export default {
   name: "AnnouncementsAppBar",
   components: {
+    Drawer,
     Search,
   },
   props: ["admin", "placeholderExists"],
   data() {
     return {
       sheet: false,
+      drawer: false,
     };
   },
   methods: {
