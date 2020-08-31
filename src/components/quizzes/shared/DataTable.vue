@@ -47,9 +47,12 @@
       <v-icon small class="mr-2" @click="editQuiz(item)" v-if="type === 1">
         mdi-pencil
       </v-icon>
-      <v-icon small @click="deleteQuiz(item)">
-        mdi-delete
-      </v-icon>
+      <ConfirmationDialog v-slot:item.actions="{ item }"
+          :datatable="true"
+          mainText="Delete Quiz"
+          message="You won't be able to restore the deleted quiz or its questions"
+          @confirm="deleteQuiz(item)">
+      </ConfirmationDialog>
     </template>
   </v-data-table>
 </template>
@@ -57,9 +60,10 @@
 <script>
 import api from "@/gateways/api";
 import Quiz from "@/components/quizzes/admins/Quiz";
+import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
 
 export default {
-  components: {Quiz},
+  components: {ConfirmationDialog, Quiz},
   props: ['title', 'type'],
   data: () => ({
     loading: false,
@@ -155,7 +159,21 @@ export default {
 
     deleteQuiz(item) {
       const index = this.quizzes.indexOf(item)
-      confirm('Are you sure you want to delete this item?') && this.quizzes.splice(index, 1)
+      let formData = new FormData()
+      formData.append("id", item.id)
+      api({
+        method: "DELETE",
+        url: "/quizzes",
+        data: formData
+      }).then(response => {
+        this.$store.dispatch("viewSnackbar", {
+          text: response.data.message,
+          color: "success",
+        });
+      }).catch(error => {
+        console.log(error)
+      })
+      this.quizzes.splice(index, 1)
     },
 
     close() {
@@ -169,7 +187,7 @@ export default {
         Object.assign(this.quizzes[this.editedIndex], options.quiz)
       } else {
         this.quizzes.unshift(options.quiz)
-        this.$router.push({ name: 'QuizQuestions', params: {quizID: options.quiz.id} })
+        this.$router.push({name: 'QuizQuestions', params: {quizID: options.quiz.id}})
       }
       this.formatQuizzes()
       this.close()

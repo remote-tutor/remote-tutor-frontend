@@ -1,6 +1,10 @@
 <template>
   <v-dialog v-model="dialog" width="500">
-    <template v-slot:activator="{ on, attrs }">
+    <template v-slot:activator="{ on, attrs }" v-if="datatable">
+      <v-icon small v-bind="attrs" v-on="on">mdi-delete</v-icon>
+    </template>
+
+    <template v-slot:activator="{ on, attrs }" v-else>
       <v-btn color="error" dark v-bind="attrs" v-on="on">{{buttonText}}</v-btn>
     </template>
 
@@ -24,7 +28,7 @@
 <script>
 export default {
   name: "ConfirmationDialog",
-  props: ["buttonText", "mainText", "message"],
+  props: ["buttonText", "mainText", "message", "datatable"],
   data() {
     return {
       dialog: false,
