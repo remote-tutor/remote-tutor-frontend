@@ -93,7 +93,7 @@ export default {
       if (this.type === 0) return "/present"
       if (this.type === 1) return "/future"
       return ""
-    }
+    },
   },
 
   watch: {
@@ -104,6 +104,7 @@ export default {
 
   created() {
     this.getQuizzes()
+    this.emptyQuiz = Object.assign(this.editedQuiz, {})
   },
 
   methods: {
@@ -119,17 +120,20 @@ export default {
         if (this.type === -1) this.quizzes = result.data.pastQuizzes
         else if (this.type === 0) this.quizzes = result.data.currentQuizzes
         else if (this.type === 1) this.quizzes = result.data.futureQuizzes
-        this.formatDates()
+        this.formatQuizzes()
       }).catch(error => {
         console.log(error)
       }).finally(() => {
         this.loading = false
       })
     },
-    formatDates() {
+    formatQuizzes() {
       this.quizzes.forEach((quiz, index) => {
         this.quizzes[index].formattedStartTime = this.formatDate(quiz.startTime)
         this.quizzes[index].formattedEndTime = this.formatDate(quiz.endTime)
+      })
+      this.quizzes.sort((a, b) => {
+        return new Date(a.startTime) - new Date(b.startTime)
       })
     },
     formatDate(value) {
@@ -157,6 +161,7 @@ export default {
     close() {
       this.dialog = false
       this.editedIndex = -1
+      this.editedQuiz = this.emptyQuiz
     },
 
     save(options) {
@@ -164,8 +169,9 @@ export default {
         Object.assign(this.quizzes[this.editedIndex], options.quiz)
       } else {
         this.quizzes.unshift(options.quiz)
+        this.$router.push({ name: 'QuizQuestions', params: {quizID: options.quiz.id} })
       }
-      this.formatDates()
+      this.formatQuizzes()
       this.close()
     },
   },
