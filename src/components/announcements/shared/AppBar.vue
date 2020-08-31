@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import Search from "@/components/announcements/Search.vue";
+import Search from "@/components/announcements/shared/Search.vue";
 import Drawer from "@/components/utils/Drawer";
 
 export default {

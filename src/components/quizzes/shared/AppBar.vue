@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-app-bar color="black" dense dark>
+    <v-app-bar color="black" dense dark app clipped-left>
       <v-app-bar-nav-icon></v-app-bar-nav-icon>
 
       <v-toolbar-title>Quizzes</v-toolbar-title>
@@ -28,15 +28,18 @@
         <span>Create</span>
       </v-tooltip>
     </v-app-bar>
+    <Drawer :static-open="drawer" @closedDrawer="(options) => this.drawer = options.value"></Drawer>
   </div>
 </template>
 
 <script>
 import Search from "@/components/quizzes/admins/Search.vue";
+import Drawer from "@/components/utils/Drawer";
 export default {
   name: "QuizzesAppBar",
   components: {
     Search,
+    Drawer,
   },
   props: ["admin", "placeholderExists", "iconsNeeded"],
   data() {
