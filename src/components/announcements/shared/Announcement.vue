@@ -34,7 +34,7 @@
       ></v-textarea>
       <v-card-text v-else class="text-left text--primary">{{announcementData.content}}</v-card-text>
 
-      <v-card-actions v-if="admin">
+      <v-card-actions v-if="userData.admin">
         <v-btn color="primary" v-if="editMode" @click="pushAnnouncement" :loading="loading">Save</v-btn>
         <v-btn color="primary" v-else @click="changeEditMode">Edit</v-btn>
         <v-btn color="secondary" v-if="editMode" @click="cancelChanges">Cancel</v-btn>
@@ -55,6 +55,7 @@
 <script>
 import api from "@/gateways/api.js";
 import ConfirmationDialog from "@/components/utils/ConfirmationDialog.vue";
+import {mapState} from "vuex";
 export default {
   name: "Announcement",
   components: {
@@ -65,10 +66,12 @@ export default {
     "staticTopic",
     "staticContent",
     "staticCreatedAt",
-    "admin",
     "id",
     "isNew",
   ],
+  computed: {
+    ...mapState(['userData'])
+  },
   data() {
     return {
       editMode: false,

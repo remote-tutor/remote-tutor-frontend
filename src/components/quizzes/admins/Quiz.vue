@@ -56,7 +56,7 @@
         </form>
       </ValidationObserver>
     </v-card-text>
-    <v-card-actions>
+    <v-card-actions v-if="userData.admin">
       <v-spacer></v-spacer>
       <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
       <v-btn color="primary" @click="saveQuiz" :loading="loading">Save</v-btn>
@@ -66,6 +66,7 @@
 
 <script>
 import api from "@/gateways/api.js";
+import {mapState} from "vuex";
 
 export default {
   name: "Quiz",
@@ -92,7 +93,8 @@ export default {
     },
     method() {
       return this.editedIndex === -1 ? 'POST' : 'PUT'
-    }
+    },
+    ...mapState(['userData'])
   },
 
   methods: {

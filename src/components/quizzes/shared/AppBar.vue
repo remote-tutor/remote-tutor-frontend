@@ -6,20 +6,7 @@
       <v-toolbar-title>Quizzes</v-toolbar-title>
 
       <v-spacer></v-spacer>
-
-      <v-bottom-sheet v-model="sheet" inset v-if="iconsNeeded">
-        <template v-slot:activator="{ on: sheet, attrs }">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on: tooltip }">
-              <v-icon v-bind="attrs" v-on="{ ...tooltip, ...sheet }">mdi-magnify</v-icon>
-            </template>
-            <span>Search</span>
-          </v-tooltip>
-        </template>
-        <Search @closeSearchSheet="closeSearchSheet" @search="search"></Search>
-      </v-bottom-sheet>
-
-      <v-tooltip bottom v-if="admin && iconsNeeded">
+      <v-tooltip bottom v-if="userData.admin && iconsNeeded">
         <template v-slot:activator="{ on, attrs }">
           <v-btn @click="createPlaceholder">
             <v-icon v-bind="attrs" v-on="on">mdi-plus-circle</v-icon>
@@ -33,15 +20,17 @@
 </template>
 
 <script>
-import Search from "@/components/quizzes/admins/Search.vue";
 import Drawer from "@/components/utils/Drawer";
+import {mapState} from "vuex";
 export default {
   name: "QuizzesAppBar",
   components: {
-    Search,
     Drawer,
   },
-  props: ["admin", "placeholderExists", "iconsNeeded"],
+  props: ["placeholderExists", "iconsNeeded"],
+  computed: {
+    ...mapState(['userData'])
+  },
   data() {
     return {
       sheet: false,

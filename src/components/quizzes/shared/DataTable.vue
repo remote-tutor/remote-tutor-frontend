@@ -13,24 +13,24 @@
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-col>
-          <v-select
-              label="Year"
-              class="mt-5"
-              :items="years"
-              item-text="text"
-              item-value="value"
-              v-model="selectedYear"
-              @input="getQuizzes"
+          <v-select v-if="userData.admin"
+                    label="Year"
+                    class="mt-5"
+                    :items="years"
+                    item-text="text"
+                    item-value="value"
+                    v-model="selectedYear"
+                    @input="getQuizzes"
           ></v-select>
         </v-col>
         <v-dialog v-model="dialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn
-                color="primary"
-                dark
-                class="mb-2"
-                v-bind="attrs"
-                v-on="on">Create Quiz
+            <v-btn v-if="userData.admin"
+                   color="primary"
+                   dark
+                   class="mb-2"
+                   v-bind="attrs"
+                   v-on="on">Create Quiz
             </v-btn>
           </template>
 
@@ -43,7 +43,7 @@
     <template v-slot:item.goTo="{item}">
       <v-btn small :to="{ name: 'QuizQuestions', params: {quizID: item.id} }">GO TO</v-btn>
     </template>
-    <template v-slot:item.actions="{ item }">
+    <template v-slot:item.actions="{ item }" v-if="userData.admin">
       <v-icon small class="mr-2" @click="editQuiz(item)" v-if="type === 1">
         mdi-pencil
       </v-icon>
@@ -61,6 +61,7 @@
 import api from "@/gateways/api";
 import Quiz from "@/components/quizzes/admins/Quiz";
 import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
+import {mapState} from "vuex";
 
 export default {
   components: {ConfirmationDialog, Quiz},
@@ -79,7 +80,6 @@ export default {
       {text: 'Go To', sortable: false, value: 'goTo'},
       {text: 'Start At', value: 'formattedStartTime', sortable: false},
       {text: 'End At', value: 'formattedEndTime', sortable: false},
-      {text: 'Actions', value: 'actions', sortable: false},
     ],
     quizzes: [],
     editedIndex: -1,
@@ -98,6 +98,7 @@ export default {
       if (this.type === 1) return "/future"
       return ""
     },
+    ...mapState(['userData']),
   },
 
   watch: {
@@ -109,6 +110,9 @@ export default {
   created() {
     this.getQuizzes()
     this.emptyQuiz = Object.assign(this.editedQuiz, {})
+    if (this.userData.admin) {
+      this.headers.push({text: 'Actions', value: 'actions', sortable: false})
+    }
   },
 
   methods: {

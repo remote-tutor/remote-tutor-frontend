@@ -87,7 +87,11 @@ export default {
           data: formData,
         })
           .then((response) => {
-            this.$store.dispatch("setUserToken", response.data.token)
+            this.$store.dispatch("setUserData", {
+              admin: response.data.admin,
+              name: response.data.name,
+              token: response.data.token,
+            })
             this.$router.push({name: 'Announcements'})
           })
           .finally(() => {

@@ -62,7 +62,7 @@
           </form>
         </ValidationObserver>
       </v-card-text>
-      <v-card-actions>
+      <v-card-actions v-if="userData.admin">
         <v-btn color="primary" v-if="!editMode" @click="changeEditMode">Edit</v-btn>
         <v-btn color="primary" v-if="editMode" @click="addChoice">Add Choice</v-btn>
         <v-btn color="success" v-if="editMode" @click="sendChoices" :loading="loading">Save</v-btn>
@@ -85,6 +85,7 @@
 import api from "@/gateways/api.js";
 import Choice from "@/components/quizzes/admins/Choice.vue";
 import ConfirmationDialog from "@/components/utils/ConfirmationDialog.vue";
+import {mapState} from "vuex";
 
 export default {
   name: "Question",
@@ -93,6 +94,9 @@ export default {
     ConfirmationDialog,
   },
   props: ['staticID', 'staticText', 'staticTotalMark', 'staticChoices', 'staticCorrectAnswer', 'isNew'],
+  computed: {
+    ...mapState(['userData'])
+  },
   data() {
     return {
       editMode: false,

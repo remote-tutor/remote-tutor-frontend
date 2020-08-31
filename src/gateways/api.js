@@ -9,7 +9,7 @@ let api = axios.create({
 });
 // REQUEST interceptors
 api.interceptors.request.use(function (config) {
-    const token = store.state.userToken;
+    const token = store.state.userData.token;
     config.headers.Authorization = `Bearer ${token}`;
     return config;
 }, function (error) {

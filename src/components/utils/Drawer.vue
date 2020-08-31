@@ -12,7 +12,7 @@
         <v-list>
           <v-list-item link>
             <v-list-item-content>
-              <v-list-item-title class="title">User Full Name</v-list-item-title>
+              <v-list-item-title class="title">{{ userData.name }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -60,6 +60,8 @@
 </template>
 
 <script>
+import {mapState} from 'vuex'
+
 export default {
   name: "Drawer",
   props: ["staticOpen"],
@@ -69,10 +71,17 @@ export default {
       selected: 1,
     }
   },
+  computed: {
+    ...mapState(['userData'])
+  },
   methods: {
     logout() {
-      this.$store.dispatch("setUserToken", "")
-      this.$router.push({ name: 'Login' })
+      this.$store.dispatch("setUserData", {
+        admin: false,
+        name: '',
+        token: ''
+      })
+      this.$router.push({name: 'Login'})
     }
   },
   watch: {
