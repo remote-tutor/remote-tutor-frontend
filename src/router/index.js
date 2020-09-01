@@ -4,8 +4,9 @@ import Login from '../views/users/Login.vue'
 import Register from '../views/users/Register.vue'
 import Announcements from '../views/announcements/Announcements.vue'
 import PendingStudents from '../views/students/admins/PendingStudents.vue'
-import Questions from '../views/quizzes/admins/Questions.vue'
 import Quizzes from '../views/quizzes/shared/Quizzes.vue'
+import AdminQuiz from '../views/quizzes/admins/Quiz.vue'
+import StudentQuiz from '../views/quizzes/users/Quiz.vue'
 
 Vue.use(VueRouter)
 
@@ -61,12 +62,20 @@ const routes = [
     }
   },
   {
-    path: '/quiz/questions/:quizID',
+    path: '/quizzes/questions/:quizID',
     name: 'QuizQuestions',
-    component: Questions,
+    component: AdminQuiz,
     meta: {
       title: 'New Question'
     } 
+  },
+  {
+    path: '/quizzes/solve/:quizID',
+    name: 'SolveQuiz',
+    component: StudentQuiz,
+    meta: {
+      title: 'Quiz'
+    }
   }
 ]
 

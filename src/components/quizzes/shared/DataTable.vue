@@ -43,8 +43,8 @@
     <template v-slot:item.goTo="{item}">
       <v-btn small :to="{ name: 'QuizQuestions', params: {quizID: item.id} }">GO TO</v-btn>
     </template>
-    <template v-slot:item.start="{}">
-      <v-btn small>Start</v-btn>
+    <template v-slot:item.start="{item}">
+      <v-btn small :to="{ name: 'SolveQuiz', params: {quizID: item.id} }">Start</v-btn>
     </template>
     <template v-slot:item.actions="{ item }" v-if="userData.admin">
       <v-icon small class="mr-2" @click="editQuiz(item)" v-if="type === 1">

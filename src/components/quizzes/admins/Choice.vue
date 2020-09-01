@@ -5,11 +5,11 @@
         <v-row>
           <v-col>
             <v-text-field v-if="editMode"
-              v-model="updatedText"
+              v-model="text"
               filled
               label="Answer"
               :error-messages="errors"
-              @input="(val) => $emit('update:text', val)"
+              @input="changeText"
               append-icon="mdi-close"
               @click:append="clearChoice"
             ></v-text-field>
@@ -17,7 +17,7 @@
         </v-row>
       </ValidationProvider>
     </ValidationObserver>
-    <v-radio :label="updatedText" :value="value"></v-radio>
+    <v-radio :label="text" :value="value"></v-radio>
   </div>
 </template>
 
@@ -25,15 +25,21 @@
 // import api from "@/gateways/api.js";
 export default {
   name: "Choice",
-  props: ["value", "id", "editMode", "text"],
+  props: ["staticText", "value", "id", "editMode"],
 
   data() {
     return {
-      updatedText: this.text || "",
+      text: this.staticText || "",
     };
   },
 
   methods: {
+    changeText() {
+      this.$emit("changeText", {
+        id: this.id,
+        text: this.text,
+      });
+    },
     clearChoice() {
         this.$emit("clearChoice", {
             id: this.id

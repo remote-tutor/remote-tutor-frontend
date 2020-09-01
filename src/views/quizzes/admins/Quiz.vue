@@ -35,7 +35,7 @@ import Question from '@/components/quizzes/admins/Question.vue'
 import api from "@/gateways/api";
 
 export default {
-  name: "Questions",
+  name: "Quiz",
   components: {
     QuizzesAppBar,
     Question,
