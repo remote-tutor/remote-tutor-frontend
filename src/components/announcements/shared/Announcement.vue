@@ -1,38 +1,36 @@
 <template>
   <v-col cols="12">
     <v-card elevation="5">
-      <v-text-field
-        v-if="editMode"
-        label="Title"
-        type="text"
-        v-model="announcementData.title"
-        prepend-icon="mdi-format-text"
-      ></v-text-field>
+      <TextField v-if="editMode"
+                 :value.sync="updatedAnnouncement.title"
+                 label="Title"
+                 pre-icon="mdi-format-text">
+      </TextField>
       <v-card-title class="headline" v-else>
-        {{announcementData.title}}
+        {{ updatedAnnouncement.title }}
+
         <v-spacer></v-spacer>
         <div>
-          <div class="text-body-1">{{announcementData.created_at}}</div>
+          <div class="text-body-1" v-if="!updatedAnnouncement.isNew">
+              {{ (updatedAnnouncement.created_at).substring(0, 10) }}
+          </div>
         </div>
       </v-card-title>
-      <v-text-field
-        v-if="editMode"
-        label="Topic"
-        type="text"
-        v-model="announcementData.topic"
-        prepend-icon="mdi-subtitles"
-      ></v-text-field>
-      <v-card-subtitle v-else>{{announcementData.topic}}</v-card-subtitle>
 
-      <v-textarea
-        v-if="editMode"
-        label="Content"
-        type="text"
-        v-model="announcementData.content"
-        prepend-icon="mdi-text"
-        rows="3"
-      ></v-textarea>
-      <v-card-text v-else class="text-left text--primary">{{announcementData.content}}</v-card-text>
+      <TextField v-if="editMode"
+                 :value.sync="updatedAnnouncement.topic"
+                 label="Topic"
+                 pre-icon="mdi-subtitles">
+      </TextField>
+      <v-card-subtitle v-else>{{ updatedAnnouncement.topic }}</v-card-subtitle>
+
+      <TextArea v-if="editMode"
+                :value.sync="updatedAnnouncement.content"
+                label="Content"
+                pre-icon="mdi-text"
+                :rows="3">
+      </TextArea>
+      <v-card-text v-else class="text-left text--primary">{{ updatedAnnouncement.content }}</v-card-text>
 
       <v-card-actions v-if="userData.admin">
         <v-btn color="primary" v-if="editMode" @click="pushAnnouncement" :loading="loading">Save</v-btn>
@@ -41,11 +39,11 @@
 
         <v-spacer></v-spacer>
         <ConfirmationDialog
-          v-if="!this.new"
-          buttonText="Delete"
-          mainText="Delete This Item?"
-          message="You won't be able to restore the deleted announcement"
-          @confirm="deleteAnnouncement"
+            v-if="!this.new"
+            buttonText="Delete"
+            mainText="Delete This Item?"
+            message="You won't be able to restore the deleted announcement"
+            @confirm="deleteAnnouncement"
         ></ConfirmationDialog>
       </v-card-actions>
     </v-card>
@@ -56,18 +54,18 @@
 import api from "@/gateways/api.js";
 import ConfirmationDialog from "@/components/utils/ConfirmationDialog.vue";
 import {mapState} from "vuex";
+import TextField from "@/components/utils/form/TextField";
+import TextArea from "@/components/utils/form/TextArea";
+
 export default {
   name: "Announcement",
   components: {
+    TextArea,
+    TextField,
     ConfirmationDialog,
   },
   props: [
-    "staticTitle",
-    "staticTopic",
-    "staticContent",
-    "staticCreatedAt",
-    "id",
-    "isNew",
+    "announcement", "placeholderExists"
   ],
   computed: {
     ...mapState(['userData'])
@@ -75,13 +73,7 @@ export default {
   data() {
     return {
       editMode: false,
-      announcementData: {
-        id: this.id,
-        title: this.staticTitle || "",
-        topic: this.staticTopic || "",
-        content: this.staticContent || "",
-        created_at: this.staticCreatedAt || "",
-      },
+      updatedAnnouncement: this.announcement || {},
       new: false,
       loading: false,
     };
@@ -91,66 +83,66 @@ export default {
       this.editMode = !this.editMode;
     },
     cancelChanges() {
-      if (this.new) {
-        this.$emit("deleteNewAnnouncement");
+      if (this.updatedAnnouncement.isNew) {
+        this.$emit("deleteAnnouncement", this.updatedAnnouncement);
       } else {
         this.changeEditMode();
-        this.announcementData = Object.assign({}, this.cachedAnnouncementData);
+        this.updatedAnnouncement = Object.assign({}, this.cachedAnnouncement);
       }
     },
     pushAnnouncement() {
       this.loading = true;
       let formData = new FormData();
-      formData.append("id", this.announcementData.id);
-      formData.append("title", this.announcementData.title);
-      formData.append("topic", this.announcementData.topic);
-      formData.append("content", this.announcementData.content);
+      formData.append("id", this.updatedAnnouncement.id);
+      formData.append("title", this.updatedAnnouncement.title);
+      formData.append("topic", this.updatedAnnouncement.topic);
+      formData.append("content", this.updatedAnnouncement.content);
       let method = this.new ? "POST" : "PUT";
       api({
         method: method,
         url: "/admin/announcements",
         data: formData,
       })
-        .then((response) => {
-          this.changeEditMode();
-          this.announcementData.id = response.data.announcement.id;
-          this.announcementData.created_at = response.data.announcement.created_at.substring(
-            0,
-            10
-          );
-          this.$emit("placeholderFilled", {
-            announcementData: this.announcementData,
-            new: this.new,
+          .then((response) => {
+            this.changeEditMode()
+            this.updatedAnnouncement = response.data.announcement
+            this.$emit('updateAnnouncements', {
+              old: this.announcement,
+              updated: this.updatedAnnouncement,
+              delete: false
+            })
+
+            if (this.new) {
+              this.new = false
+              this.$emit('update:placeholderExists', false)
+            }
+
+          })
+          .finally(() => {
+            this.loading = false
           });
-          this.new = false;
-        })
-        .finally(() => {
-          this.loading = false;
-        });
     },
     deleteAnnouncement() {
       let formData = new FormData();
-      formData.append("id", this.announcementData.id);
+      formData.append("id", this.updatedAnnouncement.id);
       api({
         method: "DELETE",
         url: "/admin/announcements",
         data: formData,
       })
-        .then(() => {
-          this.$emit("deleteAnnouncement", {
-            id: this.announcementData.id,
-          });
-        })
+          .then(() => {
+            this.$emit("deleteAnnouncement", this.updatedAnnouncement);
+          })
     },
   },
   created() {
-    if (this.isNew) {
+    if (this.updatedAnnouncement.isNew) {
       this.new = true;
       this.editMode = true;
     }
   },
   mounted() {
-    this.cachedAnnouncementData = Object.assign({}, this.announcementData);
+    this.cachedAnnouncement = Object.assign({}, this.announcement);
   },
 };
 </script>

@@ -1,7 +1,6 @@
 <template>
   <v-app>
     <AnnouncementsAppBar
-      :admin="admin"
       :placeholderExists="placeholderExists"
       @createPlaceholder="createPlaceholder"
       @search="filterAnnouncements"
@@ -9,24 +8,13 @@
     <v-main>
       <v-container>
         <Announcement
-          v-if="placeholderExists"
-          :isNew="true"
-          @deleteNewAnnouncement="deleteNewAnnouncement"
-          @placeholderFilled="placeholderFilled"
-          :admin="admin"
-        ></Announcement>
-        <Announcement
           v-for="announcement in announcements"
           :key="announcement.id"
-          :staticTitle="announcement.title"
-          :staticTopic="announcement.topic"
-          :staticContent="announcement.content"
-          :staticCreatedAt="announcement.created_at.substring(0, 10)"
-          :id="announcement.id"
-          :isNew="announcement.isNew"
-          :admin="admin"
+          :announcement="announcement"
+          :placeholder-exists.sync="placeholderExists"
           @deleteAnnouncement="deleteAnnouncement"
-        ></Announcement>
+          @updateAnnouncements="updateAnnouncements"
+          ></Announcement>
         <BottomPagination :length="totalPages" @pageChanged="pageChanged"></BottomPagination>
       </v-container>
     </v-main>
@@ -50,7 +38,6 @@ export default {
   data() {
     return {
       announcements: [],
-      admin: true,
       placeholderExists: false,
       currentPage: 1,
       length: 5,
@@ -83,22 +70,19 @@ export default {
     },
     createPlaceholder() {
       this.placeholderExists = true;
-    },
-    deleteNewAnnouncement() {
-      this.placeholderExists = false;
-    },
-    placeholderFilled(options) {
-      this.placeholderExists = false;
-      if (options.new) {
-        this.announcements.unshift(options.announcementData);
-      }
+      this.announcements.unshift({ isNew: true, id: 0 });
     },
     deleteAnnouncement(options) {
-      for (let i = 0; i < this.announcements.length; i++) {
-        if (this.announcements[i].id === options.id) {
-          this.announcements.splice(i, 1);
-        }
-      }
+      let index = this.announcements.indexOf(options)
+      if (index === 0)
+        this.placeholderExists = false
+      this.announcements.splice(index, 1)
+    },
+    updateAnnouncements(options) {
+      let oldAnnouncement = options.old
+      let updatedAnnouncement = options.updated
+      let index = this.announcements.indexOf(oldAnnouncement)
+      this.announcements[index] = updatedAnnouncement
     },
     filterAnnouncements(options) {
       this.announcements = [];

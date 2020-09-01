@@ -43,6 +43,9 @@
     <template v-slot:item.goTo="{item}">
       <v-btn small :to="{ name: 'QuizQuestions', params: {quizID: item.id} }">GO TO</v-btn>
     </template>
+    <template v-slot:item.start="{}">
+      <v-btn small>Start</v-btn>
+    </template>
     <template v-slot:item.actions="{ item }" v-if="userData.admin">
       <v-icon small class="mr-2" @click="editQuiz(item)" v-if="type === 1">
         mdi-pencil
@@ -77,7 +80,6 @@ export default {
     selectedYear: 1,
     headers: [
       {text: 'Title', sortable: false, value: 'title'},
-      {text: 'Go To', sortable: false, value: 'goTo'},
       {text: 'Start At', value: 'formattedStartTime', sortable: false},
       {text: 'End At', value: 'formattedEndTime', sortable: false},
     ],
@@ -94,7 +96,7 @@ export default {
   computed: {
     url() {
       if (this.type === -1) return "/past"
-      if (this.type === 0) return "/present"
+      if (this.type === 0) return "/current"
       if (this.type === 1) return "/future"
       return ""
     },
@@ -112,6 +114,11 @@ export default {
     this.emptyQuiz = Object.assign(this.editedQuiz, {})
     if (this.userData.admin) {
       this.headers.push({text: 'Actions', value: 'actions', sortable: false})
+      this.headers.splice(1, 0, {text: 'Go To', sortable: false, value: 'goTo'})
+    } else {
+      if (this.type === 0) {
+        this.headers.splice(1, 0, {text: 'Start', sortable: false, value: 'start'})
+      }
     }
   },
 

@@ -26,7 +26,8 @@ api.interceptors.response.use(function (response) {
     }
     return response;
 }, function (error) {
-    if (error.response.status === 400 && router.currentRoute.name !== 'Login') {
+    let status = error.response.status
+    if ((status === 400 || status === 401) && router.currentRoute.name !== 'Login') {
         router.push({name: 'Login'})
     }
     if (error.response.data.message !== undefined) {

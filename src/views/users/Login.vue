@@ -16,38 +16,24 @@
                 <span>Register</span>
               </v-tooltip>
             </v-toolbar>
-            <v-card-text>
-              <ValidationObserver ref="observer">
-                <form>
-                  <ValidationProvider v-slot="{errors}" rules="required">
-                    <v-text-field
-                      label="Username"
-                      prepend-icon="mdi-account"
-                      type="text"
-                      v-model="user.username"
-                      :error-messages="errors"
-                    ></v-text-field>
-                  </ValidationProvider>
+            <ValidationObserver ref="observer" v-slot="{ invalid }">
+              <form @submit.prevent="login">
+                <v-card-text>
+                  <TextField :value.sync="user.username"
+                             label="Username"
+                             pre-icon="mdi-account"
+                             rules="required">
+                  </TextField>
 
-                  <ValidationProvider v-slot="{errors}" rules="required">
-                    <v-text-field
-                      id="password"
-                      label="Password"
-                      prepend-icon="mdi-lock"
-                      :append-icon="hiddenPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                      @click:append="hiddenPassword = !hiddenPassword"
-                      :type="hiddenPassword ? 'password' : 'text'"
-                      v-model="user.password"
-                      :error-messages="errors"
-                    ></v-text-field>
-                  </ValidationProvider>
-                </form>
-              </ValidationObserver>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="primary" @click="login" :loading="loading">Login</v-btn>
-            </v-card-actions>
+                  <Password :password.sync="user.password"></Password>
+
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="primary" type="submit" :disabled="invalid" :loading="loading">Login</v-btn>
+                </v-card-actions>
+              </form>
+            </ValidationObserver>
           </v-card>
         </v-col>
       </v-row>
@@ -56,15 +42,20 @@
 </template>
 
 <script>
+import TextField from "@/components/utils/form/TextField";
 import api from "@/gateways/api.js";
+import Password from "@/components/utils/form/Password";
 
 export default {
   name: "Login",
+  components: {
+    Password,
+    TextField,
+  },
 
   data() {
     return {
       hiddenPassword: true,
-      error: "",
       loading: false,
       user: {
         username: "",
@@ -76,16 +67,16 @@ export default {
   methods: {
     async login() {
       this.loading = true;
-      let isValid = await this.$refs.observer.validate();
-      if (isValid) {
-        let formData = new FormData();
-        formData.append("username", this.user.username);
-        formData.append("password", this.user.password);
-        api({
-          method: "POST",
-          url: "/login",
-          data: formData,
-        })
+      // let isValid = await this.$refs.observer.validate();
+      // if (isValid) {
+      let formData = new FormData();
+      formData.append("username", this.user.username);
+      formData.append("password", this.user.password);
+      api({
+        method: "POST",
+        url: "/login",
+        data: formData,
+      })
           .then((response) => {
             this.$store.dispatch("setUserData", {
               admin: response.data.admin,
@@ -97,9 +88,9 @@ export default {
           .finally(() => {
             this.loading = false;
           });
-      } else {
-        this.loading = false;
-      }
+      // } else {
+      //   this.loading = false;
+      // }
     },
   },
 };
