@@ -75,6 +75,11 @@ export default {
       })
     },
   },
+  watch: {
+    selectedQuestion(val) {
+      this.updatedSelection = val
+    }
+  },
   created() {
     this.getQuiz()
   },

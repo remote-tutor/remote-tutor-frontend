@@ -10,8 +10,8 @@
       <tbody>
       <tr v-for="(submission, index) in submissions" :key="submission.id">
         <td>{{ index + 1 }}</td>
-        <td v-if="submission !== -1">Saved</td>
-        <td v-else>Empty</td>
+        <td v-if="submission !== -1" class="success--text">Saved</td>
+        <td v-else class="red--text">Empty</td>
       </tr>
       </tbody>
     </template>

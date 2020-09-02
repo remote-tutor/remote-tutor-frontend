@@ -21,6 +21,7 @@
     </template>
 
     <template slot="countdown" slot-scope="scope">
+      <span>{{ scope.props.days }}:</span>
       <span>{{ scope.props.hours }}:</span>
       <span>{{ scope.props.minutes }}:</span>
       <span>{{ scope.props.seconds }}</span>

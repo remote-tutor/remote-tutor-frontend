@@ -36,7 +36,9 @@
 
     </v-card-text>
     <v-card-actions>
-
+      <v-btn color="secondary" @click="updateSelectedQuestion(-1)" :disabled="disablePrevious">Previous</v-btn>
+      <v-spacer></v-spacer>
+      <v-btn color="secondary" @click="updateSelectedQuestion(1)" :disabled="disableNext">Next</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -44,14 +46,23 @@
 <script>
 export default {
   name: "Question",
-  props: ['question', 'mcq', 'review', 'selectedChoice'],
+  props: ['question', 'mcq', 'review', 'selectedChoice', 'selectedQuestion', 'disablePrevious', 'disableNext'],
   data() {
     return {
       updatedChoice: this.selectedChoice || -1
     }
   },
+  methods: {
+    updateSelectedQuestion(value) {
+      if (this.disablePrevious && value === -1)
+        return
+      if (this.disableNext && value === 1)
+        return
+      this.$emit('update:selectedQuestion', this.selectedQuestion + value)
+    }
+  },
   watch: {
-    selectedChoice: function(val) {
+    selectedChoice: function (val) {
       this.updatedChoice = val || -1
     }
   }
