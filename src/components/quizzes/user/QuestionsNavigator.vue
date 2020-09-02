@@ -22,19 +22,37 @@
               </v-col>
             </v-row>
           </v-btn-toggle>
+          <Timer :end-time="quiz.endTime"></Timer>
         </v-col>
+        <ConfirmationDialog button-text="Submit"
+                            btn-color="success"
+                            message="Submit all answers and exit ?">
+
+          <template v-slot:main-content>
+            <QuizReview :submissions="submissions"></QuizReview>
+          </template>
+
+        </ConfirmationDialog>
       </v-list-item-content>
+
     </v-list-item>
   </v-card>
 </template>
 
 <script>
+import api from "@/gateways/api";
+import Timer from "@/components/utils/Timer";
+import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
+import QuizReview from "@/components/quizzes/user/QuizReview";
+
 export default {
   name: "QuestionsNavigator",
+  components: {QuizReview, ConfirmationDialog, Timer},
   props: ['selectedQuestion', 'submissions'],
   data() {
     return {
       updatedSelection: this.selectedQuestion || 0,
+      quiz: {},
     }
   },
   methods: {
@@ -45,6 +63,20 @@ export default {
         return 'secondary'
       return 'success'
     },
+    getQuiz() {
+      api({
+        method: "GET",
+        url: "/quizzes/quiz",
+        params: {
+          id: this.$route.params.quizID,
+        }
+      }).then(response => {
+        this.quiz = response.data.quiz
+      })
+    },
+  },
+  created() {
+    this.getQuiz()
   },
 }
 </script>

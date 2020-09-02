@@ -62,7 +62,9 @@ export default {
       // GET SUBMISSIONS
     },
     updateChoice(options) {
-      this.submissions[this.selectedQuestion] = options.choice
+      let updatedSubmissions = this.submissions.slice() // to convince Vue that the array actually changed
+      updatedSubmissions[this.selectedQuestion] = options.choice
+      this.submissions = updatedSubmissions
     },
   },
   mounted() {

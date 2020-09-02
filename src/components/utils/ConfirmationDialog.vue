@@ -5,13 +5,14 @@
     </template>
 
     <template v-slot:activator="{ on, attrs }" v-else>
-      <v-btn color="error" dark v-bind="attrs" v-on="on">{{buttonText}}</v-btn>
+      <v-btn :color="btnColor || 'error'" dark v-bind="attrs" v-on="on">{{buttonText}}</v-btn>
     </template>
 
     <v-card>
       <v-card-title class="headline grey lighten-2">Confirmation</v-card-title>
 
       <v-card-text>{{mainText}}</v-card-text>
+      <slot name="main-content"></slot>
       <v-card-subtitle>{{message}}</v-card-subtitle>
 
       <v-divider></v-divider>
@@ -28,7 +29,7 @@
 <script>
 export default {
   name: "ConfirmationDialog",
-  props: ["buttonText", "mainText", "message", "datatable"],
+  props: ["buttonText", "mainText", "message", "datatable", "btnColor"],
   data() {
     return {
       dialog: false,
