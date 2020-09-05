@@ -1,19 +1,17 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
-import Login from '../views/Login.vue'
-import Register from '../views/Register.vue'
+import Login from '../views/users/Login.vue'
+import Register from '../views/users/Register.vue'
 import Announcements from '../views/announcements/Announcements.vue'
+import PendingStudents from '../views/students/admins/PendingStudents.vue'
+import Quizzes from '../views/quizzes/shared/Quizzes.vue'
+import AdminQuiz from '../views/quizzes/admins/Quiz.vue'
+import StudentQuiz from '../views/quizzes/users/Quiz.vue'
 
 Vue.use(VueRouter)
 
 const DEFAULT_TITLE = "Remote Tutor"
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
   {
     path: '/about',
     name: 'About',
@@ -40,10 +38,43 @@ const routes = [
   },
   {
     path: '/announcements',
+    alias: '/',
     name: 'Announcements',
     component: Announcements,
     meta: {
       title: 'Announcements'
+    }
+  },
+  {
+    path: '/students',
+    name: 'Students',
+    component: PendingStudents,
+    meta: {
+      title: 'Students'
+    } 
+  },
+  {
+    path: '/quizzes',
+    name: 'Quizzes',
+    component: Quizzes,
+    meta: {
+      title: 'Quizzes'
+    }
+  },
+  {
+    path: '/quizzes/questions/:quizID',
+    name: 'QuizQuestions',
+    component: AdminQuiz,
+    meta: {
+      title: 'New Question'
+    } 
+  },
+  {
+    path: '/quizzes/solve/:quizID',
+    name: 'SolveQuiz',
+    component: StudentQuiz,
+    meta: {
+      title: 'Quiz'
     }
   }
 ]

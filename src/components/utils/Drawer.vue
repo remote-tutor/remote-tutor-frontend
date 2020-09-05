@@ -12,7 +12,7 @@
         <v-list>
           <v-list-item link>
             <v-list-item-content>
-              <v-list-item-title class="title">User Full Name</v-list-item-title>
+              <v-list-item-title class="title">{{ userData.name }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -45,6 +45,12 @@
               </v-list-item-icon>
               <v-list-item-title>Grades</v-list-item-title>
             </v-list-item>
+            <v-list-item @click="logout">
+              <v-list-item-icon>
+                <v-icon>mdi-logout</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Logout</v-list-item-title>
+            </v-list-item>
           </v-list-item-group>
         </v-list>
 
@@ -54,6 +60,8 @@
 </template>
 
 <script>
+import {mapState} from 'vuex'
+
 export default {
   name: "Drawer",
   props: ["staticOpen"],
@@ -61,6 +69,19 @@ export default {
     return {
       open: this.staticOpen || false,
       selected: 1,
+    }
+  },
+  computed: {
+    ...mapState(['userData'])
+  },
+  methods: {
+    logout() {
+      this.$store.dispatch("setUserData", {
+        admin: false,
+        name: '',
+        token: ''
+      })
+      this.$router.push({name: 'Login'})
     }
   },
   watch: {

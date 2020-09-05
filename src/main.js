@@ -3,9 +3,15 @@ import App from './App.vue'
 import vuetify from './plugins/vuetify';
 import router from './router'
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
+import { Datetime } from 'vue-datetime';
+import VueCountdownTimer from 'vuejs-countdown-timer'
+// You need a specific loader for CSS files
+import 'vue-datetime/dist/vue-datetime.css'
 
 Vue.component('ValidationObserver', ValidationObserver);
 Vue.component('ValidationProvider', ValidationProvider);
+Vue.component('Datetime', Datetime);
+Vue.use(VueCountdownTimer)
 import './plugins/vee-validate';
 import store from './store'
 

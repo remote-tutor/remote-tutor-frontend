@@ -9,10 +9,14 @@ export default new Vuex.Store({
     visible: false,
     text: '',
     color: '',
-    userToken: '',
+    userData: {
+      admin: false,
+      name: '',
+      token: '',
+    },
   },
   plugins: [createPersistedState({
-    paths: ['userToken']
+    paths: ['userData']
   })],
   mutations: {
     VIEW_SNACKBAR(state, options) {
@@ -20,16 +24,18 @@ export default new Vuex.Store({
       state.text = options.text
       state.visible = true
     },
-    SET_USER_TOKEN(state, token) {
-      state.userToken = token
+    SET_USER_DATA(state, userData) {
+      state.userData.admin = userData.admin
+      state.userData.name = userData.name
+      state.userData.token = userData.token
     }
   },
   actions: {
     viewSnackbar({ commit }, options) {
       commit('VIEW_SNACKBAR', options)
     },
-    setUserToken({commit}, options) {
-      commit('SET_USER_TOKEN', options)
+    setUserData({commit}, options) {
+      commit('SET_USER_DATA', options)
     }
   },
   modules: {

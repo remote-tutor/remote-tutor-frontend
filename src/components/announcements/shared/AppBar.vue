@@ -19,7 +19,7 @@
         <Search @closeSearchSheet="closeSearchSheet" @search="search"></Search>
       </v-bottom-sheet>
 
-      <v-tooltip bottom v-if="admin">
+      <v-tooltip bottom v-if="userData.admin">
         <template v-slot:activator="{ on, attrs }">
           <v-btn @click="createPlaceholder">
             <v-icon v-bind="attrs" v-on="on">mdi-plus-circle</v-icon>
@@ -33,8 +33,9 @@
 </template>
 
 <script>
-import Search from "@/components/announcements/Search.vue";
+import Search from "@/components/announcements/shared/Search.vue";
 import Drawer from "@/components/utils/Drawer";
+import {mapState} from "vuex";
 
 export default {
   name: "AnnouncementsAppBar",
@@ -42,7 +43,10 @@ export default {
     Drawer,
     Search,
   },
-  props: ["admin", "placeholderExists"],
+  props: ["placeholderExists"],
+  computed: {
+    ...mapState(['userData'])
+  },
   data() {
     return {
       sheet: false,
