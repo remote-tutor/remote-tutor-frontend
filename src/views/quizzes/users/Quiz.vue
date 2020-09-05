@@ -69,14 +69,15 @@ export default {
           quizID: this.$route.params.quizID
         }
       }).then(response => {
-        let userSubmissions = response.data.mcqSubmissions
-        for (let i = 0; i < userSubmissions.length; i++)
-          for (let j = 0; j < userSubmissions.length; j++)
-            if (this.questions[i].question.id === userSubmissions[j].submission.questionID) {
-              this.submissions[i] = userSubmissions[i].userResult
-            }
-        let updatedSubmissions = this.submissions.slice() // to convince Vue that the array actually changed
-        this.submissions = updatedSubmissions
+        let mcqSubmissions = response.data.mcqSubmissions
+        if (mcqSubmissions !== null)
+          for (let i = 0; i < mcqSubmissions.length; i++)
+            for (let j = 0; j < mcqSubmissions.length; j++)
+              if (this.questions[i].question.id === mcqSubmissions[j].mcqID) {
+                this.submissions[i] = mcqSubmissions[i].userResult
+              }
+         // to convince Vue that the array actually changed
+        this.submissions = this.submissions.slice()
       })
       // GET SUBMISSIONS
     },

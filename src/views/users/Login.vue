@@ -67,8 +67,6 @@ export default {
   methods: {
     async login() {
       this.loading = true;
-      // let isValid = await this.$refs.observer.validate();
-      // if (isValid) {
       let formData = new FormData();
       formData.append("username", this.user.username);
       formData.append("password", this.user.password);
@@ -88,9 +86,6 @@ export default {
           .finally(() => {
             this.loading = false;
           });
-      // } else {
-      //   this.loading = false;
-      // }
     },
   },
 };

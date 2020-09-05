@@ -22,17 +22,35 @@
               </v-col>
             </v-row>
           </v-btn-toggle>
-          <Timer :end-time="quiz.endTime"></Timer>
+          <Timer :end-time="quiz.endTime" :time-up.sync="timeUp"></Timer>
         </v-col>
-        <ConfirmationDialog button-text="Submit"
-                            btn-color="success"
-                            message="Submit all answers and exit ?">
-
-          <template v-slot:main-content>
-            <QuizReview :submissions="submissions"></QuizReview>
+        <v-dialog v-model="dialog" width="500" :persistent="timeUp">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn color="success" dark v-bind="attrs" v-on="on">Submit</v-btn>
           </template>
 
-        </ConfirmationDialog>
+          <v-card>
+            <v-card-title class="headline grey lighten-2">
+              <div v-if="timeUp">Time's Up</div>
+              <div v-else>Confirmation</div>
+            </v-card-title>
+            <v-card-text>
+              <QuizReview :submissions="submissions"></QuizReview>
+            </v-card-text>
+            <v-card-subtitle v-if="!timeUp">Submit all answers and exit ?</v-card-subtitle>
+
+            <v-divider></v-divider>
+
+            <v-card-actions v-if="timeUp">
+              <v-btn text color="secondary" :to="{ name: 'Quizzes' }">OK</v-btn>
+            </v-card-actions>
+            <v-card-actions v-else>
+              <v-btn color="secondary" text @click="hideDialog">Cancel</v-btn>
+              <v-spacer></v-spacer>
+              <v-btn color="success" text @click="exit">Confirm</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-list-item-content>
 
     </v-list-item>
@@ -42,17 +60,18 @@
 <script>
 import api from "@/gateways/api";
 import Timer from "@/components/utils/Timer";
-import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
 import QuizReview from "@/components/quizzes/user/QuizReview";
 
 export default {
   name: "QuestionsNavigator",
-  components: {QuizReview, ConfirmationDialog, Timer},
+  components: {QuizReview, Timer},
   props: ['selectedQuestion', 'submissions'],
   data() {
     return {
       updatedSelection: this.selectedQuestion || 0,
       quiz: {},
+      dialog: false,
+      timeUp: false,
     }
   },
   methods: {
@@ -72,12 +91,25 @@ export default {
         }
       }).then(response => {
         this.quiz = response.data.quiz
+        // this.quiz.endTime = new Date().getTime() + 10000
       })
     },
+    hideDialog() {
+      this.dialog = false
+    },
+    exit() {
+      this.hideDialog()
+      this.$router.push({ name: 'Quizzes' })
+    }
   },
   watch: {
     selectedQuestion(val) {
       this.updatedSelection = val
+    },
+    timeUp(val) {
+      if(val) {
+        this.dialog = true
+      }
     }
   },
   created() {
