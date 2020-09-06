@@ -70,7 +70,7 @@ const routes = [
     } 
   },
   {
-    path: '/quizzes/solve/:quizID',
+    path: '/quizzes/:action/:quizID',
     name: 'SolveQuiz',
     component: StudentQuiz,
     meta: {
