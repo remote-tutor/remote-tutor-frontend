@@ -99,16 +99,24 @@ export default {
           id: this.$route.params.quizID,
         }
       }).then(response => {
-        this.quiz = response.data.quiz
+        let quiz = response.data.quiz
         if (!this.isReview &&
-            (new Date().getTime() < new Date(this.quiz.startTime).getTime() ||
-                new Date().getTime() > new Date(this.quiz.endTime))) {
+            (new Date().getTime() < new Date(quiz.startTime).getTime() ||
+                new Date().getTime() > new Date(quiz.endTime))) {
           this.$router.push({name: 'Quizzes'})
           this.$store.dispatch('viewSnackbar', {
             text: 'Invalid request',
             color: 'error'
           })
         }
+        if (this.isReview && new Date().getTime() < new Date(quiz.endTime)) {
+          this.$router.push({name: 'Quizzes'})
+          this.$store.dispatch('viewSnackbar', {
+            text: 'Invalid request',
+            color: 'error'
+          })
+        }
+        this.quiz = response.data.quiz
       })
     },
     getQuizGrade() {
