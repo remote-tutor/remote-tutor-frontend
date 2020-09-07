@@ -39,7 +39,7 @@
               </v-list-item-icon>
               <v-list-item-title>Assignments</v-list-item-title>
             </v-list-item>
-            <v-list-item link>
+            <v-list-item :to="{ name: 'Grades' }">
               <v-list-item-icon>
                 <v-icon>mdi-account-star</v-icon>
               </v-list-item-icon>
