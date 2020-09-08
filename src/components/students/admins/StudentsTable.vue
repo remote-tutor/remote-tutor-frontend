@@ -29,6 +29,39 @@
       <template v-slot:footer>
         <v-btn block color="primary" @click="submitState">Submit</v-btn>
       </template>
+
+      <template v-slot:item.full_name="props">
+        <v-edit-dialog
+            :return-value.sync="props.item.full_name"
+        > {{ props.item.full_name }}
+          <template v-slot:input>
+            <v-text-field
+                v-model="props.item.full_name"
+                label="Edit"
+                single-line
+                counter
+            ></v-text-field>
+          </template>
+        </v-edit-dialog>
+      </template>
+
+      <template v-slot:item.year="props">
+        <td :bgcolor="(props.item.year > 3 || props.item.year < 1) ? 'error' : ''">
+          <v-edit-dialog
+              :return-value.sync="props.item.year"
+          > {{ props.item.year }}
+            <template v-slot:input>
+              <v-text-field
+                  v-model="props.item.year"
+                  label="Edit"
+                  single-line
+                  counter
+              ></v-text-field>
+            </template>
+          </v-edit-dialog>
+        </td>
+      </template>
+
       <template v-slot:item.created_at="{ item }">{{ item.created_at.substring(0, 10) }}</template>
       <template v-slot:item.status="{ item }">
         <v-row>
@@ -55,10 +88,10 @@ export default {
       students: [],
       loading: false,
       options: {},
-      row: null,
       headers: [
         {text: "Full Name", value: "full_name", width: "20%"},
         {text: "Username", value: "username", width: "15%"},
+        {text: "Year", value: "year"},
         {text: "Registered At", value: "created_at"},
         {text: "State", value: "status", sortable: false},
       ],
@@ -135,12 +168,11 @@ export default {
         formData.append("userID", this.students[i].id)
         formData.append("fullName", this.students[i].full_name)
         formData.append("status", this.students[i].status)
+        formData.append("year", this.students[i].year)
         await api({
           method: "PUT",
           url: "/students",
           data: formData,
-        }).then(result => {
-          console.log(result)
         })
       }
     }

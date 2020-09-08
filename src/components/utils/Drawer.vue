@@ -45,6 +45,12 @@
               </v-list-item-icon>
               <v-list-item-title>Grades</v-list-item-title>
             </v-list-item>
+            <v-list-item :to="{ name: 'Students' }" v-if="userData.admin">
+              <v-list-item-icon>
+                <v-icon>mdi-account-group</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Students</v-list-item-title>
+            </v-list-item>
             <v-list-item @click="logout">
               <v-list-item-icon>
                 <v-icon>mdi-logout</v-icon>
