@@ -103,7 +103,7 @@ export default {
       if (isValid) {
         this.loading = true;
         let formData = new FormData();
-        formData.append("id", this.quiz.id)
+        formData.append("id", this.quiz.ID)
         formData.append("title", this.quiz.title);
         formData.append("year", this.quiz.year);
         formData.append("startTime", Date.parse(this.quiz.startTime));

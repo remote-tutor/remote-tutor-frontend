@@ -6,7 +6,6 @@
       :loading="loading"
       multi-sort
       :sort-by="['fullName']"
-      dense
       :search="search"
   >
     <template v-slot:top>
@@ -134,12 +133,12 @@ export default {
       let gradesMap = new Map()
       for (let i = 0; i < quizzes.length; i++) {
         let quiz = quizzes[i]
-        headers.push({text: `${quiz.title} #${i + 1}`, value: quiz.id.toString()})
+        headers.push({text: `${quiz.title} #${i + 1}`, value: quiz.ID.toString()})
         await api({
           method: "GET",
           url: this.url,
           params: {
-            quizID: quiz.id
+            quizID: quiz.ID
           }
         }).then(response => {
           let usersGrades = (this.userData.admin) ? response.data.quizGrades : response.data.quizGrade
@@ -147,11 +146,11 @@ export default {
             if (userGrade.userID !== 0) {
               if (!gradesMap.has(userGrade.user.username))
                 gradesMap.set(userGrade.user.username, {
-                  fullName: userGrade.user.full_name,
+                  fullName: userGrade.user.fullName,
                   total: 0
                 })
               let userGrades = gradesMap.get(userGrade.user.username)
-              userGrades[`${quiz.id}`] = userGrade.grade
+              userGrades[`${quiz.ID}`] = userGrade.grade
               userGrades.total += userGrade.grade
             }
           })

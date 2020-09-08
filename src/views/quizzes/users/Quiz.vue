@@ -75,10 +75,10 @@ export default {
       }).then(response => {
         let mcqSubmissions = response.data.mcqSubmissions
         if (mcqSubmissions !== null)
-          for (let i = 0; i < mcqSubmissions.length; i++)
+          for (let i = 0; i < this.questions.length; i++)
             for (let j = 0; j < mcqSubmissions.length; j++)
-              if (this.questions[i].question.id === mcqSubmissions[j].mcqID) {
-                this.submissions[i] = mcqSubmissions[i].userResult
+              if (this.questions[i].question.ID === mcqSubmissions[j].mcqID) {
+                this.submissions[i] = mcqSubmissions[j].userResult
               }
          // to convince Vue that the array actually changed
         this.submissions = this.submissions.slice()
@@ -88,7 +88,7 @@ export default {
     updateChoice(options) {
       let method = (this.submissions[this.selectedQuestion] === -1) ? "POST" : "PUT"
       let formData = new FormData()
-      formData.append("mcqID", this.questions[this.selectedQuestion].question.id)
+      formData.append("mcqID", this.questions[this.selectedQuestion].question.ID)
       formData.append("quizID", this.quizID)
       formData.append("userResult", options.choice)
       console.log(options.choice)
@@ -113,7 +113,8 @@ export default {
   },
   mounted() {
     this.getQuestions()
-    this.createQuizGrade()
+    if (!this.isReview)
+      this.createQuizGrade()
   },
 }
 </script>

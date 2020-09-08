@@ -9,7 +9,7 @@
       <v-container>
         <Announcement
           v-for="announcement in announcements"
-          :key="announcement.id"
+          :key="announcement.ID"
           :announcement="announcement"
           :placeholder-exists.sync="placeholderExists"
           @deleteAnnouncement="deleteAnnouncement"
@@ -70,7 +70,7 @@ export default {
     },
     createPlaceholder() {
       this.placeholderExists = true;
-      this.announcements.unshift({ isNew: true, id: 0 });
+      this.announcements.unshift({ isNew: true, ID: 0 });
     },
     deleteAnnouncement(options) {
       let index = this.announcements.indexOf(options)

@@ -55,7 +55,6 @@ export default {
 
   data() {
     return {
-      hiddenPassword: true,
       loading: false,
       user: {
         username: "",

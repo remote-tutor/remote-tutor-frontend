@@ -26,8 +26,8 @@
                        column>
           <v-col>
             <v-radio v-for="choice in question.choices" class="pa-1"
-                     :key="choice.id"
-                     :value="choice.id"
+                     :key="choice.ID"
+                     :value="choice.ID"
                      :label="choice.text"
                      :class="getLabelColor(choice)">
             </v-radio>
@@ -62,9 +62,9 @@ export default {
       this.$emit('update:selectedQuestion', this.selectedQuestion + value)
     },
     getLabelColor(choice) {
-      if (this.isReview && choice.id === this.question.correctAnswer)
+      if (this.isReview && choice.ID === this.question.correctAnswer)
         return ' highlighted success'
-      if (this.isReview && choice.id === this.selectedChoice)
+      if (this.isReview && choice.ID === this.selectedChoice)
         return 'highlighted red'
       return ''
     }
