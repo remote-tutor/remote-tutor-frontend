@@ -30,13 +30,13 @@
         <v-btn block color="primary" @click="submitState">Submit</v-btn>
       </template>
 
-      <template v-slot:item.full_name="props">
+      <template v-slot:item.fullName="props">
         <v-edit-dialog
-            :return-value.sync="props.item.full_name"
-        > {{ props.item.full_name }}
+            :return-value.sync="props.item.fullName"
+        > {{ props.item.fullName }}
           <template v-slot:input>
             <v-text-field
-                v-model="props.item.full_name"
+                v-model="props.item.fullName"
                 label="Edit"
                 single-line
                 counter
@@ -62,7 +62,7 @@
         </td>
       </template>
 
-      <template v-slot:item.created_at="{ item }">{{ item.created_at.substring(0, 10) }}</template>
+      <template v-slot:item.CreatedAt="{ item }">{{ item.CreatedAt.substring(0, 10) }}</template>
       <template v-slot:item.status="{ item }">
         <v-row>
           <v-radio-group v-model="item.status" row>
@@ -89,15 +89,15 @@ export default {
       loading: false,
       options: {},
       headers: [
-        {text: "Full Name", value: "full_name", width: "20%"},
+        {text: "Full Name", value: "fullName", width: "20%"},
         {text: "Username", value: "username", width: "15%"},
         {text: "Year", value: "year"},
-        {text: "Registered At", value: "created_at"},
+        {text: "Registered At", value: "CreatedAt"},
         {text: "State", value: "status", sortable: false},
       ],
       searchByItems: [
         {text: "Username", value: "username"},
-        {text: "Full Name", value: "full_name"},
+        {text: "Full Name", value: "fullName"},
       ],
       searchBy: {
         value: "",
@@ -165,8 +165,8 @@ export default {
         if (this.students[i].status === undefined)
           continue
         let formData = new FormData()
-        formData.append("userID", this.students[i].id)
-        formData.append("fullName", this.students[i].full_name)
+        formData.append("userID", this.students[i].ID)
+        formData.append("fullName", this.students[i].fullName)
         formData.append("status", this.students[i].status)
         formData.append("year", this.students[i].year)
         await api({

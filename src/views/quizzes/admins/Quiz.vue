@@ -15,10 +15,10 @@
         </Question>
 
         <Question v-for="question in questions"
-                  :key="question.question.id"
+                  :key="question.question.ID"
                   :staticText="question.question.text"
                   :staticTotalMark="question.question.totalMark"
-                  :staticID="question.question.id"
+                  :staticID="question.question.ID"
                   :staticCorrectAnswer="question.correctAnswer"
                   :staticChoices="question.choices"
                   :isNew="question.isNew"
@@ -75,7 +75,7 @@ export default {
     },
     deleteQuestion(options) {
       this.questions.forEach((question, index) => {
-        if (options.id === question.question.id) {
+        if (options.id === question.question.ID) {
           this.questions.splice(index, 1)
         }
       })

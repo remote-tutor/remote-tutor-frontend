@@ -49,10 +49,10 @@
               <v-radio-group v-model="questionData.correctAnswer" :readonly="!editMode" :disabled="!editMode">
                 <Choice
                     v-for="choice in questionData.choices"
-                    :key="choice.id"
+                    :key="choice.ID"
                     :staticText="choice.text"
-                    :value="choice.id"
-                    :id="choice.id"
+                    :value="choice.ID"
+                    :id="choice.ID"
                     :editMode="editMode"
                     @changeText="changeText"
                     @clearChoice="clearChoice"
@@ -103,7 +103,7 @@ export default {
       loading: false,
       questionData: {
         question: {
-          id: this.staticID || 0,
+          ID: this.staticID || 0,
           text: this.staticText || "",
           totalMark: this.staticTotalMark || 1,
         },
@@ -131,7 +131,7 @@ export default {
         }
         if (this.canCreateNew) {
           this.questionData.choices.push({
-            id: this.totalCreatedChoices,
+            ID: this.totalCreatedChoices,
             text: "",
           });
           this.totalCreatedChoices++;
@@ -142,7 +142,7 @@ export default {
     changeText(options) {
       let id = options.id;
       this.questionData.choices.forEach((element) => {
-        if (element.id === id) {
+        if (element.ID === id) {
           element.text = options.text;
         }
       });
@@ -151,8 +151,8 @@ export default {
     clearChoice(options) {
       let id = options.id;
       this.questionData.choices.forEach((element, index) => {
-        if (element.id === id) {
-          if (this.questionData.correctAnswer === element.id) {
+        if (element.ID === id) {
+          if (this.questionData.correctAnswer === element.ID) {
             this.questionData.correctAnswer = -1
           }
           this.questionData.choices.splice(index, 1);
@@ -170,7 +170,7 @@ export default {
     },
     async pushQuestion() {
       let formData = new FormData();
-      formData.append("id", this.questionData.question.id);
+      formData.append("id", this.questionData.question.ID);
       formData.append("text", this.questionData.question.text);
       formData.append("totalMark", this.questionData.question.totalMark);
       formData.append("quizID", this.$route.params.quizID);
@@ -181,7 +181,7 @@ export default {
         url: "/admin/quizzes/questions/mcq",
         data: formData,
       }).then((response) => {
-        this.questionData.question.id = response.data.mcq.question.id;
+        this.questionData.question.ID = response.data.mcq.question.ID;
       })
 
     },
@@ -221,19 +221,20 @@ export default {
     },
     async pushChoice(choice, index) {
       let formData = new FormData();
-      formData.append("id", choice.id)
+      formData.append("id", choice.ID)
       formData.append("text", choice.text);
-      formData.append("mcqID", this.questionData.question.id);
+      formData.append("mcqID", this.questionData.question.ID);
       let method = this.new ? "POST" : "PUT";
       await api({
         method: method,
         url: "/admin/quizzes/choices",
         data: formData,
       }).then((response) => {
-        let oldID = choice.id
-        this.questionData.choices[index].id = response.data.choice.id;
+        let oldID = choice.ID
+        console.log(this.questionData.choices)
+        this.questionData.choices[index].ID = response.data.choice.ID;
         if (oldID === this.questionData.correctAnswer) {
-          this.questionData.correctAnswer = this.questionData.choices[index].id
+          this.questionData.correctAnswer = this.questionData.choices[index].ID
         }
       }).catch(error => {
         console.log(error)
@@ -241,14 +242,14 @@ export default {
     },
     deleteQuestion() {
       let formData = new FormData()
-      formData.append("id", this.questionData.question.id)
+      formData.append("id", this.questionData.question.ID)
       api({
         method: "DELETE",
         url: "/admin/quizzes/questions/mcq",
         data: formData,
       }).then(() => {
         this.$emit("deleteQuestion", {
-          id: this.questionData.question.id,
+          id: this.questionData.question.ID,
         });
       })
     },

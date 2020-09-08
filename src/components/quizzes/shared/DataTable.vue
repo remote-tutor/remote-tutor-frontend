@@ -41,7 +41,7 @@
       </v-toolbar>
     </template>
     <template v-slot:item.goTo="{item}">
-      <v-btn small :to="{ name: 'QuizQuestions', params: {quizID: item.id} }">GO TO</v-btn>
+      <v-btn small :to="{ name: 'QuizQuestions', params: {quizID: item.ID} }">GO TO</v-btn>
     </template>
     <template v-slot:item.start="{item}">
       <v-btn small @click="solve(item)">Start</v-btn>
@@ -176,7 +176,7 @@ export default {
     deleteQuiz(item) {
       const index = this.quizzes.indexOf(item)
       let formData = new FormData()
-      formData.append("id", item.id)
+      formData.append("id", item.ID)
       api({
         method: "DELETE",
         url: "/admin/quizzes",
@@ -198,16 +198,16 @@ export default {
         Object.assign(this.quizzes[this.editedIndex], options.quiz)
       } else {
         this.quizzes.unshift(options.quiz)
-        this.$router.push({name: 'QuizQuestions', params: {quizID: options.quiz.id}})
+        this.$router.push({name: 'QuizQuestions', params: {quizID: options.quiz.ID}})
       }
       this.formatQuizzes()
       this.close()
     },
     solve(item) {
-      this.$router.push({ name: 'SolveQuiz', params: { action: 'solve', quizID: item.id } })
+      this.$router.push({ name: 'SolveQuiz', params: { action: 'solve', quizID: item.ID } })
     },
     review(item) {
-      this.$router.push({ name: 'SolveQuiz', params: { action: 'review', quizID: item.id } })
+      this.$router.push({ name: 'SolveQuiz', params: { action: 'review', quizID: item.ID } })
     },
   },
 }

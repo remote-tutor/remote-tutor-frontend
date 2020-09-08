@@ -12,7 +12,7 @@
         <v-spacer></v-spacer>
         <div>
           <div class="text-body-1" v-if="!updatedAnnouncement.isNew">
-              {{ (updatedAnnouncement.created_at).substring(0, 10) }}
+              {{ (updatedAnnouncement.CreatedAt).substring(0, 10) }}
           </div>
         </div>
       </v-card-title>
@@ -93,7 +93,7 @@ export default {
     pushAnnouncement() {
       this.loading = true;
       let formData = new FormData();
-      formData.append("id", this.updatedAnnouncement.id);
+      formData.append("id", this.updatedAnnouncement.ID);
       formData.append("title", this.updatedAnnouncement.title);
       formData.append("topic", this.updatedAnnouncement.topic);
       formData.append("content", this.updatedAnnouncement.content);
@@ -124,7 +124,7 @@ export default {
     },
     deleteAnnouncement() {
       let formData = new FormData();
-      formData.append("id", this.updatedAnnouncement.id);
+      formData.append("id", this.updatedAnnouncement.ID);
       api({
         method: "DELETE",
         url: "/admin/announcements",

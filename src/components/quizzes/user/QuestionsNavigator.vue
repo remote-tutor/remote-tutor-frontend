@@ -12,7 +12,7 @@
               color="deep-purple accent-3"
               group>
             <v-row dense>
-              <v-col v-for="(submission, index) in submissions" :key="submission.id" cols="3">
+              <v-col v-for="(submission, index) in submissions" :key="submission.ID" cols="3">
                 <v-btn class="rounded-circle"
                        :color="getButtonColor(index)"
                        :value="index"
