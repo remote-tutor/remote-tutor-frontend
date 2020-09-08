@@ -22,9 +22,11 @@
               </v-col>
             </v-row>
           </v-btn-toggle>
-          <Timer :end-time="quiz.endTime" :time-up.sync="timeUp"></Timer>
+          <Timer :end-time="quiz.endTime" :time-up.sync="timeUp" v-if="!isReview"></Timer>
         </v-col>
-        <v-dialog v-model="dialog" width="500" :persistent="timeUp">
+
+        <v-card-subtitle v-if="isReview">Score: {{quizGrade.grade}} / {{quiz.totalMark}}</v-card-subtitle>
+        <v-dialog v-model="dialog" width="500" :persistent="timeUp" v-else>
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="success" dark v-bind="attrs" v-on="on">Submit</v-btn>
           </template>
@@ -65,22 +67,29 @@ import QuizReview from "@/components/quizzes/user/QuizReview";
 export default {
   name: "QuestionsNavigator",
   components: {QuizReview, Timer},
-  props: ['selectedQuestion', 'submissions'],
+  props: ['selectedQuestion', 'submissions', 'questions', 'isReview'],
   data() {
     return {
       updatedSelection: this.selectedQuestion || 0,
       quiz: {},
+      quizGrade: {},
       dialog: false,
       timeUp: false,
     }
   },
   methods: {
     getButtonColor(index) {
+      if (this.isReview)
+        if (this.submissions[index] === this.questions[index].correctAnswer)
+          return 'success'
+        else
+          return 'red'
+
       if (this.updatedSelection === index)
         return 'primary'
       if (this.submissions[index] === -1)
         return 'secondary'
-      return 'success'
+      return 'light-blue'
     },
     getQuiz() {
       api({
@@ -90,8 +99,35 @@ export default {
           id: this.$route.params.quizID,
         }
       }).then(response => {
+        let quiz = response.data.quiz
+        if (!this.isReview &&
+            (new Date().getTime() < new Date(quiz.startTime).getTime() ||
+                new Date().getTime() > new Date(quiz.endTime))) {
+          this.$router.push({name: 'Quizzes'})
+          this.$store.dispatch('viewSnackbar', {
+            text: 'Invalid request',
+            color: 'error'
+          })
+        }
+        if (this.isReview && new Date().getTime() < new Date(quiz.endTime)) {
+          this.$router.push({name: 'Quizzes'})
+          this.$store.dispatch('viewSnackbar', {
+            text: 'Invalid request',
+            color: 'error'
+          })
+        }
         this.quiz = response.data.quiz
-        // this.quiz.endTime = new Date().getTime() + 10000
+      })
+    },
+    getQuizGrade() {
+      api({
+        method: "GET",
+        url: "/quizzes/grades",
+        params: {
+          quizID: this.$route.params.quizID
+        }
+      }).then(response => {
+        this.quizGrade = response.data.quizGrade[0]
       })
     },
     hideDialog() {
@@ -114,6 +150,8 @@ export default {
   },
   created() {
     this.getQuiz()
+    if (this.isReview)
+      this.getQuizGrade()
   },
 }
 </script>

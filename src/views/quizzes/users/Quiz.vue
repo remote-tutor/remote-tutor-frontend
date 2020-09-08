@@ -11,11 +11,14 @@
                       :selected-question.sync="selectedQuestion"
                       :disable-previous="selectedQuestion === 0"
                       :disable-next="selectedQuestion === questions.length - 1"
+                      :isReview="isReview"
             ></Question>
           </v-col>
           <v-col class="col-12 col-md-3">
             <QuestionsNavigator :submissions="submissions"
+                                :questions="questions"
                                 :selected-question.sync="selectedQuestion"
+                                :isReview="isReview"
             ></QuestionsNavigator>
           </v-col>
         </v-row>
@@ -45,6 +48,7 @@ export default {
       submissions: [],
       selectedQuestion: 0,
       quizID: this.$route.params.quizID,
+      isReview: this.$route.params.action === 'review'
     }
   },
   computed: {
@@ -85,6 +89,7 @@ export default {
       let method = (this.submissions[this.selectedQuestion] === -1) ? "POST" : "PUT"
       let formData = new FormData()
       formData.append("mcqID", this.questions[this.selectedQuestion].question.id)
+      formData.append("quizID", this.quizID)
       formData.append("userResult", options.choice)
       console.log(options.choice)
       api({
@@ -96,9 +101,19 @@ export default {
       updatedSubmissions[this.selectedQuestion] = options.choice
       this.submissions = updatedSubmissions
     },
+    createQuizGrade() {
+      let formData = new FormData()
+      formData.append("quizID", this.$route.params.quizID)
+      api({
+        method: "POST",
+        url: "/quizzes/grades",
+        data: formData,
+      })
+    }
   },
   mounted() {
     this.getQuestions()
+    this.createQuizGrade()
   },
 }
 </script>

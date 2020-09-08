@@ -46,6 +46,9 @@
     <template v-slot:item.start="{item}">
       <v-btn small @click="solve(item)">Start</v-btn>
     </template>
+    <template v-slot:item.review="{item}">
+      <v-btn small @click="review(item)">Review</v-btn>
+    </template>
     <template v-slot:item.actions="{ item }" v-if="userData.admin">
       <v-icon small class="mr-2" @click="editQuiz(item)" v-if="type === 1">
         mdi-pencil
@@ -118,6 +121,8 @@ export default {
     } else {
       if (this.type === 0) {
         this.headers.splice(1, 0, {text: 'Start', sortable: false, value: 'start'})
+      } else if (this.type === -1) {
+        this.headers.splice(1, 0, {text: 'Review', sortable: false, value: 'review'})
       }
     }
   },
@@ -199,8 +204,11 @@ export default {
       this.close()
     },
     solve(item) {
-      this.$router.push({ name: 'SolveQuiz', params: { quizID: item.id } })
-    }
+      this.$router.push({ name: 'SolveQuiz', params: { action: 'solve', quizID: item.id } })
+    },
+    review(item) {
+      this.$router.push({ name: 'SolveQuiz', params: { action: 'review', quizID: item.id } })
+    },
   },
 }
 </script>

@@ -7,6 +7,7 @@ import PendingStudents from '../views/students/admins/PendingStudents.vue'
 import Quizzes from '../views/quizzes/shared/Quizzes.vue'
 import AdminQuiz from '../views/quizzes/admins/Quiz.vue'
 import StudentQuiz from '../views/quizzes/users/Quiz.vue'
+import Grades from "@/views/grades/shared/Grades";
 
 Vue.use(VueRouter)
 
@@ -70,11 +71,19 @@ const routes = [
     } 
   },
   {
-    path: '/quizzes/solve/:quizID',
+    path: '/quizzes/:action/:quizID',
     name: 'SolveQuiz',
     component: StudentQuiz,
     meta: {
       title: 'Quiz'
+    }
+  },
+  {
+    path: '/grades',
+    name: 'Grades',
+    component: Grades,
+    meta: {
+      title: 'Grades'
     }
   }
 ]
