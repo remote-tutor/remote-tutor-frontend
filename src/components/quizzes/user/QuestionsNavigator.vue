@@ -25,7 +25,7 @@
           <Timer :end-time="quiz.endTime" :time-up.sync="timeUp" v-if="!isReview"></Timer>
         </v-col>
 
-        <v-card-subtitle v-if="isReview">Score: {{quizGrade.grade}} / {{questions.length}}</v-card-subtitle>
+        <v-card-subtitle v-if="isReview">Score: {{quizGrade.grade}} / {{quiz.totalMark}}</v-card-subtitle>
         <v-dialog v-model="dialog" width="500" :persistent="timeUp" v-else>
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="success" dark v-bind="attrs" v-on="on">Submit</v-btn>
@@ -127,7 +127,7 @@ export default {
           quizID: this.$route.params.quizID
         }
       }).then(response => {
-        this.quizGrade = response.data.quizGrade
+        this.quizGrade = response.data.quizGrade[0]
       })
     },
     hideDialog() {

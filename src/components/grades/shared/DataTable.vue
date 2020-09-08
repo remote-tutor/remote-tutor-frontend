@@ -144,14 +144,16 @@ export default {
         }).then(response => {
           let usersGrades = (this.userData.admin) ? response.data.quizGrades : response.data.quizGrade
           usersGrades.forEach((userGrade) => {
-            if (!gradesMap.has(userGrade.user.username))
-              gradesMap.set(userGrade.user.username, {
-                fullName: userGrade.user.full_name,
-                total: 0
-              })
-            let userGrades = gradesMap.get(userGrade.user.username)
-            userGrades[`${quiz.id}`] = userGrade.grade
-            userGrades.total += userGrade.grade
+            if (userGrade.userID !== 0) {
+              if (!gradesMap.has(userGrade.user.username))
+                gradesMap.set(userGrade.user.username, {
+                  fullName: userGrade.user.full_name,
+                  total: 0
+                })
+              let userGrades = gradesMap.get(userGrade.user.username)
+              userGrades[`${quiz.id}`] = userGrade.grade
+              userGrades.total += userGrade.grade
+            }
           })
         })
       }
