@@ -49,6 +49,7 @@ export default {
       this.$emit("closeSearchSheet");
     },
     search() {
+      this.$emit("closeSearchSheet");
       this.$emit("search", {
         searchValues: this.searchValues,
       });

@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <GradesAppBar></GradesAppBar>
+    <AppBar page-name="Grades"></AppBar>
     <v-main>
       <v-container>
         <v-tabs v-model="tab" background-color="primary" dark>
@@ -22,13 +22,13 @@
 </template>
 
 <script>
-import GradesAppBar from "@/components/grades/shared/AppBar";
 import DataTable from "@/components/grades/shared/DataTable";
+import AppBar from "@/components/utils/AppBar";
 
 export default {
   name: "Grades",
   components: {
-    GradesAppBar,
+    AppBar,
     DataTable,
   },
   data() {

@@ -1,8 +1,6 @@
 <template>
   <v-app>
-    <StudentsAppBar
-        :admin="true"
-    ></StudentsAppBar>
+    <AppBar page-name="Students"></AppBar>
     <v-main>
       <v-container>
         <StudentsTable :pending="true"></StudentsTable>
@@ -12,13 +10,13 @@
 </template>
 
 <script>
-import StudentsAppBar from "@/components/students/admins/AppBar.vue";
 import StudentsTable from '@/components/students/admins/StudentsTable.vue'
+import AppBar from "@/components/utils/AppBar";
 
 export default {
   name: "PendingStudents",
   components: {
-    StudentsAppBar,
+    AppBar,
     StudentsTable,
   }
 };
