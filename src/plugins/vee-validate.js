@@ -1,4 +1,4 @@
-import { required, email, confirmed, excluded, numeric, max } from 'vee-validate/dist/rules';
+import { required, email, confirmed, excluded, numeric, max, image, required_if } from 'vee-validate/dist/rules';
 import { extend } from 'vee-validate';
 
 extend('required', {
@@ -29,6 +29,23 @@ extend('numeric', {
 extend('max', {
     ...max, 
     message: 'You exceeded the max'
+})
+
+extend('image', {
+    ...image,
+    message: 'You must upload an image'
+})
+
+extend('required_if', {
+    ...required_if,
+    validate: (value, args) => {
+        let targetValue = args.target
+        let validValue = (value === undefined || value.length === 0)
+        let validTargetValue = (targetValue === undefined || targetValue.length === 0)
+        return !(validValue && validTargetValue);
+
+    },
+    message: 'You must upload an image or enter text'
 })
 
 // extend('min', {
