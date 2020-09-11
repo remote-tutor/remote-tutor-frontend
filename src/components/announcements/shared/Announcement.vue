@@ -94,9 +94,9 @@ export default {
       this.loading = true;
       let formData = new FormData();
       formData.append("id", this.updatedAnnouncement.ID);
-      formData.append("title", this.updatedAnnouncement.title);
-      formData.append("topic", this.updatedAnnouncement.topic);
-      formData.append("content", this.updatedAnnouncement.content);
+      formData.append("title", this.updatedAnnouncement.title || "");
+      formData.append("topic", this.updatedAnnouncement.topic || "");
+      formData.append("content", this.updatedAnnouncement.content || "");
       let method = this.new ? "POST" : "PUT";
       api({
         method: method,

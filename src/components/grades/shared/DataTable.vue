@@ -2,11 +2,15 @@
   <v-data-table
       :headers="headers"
       :items="grades"
+      item-key="fullName"
       class="elevation-1"
       :loading="loading"
       multi-sort
       :sort-by="['fullName']"
       :search="search"
+      single-expand
+      :expanded.sync="expanded"
+      show-expand
   >
     <template v-slot:top>
       <v-row>
@@ -76,6 +80,16 @@
       </tr>
       </thead>
     </template>
+
+    <template v-slot:expanded-item="{headers, item}">
+      <td :colspan="headers.length">
+        Phone Number: {{ item.phoneNumber }}
+        <v-spacer></v-spacer>
+        Parent Number: {{item.parentNumber}}
+      </td>
+
+    </template>
+
   </v-data-table>
 </template>
 
@@ -90,6 +104,7 @@ export default {
     loading: false,
     search: '',
     dialog: false,
+    expanded: [],
     date: new Date().toISOString().substr(0, 7),
     menu: false,
     years: [
@@ -128,7 +143,7 @@ export default {
         }
       })
       let quizzes = result.data.quizzes
-      let headers = [{text: 'Full Name', value: 'fullName'}]
+      let headers = [{text: '', value: 'data-table-expand'}, {text: 'Full Name', value: 'fullName'}]
 
       let gradesMap = new Map()
       for (let i = 0; i < quizzes.length; i++) {
@@ -145,10 +160,12 @@ export default {
           usersGrades.forEach((userGrade) => {
             if (userGrade.userID !== 0) {
               if (!gradesMap.has(userGrade.user.username))
-                gradesMap.set(userGrade.user.username, {
-                  fullName: userGrade.user.fullName,
-                  total: 0
-                })
+              gradesMap.set(userGrade.user.username, {
+                fullName: userGrade.user.fullName,
+                phoneNumber: userGrade.user.phoneNumber,
+                parentNumber: userGrade.user.parentNumber,
+                total: 0
+              })
               let userGrades = gradesMap.get(userGrade.user.username)
               userGrades[`${quiz.ID}`] = userGrade.grade
               userGrades.total += userGrade.grade

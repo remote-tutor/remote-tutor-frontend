@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <QuizzesAppBar :iconsNeeded="false"></QuizzesAppBar>
+    <AppBar page-name="Quizzes"></AppBar>
     <v-main>
       <v-container>
         <v-tabs v-model="tab" background-color="primary" dark>
@@ -26,13 +26,13 @@
 </template>
 
 <script>
-import QuizzesAppBar from "@/components/quizzes/shared/AppBar.vue";
 import DataTable from "@/components/quizzes/shared/DataTable";
+import AppBar from "@/components/utils/AppBar";
 
 export default {
   name: "Quizzes",
   components: {
-    QuizzesAppBar,
+    AppBar,
     DataTable,
   },
   data() {
