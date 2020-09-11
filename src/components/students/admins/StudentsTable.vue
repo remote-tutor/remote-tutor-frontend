@@ -20,6 +20,7 @@
         :options.sync="options"
         :server-items-length="totalStudents"
         :loading="loading"
+        disable-sort
         :footer-props="{
         'items-per-page-options': [10, 15, 20]
       }"
@@ -46,20 +47,49 @@
       </template>
 
       <template v-slot:item.year="props">
-        <td :bgcolor="(props.item.year > 3 || props.item.year < 1) ? 'error' : ''">
-          <v-edit-dialog
-              :return-value.sync="props.item.year"
-          > {{ props.item.year }}
-            <template v-slot:input>
-              <v-text-field
-                  v-model="props.item.year"
-                  label="Edit"
-                  single-line
-                  counter
-              ></v-text-field>
-            </template>
-          </v-edit-dialog>
-        </td>
+        <v-edit-dialog persistent large :return-value.sync="props.item.year">
+          <v-btn small fab elevation="3">
+            {{ props.item.year }}
+          </v-btn>
+          <template v-slot:input>
+            <v-select
+                label="Year"
+                :items="years"
+                item-text="text"
+                item-value="value"
+                v-model="props.item.year"
+            ></v-select>
+          </template>
+
+        </v-edit-dialog>
+      </template>
+
+      <template v-slot:item.phoneNumber="props">
+        <v-edit-dialog :return-value.sync="props.item.phoneNumber">
+          <v-btn text :color="props.item.phoneNumber.length !== 11 ? 'red': ''">{{ props.item.phoneNumber }}</v-btn>
+          <template v-slot:input>
+            <v-text-field
+                v-model="props.item.phoneNumber"
+                label="Edit"
+                single-line
+                counter
+            ></v-text-field>
+          </template>
+        </v-edit-dialog>
+      </template>
+
+      <template v-slot:item.parentNumber="props">
+        <v-edit-dialog :return-value.sync="props.item.parentNumber">
+          <v-btn text :color="props.item.parentNumber.length !== 11 ? 'red': ''">{{ props.item.parentNumber }}</v-btn>
+          <template v-slot:input>
+            <v-text-field
+                v-model="props.item.parentNumber"
+                label="Edit"
+                single-line
+                counter
+            ></v-text-field>
+          </template>
+        </v-edit-dialog>
       </template>
 
       <template v-slot:item.CreatedAt="{ item }">{{ item.CreatedAt.substring(0, 10) }}</template>
@@ -89,8 +119,10 @@ export default {
       loading: false,
       options: {},
       headers: [
-        {text: "Full Name", value: "fullName", width: "20%"},
-        {text: "Username", value: "username", width: "15%"},
+        {text: "Full Name", value: "fullName"},
+        {text: "Username", value: "username"},
+        {text: "Phone Number", value: "phoneNumber", sortable: false},
+        {text: "Parent Number", value: "parentNumber", sortable: false},
         {text: "Year", value: "year"},
         {text: "Registered At", value: "CreatedAt"},
         {text: "State", value: "status", sortable: false},
@@ -103,6 +135,11 @@ export default {
         value: "",
         field: "username",
       },
+      years: [
+        {text: "First Year", value: 1},
+        {text: "Second Year", value: 2},
+        {text: "Third Year", value: 3},
+      ],
     };
   },
   mounted() {
@@ -169,6 +206,8 @@ export default {
         formData.append("fullName", this.students[i].fullName)
         formData.append("status", this.students[i].status)
         formData.append("year", this.students[i].year)
+        formData.append("phoneNumber", this.students[i].phoneNumber)
+        formData.append("parentNumber", this.students[i].parentNumber)
         await api({
           method: "PUT",
           url: "/students",
