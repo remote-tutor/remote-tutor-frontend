@@ -3,7 +3,20 @@
     <AppBar page-name="Students"></AppBar>
     <v-main>
       <v-container>
-        <StudentsTable :pending="true"></StudentsTable>
+        <v-tabs v-model="tab" background-color="primary" dark>
+          <v-tab>Pending Students</v-tab>
+          <v-tab>Active Students</v-tab>
+        </v-tabs>
+        <v-tabs-items v-model="tab">
+          <v-tab-item>
+            <StudentsTable :pending="true"></StudentsTable>
+          </v-tab-item>
+          <v-tab-item>
+            <StudentsTable :pending="false"></StudentsTable>
+          </v-tab-item>
+        </v-tabs-items>
+
+
       </v-container>
     </v-main>
   </v-app>
@@ -18,6 +31,11 @@ export default {
   components: {
     AppBar,
     StudentsTable,
+  },
+  data() {
+    return {
+      tab: 0,
+    }
   }
 };
 </script>

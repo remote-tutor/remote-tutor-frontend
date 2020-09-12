@@ -20,18 +20,17 @@
         :options.sync="options"
         :server-items-length="totalStudents"
         :loading="loading"
-        disable-sort
         :footer-props="{
         'items-per-page-options': [10, 15, 20]
       }"
         :items-per-page="10"
         class="elevation-1"
     >
-      <template v-slot:footer>
+      <template v-slot:footer v-if="pending">
         <v-btn block color="primary" @click="submitState">Submit</v-btn>
       </template>
 
-      <template v-slot:item.fullName="props">
+      <template v-slot:item.fullName="props" v-if="pending">
         <v-edit-dialog
             :return-value.sync="props.item.fullName"
         > {{ props.item.fullName }}
@@ -46,7 +45,7 @@
         </v-edit-dialog>
       </template>
 
-      <template v-slot:item.year="props">
+      <template v-slot:item.year="props" v-if="pending">
         <v-edit-dialog persistent large :return-value.sync="props.item.year">
           <v-btn small fab elevation="3">
             {{ props.item.year }}
@@ -64,7 +63,7 @@
         </v-edit-dialog>
       </template>
 
-      <template v-slot:item.phoneNumber="props">
+      <template v-slot:item.phoneNumber="props" v-if="pending">
         <v-edit-dialog :return-value.sync="props.item.phoneNumber">
           <v-btn text :color="props.item.phoneNumber.length !== 11 ? 'red': ''">{{ props.item.phoneNumber }}</v-btn>
           <template v-slot:input>
@@ -78,7 +77,7 @@
         </v-edit-dialog>
       </template>
 
-      <template v-slot:item.parentNumber="props">
+      <template v-slot:item.parentNumber="props" v-if="pending">
         <v-edit-dialog :return-value.sync="props.item.parentNumber">
           <v-btn text :color="props.item.parentNumber.length !== 11 ? 'red': ''">{{ props.item.parentNumber }}</v-btn>
           <template v-slot:input>
@@ -93,7 +92,7 @@
       </template>
 
       <template v-slot:item.CreatedAt="{ item }">{{ item.CreatedAt.substring(0, 10) }}</template>
-      <template v-slot:item.status="{ item }">
+      <template v-slot:item.status="{ item }" v-if="pending">
         <v-row>
           <v-radio-group v-model="item.status" row>
             <v-radio label="Admin" value="1"></v-radio>
@@ -125,7 +124,6 @@ export default {
         {text: "Parent Number", value: "parentNumber", sortable: false},
         {text: "Year", value: "year"},
         {text: "Registered At", value: "CreatedAt"},
-        {text: "State", value: "status", sortable: false},
       ],
       searchByItems: [
         {text: "Username", value: "username"},
@@ -143,9 +141,10 @@ export default {
     };
   },
   mounted() {
-    this.options.sortBy.push("created_at");
-    this.options.sortDesc.push("true");
     this.getStudents();
+    if (this.pending) {
+      this.headers.push({text: "State", value: "status", sortable: false},)
+    }
   },
   watch: {
     options: {
@@ -159,13 +158,21 @@ export default {
     getStudents() {
       this.loading = true;
       const {sortBy, sortDesc, page, itemsPerPage} = this.options;
+      let modifiedSortBy = []
+      for (let i = 0; i < sortBy.length; i++) {
+        if (sortBy[i] === 'CreatedAt')
+          modifiedSortBy.push('created_at')
+        else
+          modifiedSortBy.push(sortBy[i].replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`))
+
+      }
       api({
         method: "GET",
-        url: "/pending-students",
+        url: "/admin/students",
         params: {
           page: page,
           itemsPerPage: itemsPerPage,
-          sortBy: sortBy,
+          sortBy: modifiedSortBy,
           sortDesc: sortDesc,
           pending: this.pending,
           searchByValue: this.searchBy.value,
@@ -173,8 +180,8 @@ export default {
         },
       })
           .then((response) => {
-            this.students = response.data.pendingStudents;
-            this.totalStudents = response.data.totalPendingStudents;
+            this.students = response.data.students;
+            this.totalStudents = response.data.totalStudents;
           })
           .catch((error) => {
             this.$store.dispatch("viewSnackbar", {
@@ -191,6 +198,7 @@ export default {
       this.getStudents();
     },
     submitState() {
+      this.loading = true
       this.sendState().then(() => {
         this.students = []
         this.getStudents()
