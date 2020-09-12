@@ -17,6 +17,7 @@
       <v-card-title class="headline">
         {{ question.question.text }}
       </v-card-title>
+      <v-img v-if="question.question.image !== undefined" :src="imageSrc"></v-img>
 
       <div v-if="mcq">
         <v-radio-group v-model="updatedChoice"
@@ -73,7 +74,13 @@ export default {
     selectedChoice: function (val) {
       this.updatedChoice = val || -1
     }
-  }
+  },
+  computed: {
+    imageSrc: function() {
+      return process.env.VUE_APP_API_URL + "/image/" + this.question.question.imagePath
+    }
+  },
+
 }
 </script>
 

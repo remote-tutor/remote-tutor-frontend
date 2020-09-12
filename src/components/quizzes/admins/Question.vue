@@ -28,23 +28,36 @@
       <v-card-text>
         <ValidationObserver ref="observer">
           <form>
-            <ValidationProvider v-slot="{errors}" rules="required">
-              <v-textarea v-if="editMode"
-                          label="Question Text"
-                          type="text"
-                          v-model="questionData.question.text"
-                          prepend-icon="mdi-script-text"
-                          rows="2"
-                          :error-messages="errors"
-              ></v-textarea>
-              <v-card-title class="headline" v-else>
-                {{ questionData.question.text }}
-              </v-card-title>
-            </ValidationProvider>
-            <v-row align="center" justify="center">
-              <v-switch :readonly="!editMode" :disabled="!editMode" v-model="questionData.mcq"
-                        :label="questionData.mcq ? 'MCQ' : 'Long Answer'"></v-switch>
+
+            <v-row v-if="editMode">
+              <v-col cols="12" sm="8">
+                <ValidationProvider v-slot="{errors}" rules="required_if:question-image" vid="question-text">
+                  <v-textarea
+                      ref="question-text"
+                      label="Question Text"
+                      type="text"
+                      v-model="questionData.question.text"
+                      prepend-icon="mdi-script-text"
+                      rows="2"
+                      :error-messages="errors"
+                  ></v-textarea>
+                </ValidationProvider>
+              </v-col>
+              <v-col cols="12" sm="4">
+                <ValidationProvider v-slot="{errors}" rules="image|required_if:question-text" vid="question-image">
+                  <v-file-input accept="image/*" small-chips show-size
+                                label="Question" v-model="questionData.question.image" @change="previewImage"
+                                prepend-icon="mdi-file-question" :error-messages="errors"></v-file-input>
+                </ValidationProvider>
+              </v-col>
             </v-row>
+
+            <v-card-title class="headline" v-else>
+              {{ questionData.question.text }}
+            </v-card-title>
+
+            <v-img v-if="questionData.question.image !== undefined" :src="questionData.question.imageSrc"></v-img>
+
             <div v-if="questionData.mcq">
               <v-radio-group v-model="questionData.correctAnswer" :readonly="!editMode" :disabled="!editMode">
                 <Choice
@@ -93,7 +106,7 @@ export default {
     Choice,
     ConfirmationDialog,
   },
-  props: ['staticID', 'staticText', 'staticTotalMark', 'staticChoices', 'staticCorrectAnswer', 'isNew'],
+  props: ['staticID', 'staticText', 'staticTotalMark', 'staticChoices', 'staticCorrectAnswer', 'staticImage', 'staticImagePath', 'isNew'],
   computed: {
     ...mapState(['userData'])
   },
@@ -106,6 +119,9 @@ export default {
           ID: this.staticID || 0,
           text: this.staticText || "",
           totalMark: this.staticTotalMark || 1,
+          image: [],
+          imagePath: this.staticImagePath || '',
+          imageSrc: '',
         },
         mcq: true,
         choices: this.staticChoices || [],
@@ -133,6 +149,7 @@ export default {
           this.questionData.choices.push({
             ID: this.totalCreatedChoices,
             text: "",
+            isNew: true,
           });
           this.totalCreatedChoices++;
         }
@@ -175,13 +192,20 @@ export default {
       formData.append("totalMark", this.questionData.question.totalMark);
       formData.append("quizID", this.$route.params.quizID);
       formData.append("correctAnswer", this.questionData.correctAnswer);
+      formData.append("image", this.questionData.question.image)
       let method = this.new ? "POST" : "PUT";
       api({
         method: method,
         url: "/admin/quizzes/questions/mcq",
         data: formData,
+        config: {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
       }).then((response) => {
         this.questionData.question.ID = response.data.mcq.question.ID;
+        this.questionData.question.imagePath = response.data.mcq.question.imagePath
       })
 
     },
@@ -224,14 +248,13 @@ export default {
       formData.append("id", choice.ID)
       formData.append("text", choice.text);
       formData.append("mcqID", this.questionData.question.ID);
-      let method = this.new ? "POST" : "PUT";
+      let method = choice.isNew ? "POST" : "PUT";
       await api({
         method: method,
         url: "/admin/quizzes/choices",
         data: formData,
       }).then((response) => {
         let oldID = choice.ID
-        console.log(this.questionData.choices)
         this.questionData.choices[index].ID = response.data.choice.ID;
         if (oldID === this.questionData.correctAnswer) {
           this.questionData.correctAnswer = this.questionData.choices[index].ID
@@ -256,11 +279,22 @@ export default {
     changeEditMode() {
       this.editMode = !this.editMode
     },
+    previewImage() {
+      (this.questionData.question.image === undefined) ?
+          this.questionData.question.imageSrc = '' :
+          this.questionData.question.imageSrc = URL.createObjectURL(this.questionData.question.image)
+    },
+    getImage() {
+      const url = process.env.VUE_APP_API_URL;
+      this.questionData.question.imageSrc = url + "/image/" + this.staticImagePath
+    }
   },
   created() {
     if (this.isNew) {
       this.new = true;
       this.editMode = true;
+    } else {
+      this.getImage()
     }
   },
 };

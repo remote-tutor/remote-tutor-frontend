@@ -16,6 +16,8 @@
                   :staticID="question.question.ID"
                   :staticCorrectAnswer="question.correctAnswer"
                   :staticChoices="question.choices"
+                  :static-image="question.question.image"
+                  :static-image-path="question.question.imagePath"
                   :isNew="question.isNew"
                   @deleteQuestion="deleteQuestion"
         ></Question>
