@@ -1,4 +1,4 @@
-import { required, email, confirmed, excluded, numeric, max, image, required_if } from 'vee-validate/dist/rules';
+import { required, email, confirmed, excluded, numeric, max, min, image, required_if } from 'vee-validate/dist/rules';
 import { extend } from 'vee-validate';
 
 extend('required', {
@@ -27,8 +27,15 @@ extend('numeric', {
 })
 
 extend('max', {
-    ...max, 
-    message: 'You exceeded the max'
+    ...max,
+    params: ['length'],
+    message: 'Maximum is {length} characters'
+})
+
+extend('min', {
+    ...min,
+    params: ['length'],
+    message: 'Minimum is {length} characters'
 })
 
 extend('image', {

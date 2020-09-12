@@ -1,24 +1,23 @@
 <template>
   <v-app>
-    <AnnouncementsAppBar
-      :admin="true"
-    ></AnnouncementsAppBar>
+    <AppBar page-name="Students"></AppBar>
     <v-main>
-        <v-container>
-            <StudentsTable :pending="true"></StudentsTable>
-        </v-container>
+      <v-container>
+        <StudentsTable :pending="true"></StudentsTable>
+      </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import AnnouncementsAppBar from "@/components/announcements/shared/AppBar.vue";
 import StudentsTable from '@/components/students/admins/StudentsTable.vue'
+import AppBar from "@/components/utils/AppBar";
+
 export default {
-    name: "PendingStudents",
-    components: {
-        AnnouncementsAppBar,
-        StudentsTable,
-    }
+  name: "PendingStudents",
+  components: {
+    AppBar,
+    StudentsTable,
+  }
 };
 </script>

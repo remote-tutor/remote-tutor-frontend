@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <QuizzesAppBar></QuizzesAppBar>
+    <AppBar page-name="Quiz"></AppBar>
     <v-main>
       <v-container>
         <v-row>
@@ -33,12 +33,12 @@ import Question from "@/components/quizzes/user/Question";
 import api from "@/gateways/api";
 import {mapState} from "vuex";
 import QuestionsNavigator from "@/components/quizzes/user/QuestionsNavigator";
-import QuizzesAppBar from "@/components/quizzes/shared/AppBar";
+import AppBar from "@/components/utils/AppBar";
 
 export default {
   name: "Quiz",
   components: {
-    QuizzesAppBar,
+    AppBar,
     QuestionsNavigator,
     Question
   },

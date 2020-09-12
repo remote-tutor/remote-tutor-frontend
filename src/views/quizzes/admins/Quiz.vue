@@ -1,11 +1,6 @@
 <template>
   <v-app>
-    <QuizzesAppBar
-        :admin="admin"
-        :iconsNeeded="true"
-        :placeholderExists="placeholderExists"
-        @createPlaceholder="createPlaceholder"
-    ></QuizzesAppBar>
+    <AppBar page-name="Quiz"></AppBar>
     <v-main>
       <v-container>
         <Question v-if="placeholderExists" :isNew="true"
@@ -26,20 +21,27 @@
                   :isNew="question.isNew"
                   @deleteQuestion="deleteQuestion"
         ></Question>
+
+        <v-btn fixed dark fab right bottom color="primary" @click="createPlaceholder">
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+        <!-- to add extra space for the FAB if the user scrolled to the bottom of the page-->
+        <div style="height: 60px;"></div>
+
       </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import QuizzesAppBar from "@/components/quizzes/shared/AppBar.vue";
 import Question from '@/components/quizzes/admins/Question.vue'
 import api from "@/gateways/api";
+import AppBar from "@/components/utils/AppBar";
 
 export default {
   name: "Quiz",
   components: {
-    QuizzesAppBar,
+    AppBar,
     Question,
   },
   data() {
@@ -63,7 +65,16 @@ export default {
       })
     },
     createPlaceholder() {
-      this.placeholderExists = true;
+      if (this.placeholderExists) {
+        this.$store.dispatch("viewSnackbar", {
+          text: "Please fill the unfinished one first",
+          color: "error",
+        });
+      } else {
+        this.placeholderExists = true;
+        this.$vuetify.goTo(0)
+      }
+
     },
     deleteNewQuestion() {
       this.placeholderExists = false;
