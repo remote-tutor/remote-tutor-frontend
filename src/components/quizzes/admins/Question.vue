@@ -149,6 +149,7 @@ export default {
           this.questionData.choices.push({
             ID: this.totalCreatedChoices,
             text: "",
+            isNew: true,
           });
           this.totalCreatedChoices++;
         }
@@ -247,7 +248,7 @@ export default {
       formData.append("id", choice.ID)
       formData.append("text", choice.text);
       formData.append("mcqID", this.questionData.question.ID);
-      let method = this.new ? "POST" : "PUT";
+      let method = choice.isNew ? "POST" : "PUT";
       await api({
         method: method,
         url: "/admin/quizzes/choices",
