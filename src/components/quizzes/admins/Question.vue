@@ -106,7 +106,7 @@ export default {
     Choice,
     ConfirmationDialog,
   },
-  props: ['staticID', 'staticText', 'staticTotalMark', 'staticChoices', 'staticCorrectAnswer', 'isNew'],
+  props: ['staticID', 'staticText', 'staticTotalMark', 'staticChoices', 'staticCorrectAnswer', 'staticImage', 'staticImagePath', 'isNew'],
   computed: {
     ...mapState(['userData'])
   },
@@ -120,6 +120,7 @@ export default {
           text: this.staticText || "",
           totalMark: this.staticTotalMark || 1,
           image: [],
+          imagePath: this.staticImagePath || '',
           imageSrc: '',
         },
         mcq: true,
@@ -203,6 +204,7 @@ export default {
         }
       }).then((response) => {
         this.questionData.question.ID = response.data.mcq.question.ID;
+        this.questionData.question.imagePath = response.data.mcq.question.imagePath
       })
 
     },
@@ -252,7 +254,6 @@ export default {
         data: formData,
       }).then((response) => {
         let oldID = choice.ID
-        console.log(this.questionData.choices)
         this.questionData.choices[index].ID = response.data.choice.ID;
         if (oldID === this.questionData.correctAnswer) {
           this.questionData.correctAnswer = this.questionData.choices[index].ID
@@ -281,12 +282,18 @@ export default {
       (this.questionData.question.image === undefined) ?
           this.questionData.question.imageSrc = '' :
           this.questionData.question.imageSrc = URL.createObjectURL(this.questionData.question.image)
+    },
+    getImage() {
+      const url = process.env.VUE_APP_API_URL;
+      this.questionData.question.imageSrc = url + "/image/" + this.staticImagePath
     }
   },
   created() {
     if (this.isNew) {
       this.new = true;
       this.editMode = true;
+    } else {
+      this.getImage()
     }
   },
 };
