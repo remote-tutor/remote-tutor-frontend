@@ -81,11 +81,23 @@
       </thead>
     </template>
 
+    <template v-slot:body.prepend="{}">
+      <tr>
+        <td :colspan="2">Total Mark</td>
+        <td v-for="quiz in quizzes"
+            :key="quiz.ID"
+        >
+          {{ quiz.totalMark }}
+        </td>
+        <td>{{ quizzesTotalMarks }}</td>
+      </tr>
+    </template>
+
     <template v-slot:expanded-item="{headers, item}">
       <td :colspan="headers.length">
         Phone Number: {{ item.phoneNumber }}
         <v-spacer></v-spacer>
-        Parent Number: {{item.parentNumber}}
+        Parent Number: {{ item.parentNumber }}
       </td>
 
     </template>
@@ -115,6 +127,8 @@ export default {
     selectedYear: 1,
     headers: [],
     grades: [],
+    quizzes: [],
+    quizzesTotalMarks: 0,
   }),
 
   computed: {
@@ -142,12 +156,15 @@ export default {
           date: new Date(this.date).getTime(),
         }
       })
-      let quizzes = result.data.quizzes
+      this.quizzes = result.data.quizzes
+      this.quizzes.forEach(quiz => {
+        this.quizzesTotalMarks += quiz.totalMark
+      })
       let headers = [{text: '', value: 'data-table-expand'}, {text: 'Full Name', value: 'fullName'}]
 
       let gradesMap = new Map()
-      for (let i = 0; i < quizzes.length; i++) {
-        let quiz = quizzes[i]
+      for (let i = 0; i < this.quizzes.length; i++) {
+        let quiz = this.quizzes[i]
         headers.push({text: `${quiz.title} #${i + 1}`, value: quiz.ID.toString()})
         await api({
           method: "GET",
@@ -160,12 +177,12 @@ export default {
           usersGrades.forEach((userGrade) => {
             if (userGrade.userID !== 0) {
               if (!gradesMap.has(userGrade.user.username))
-              gradesMap.set(userGrade.user.username, {
-                fullName: userGrade.user.fullName,
-                phoneNumber: userGrade.user.phoneNumber,
-                parentNumber: userGrade.user.parentNumber,
-                total: 0
-              })
+                gradesMap.set(userGrade.user.username, {
+                  fullName: userGrade.user.fullName,
+                  phoneNumber: userGrade.user.phoneNumber,
+                  parentNumber: userGrade.user.parentNumber,
+                  total: 0
+                })
               let userGrades = gradesMap.get(userGrade.user.username)
               userGrades[`${quiz.ID}`] = userGrade.grade
               userGrades.total += userGrade.grade

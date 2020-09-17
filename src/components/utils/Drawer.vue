@@ -51,6 +51,12 @@
               </v-list-item-icon>
               <v-list-item-title>Students</v-list-item-title>
             </v-list-item>
+            <v-list-item :to="{ name: 'ResetPassword' }">
+              <v-list-item-icon>
+                <v-icon>mdi-lock</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Change Password</v-list-item-title>
+            </v-list-item>
             <v-list-item @click="logout">
               <v-list-item-icon>
                 <v-icon>mdi-logout</v-icon>

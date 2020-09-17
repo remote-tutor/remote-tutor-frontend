@@ -266,6 +266,7 @@ export default {
     deleteQuestion() {
       let formData = new FormData()
       formData.append("id", this.questionData.question.ID)
+      formData.append("quizID", this.$route.params.quizID);
       api({
         method: "DELETE",
         url: "/admin/quizzes/questions/mcq",

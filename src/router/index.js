@@ -8,6 +8,7 @@ import Quizzes from '../views/quizzes/shared/Quizzes.vue'
 import AdminQuiz from '../views/quizzes/admins/Quiz.vue'
 import StudentQuiz from '../views/quizzes/users/Quiz.vue'
 import Grades from "@/views/grades/shared/Grades";
+import ResetPassword from "@/views/users/ResetPassword";
 
 Vue.use(VueRouter)
 
@@ -84,6 +85,14 @@ const routes = [
     component: Grades,
     meta: {
       title: 'Grades'
+    }
+  },
+  {
+    path: '/password',
+    name: 'ResetPassword',
+    component: ResetPassword,
+    meta: {
+      title: 'Reset Password'
     }
   }
 ]

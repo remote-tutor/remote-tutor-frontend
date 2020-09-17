@@ -106,6 +106,7 @@ export default {
           .then((response) => {
             this.changeEditMode()
             this.updatedAnnouncement = response.data.announcement
+            this.cachedAnnouncement = Object.assign({}, this.updatedAnnouncement);
             this.$emit('updateAnnouncements', {
               old: this.announcement,
               updated: this.updatedAnnouncement,
@@ -146,3 +147,9 @@ export default {
   },
 };
 </script>
+
+<style>
+.v-card__text {
+  white-space: pre-line;
+}
+</style>
