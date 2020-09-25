@@ -6,7 +6,6 @@
       class="elevation-1"
       :loading="loading"
       multi-sort
-      :sort-by="['fullName']"
       :search="search"
       single-expand
       :expanded.sync="expanded"
@@ -81,9 +80,9 @@
       </thead>
     </template>
 
-    <template v-slot:body.prepend="{}">
+    <template v-slot:body.prepend="{}" v-if="$vuetify.breakpoint.smAndUp && headers.length > 0">
       <tr>
-        <td :colspan="2">Total Mark</td>
+        <td colspan="2">Total Mark</td>
         <td v-for="quiz in quizzes"
             :key="quiz.ID"
         >
@@ -147,6 +146,9 @@ export default {
       this.getQuizzesGrades()
     },
     async getQuizzesGrades() {
+      this.headers = []
+      this.grades = []
+      this.quizzesTotalMarks = 0
       this.loading = true
       let result = await api({
         method: "GET",
@@ -165,7 +167,10 @@ export default {
       let gradesMap = new Map()
       for (let i = 0; i < this.quizzes.length; i++) {
         let quiz = this.quizzes[i]
-        headers.push({text: `${quiz.title} #${i + 1}`, value: quiz.ID.toString()})
+        if (this.$vuetify.breakpoint.mdAndUp)
+          headers.push({text: `${quiz.title} #${i + 1}`, value: quiz.ID.toString()})
+        else
+          headers.push({text: `${quiz.title} #${i + 1} (${quiz.totalMark})`, value: quiz.ID.toString()})
         await api({
           method: "GET",
           url: this.url,

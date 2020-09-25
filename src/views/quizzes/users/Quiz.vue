@@ -74,14 +74,15 @@ export default {
         }
       }).then(response => {
         let mcqSubmissions = response.data.mcqSubmissions
-        if (mcqSubmissions !== null)
-          for (let i = 0; i < this.questions.length; i++)
-            for (let j = 0; j < mcqSubmissions.length; j++)
-              if (this.questions[i].question.ID === mcqSubmissions[j].mcqID) {
-                this.submissions[i] = mcqSubmissions[j].userResult
-              }
-         // to convince Vue that the array actually changed
-        this.submissions = this.submissions.slice()
+
+        for (let i = 0; i < this.questions.length; i++)
+          for (let j = 0; j < mcqSubmissions.length; j++)
+            if (this.questions[i].question.ID === mcqSubmissions[j].mcqID) {
+              this.submissions.splice(i, 1, mcqSubmissions[j].userResult)
+              // this.submissions[i] = mcqSubmissions[j].userResult
+            }
+        // to convince Vue that the array actually changed
+        // this.submissions = this.submissions.slice()
       })
       // GET SUBMISSIONS
     },
@@ -91,15 +92,28 @@ export default {
       formData.append("mcqID", this.questions[this.selectedQuestion].question.ID)
       formData.append("quizID", this.quizID)
       formData.append("userResult", options.choice)
-      console.log(options.choice)
       api({
         method: method,
         url: "/quizzes/submissions/mcq",
         data: formData
+      }).then(() => {
+        this.$store.dispatch('viewSnackbar', {
+          text: 'Question #' + (this.selectedQuestion + 1) + ' has been saved successfully',
+          color: 'success'
+        })
+        let updatedSubmissions = this.submissions.slice() // to convince Vue that the array actually changed
+        updatedSubmissions[this.selectedQuestion] = options.choice
+        this.submissions = updatedSubmissions
+      }).catch(async () => {
+        let oldValue = this.submissions[this.selectedQuestion] // get the original value of the submission
+        await this.submissions.splice(this.selectedQuestion, 1, 0) // force the submissions array to change
+        this.submissions.splice(this.selectedQuestion, 1, oldValue) // return the submission to its previous value
+
+        await this.$store.dispatch('viewSnackbar', {
+          text: 'Error saving question #' + (this.selectedQuestion + 1),
+          color: 'error'
+        })
       })
-      let updatedSubmissions = this.submissions.slice() // to convince Vue that the array actually changed
-      updatedSubmissions[this.selectedQuestion] = options.choice
-      this.submissions = updatedSubmissions
     },
     createQuizGrade() {
       let formData = new FormData()

@@ -81,7 +81,7 @@
         <v-btn color="success" v-if="editMode" @click="sendChoices" :loading="loading">Save</v-btn>
 
         <v-spacer></v-spacer>
-<!--        <v-btn color="secondary" v-if="editMode" class="mr-2">Cancel</v-btn>-->
+        <!--        <v-btn color="secondary" v-if="editMode" class="mr-2">Cancel</v-btn>-->
         <ConfirmationDialog
             v-if="!this.new"
             buttonText="Delete"
@@ -194,7 +194,7 @@ export default {
       formData.append("correctAnswer", this.questionData.correctAnswer);
       formData.append("image", this.questionData.question.image)
       let method = this.new ? "POST" : "PUT";
-      api({
+      let response = await api({
         method: method,
         url: "/admin/quizzes/questions/mcq",
         data: formData,
@@ -203,10 +203,10 @@ export default {
             'Content-Type': 'multipart/form-data'
           }
         }
-      }).then((response) => {
-        this.questionData.question.ID = response.data.mcq.question.ID;
-        this.questionData.question.imagePath = response.data.mcq.question.imagePath
       })
+      this.questionData.question.ID = response.data.mcq.question.ID;
+      this.questionData.question.imagePath = response.data.mcq.question.imagePath
+
 
     },
     async sendChoices() {
@@ -231,15 +231,15 @@ export default {
               await this.pushChoice(choice, index)
             }));
 
-        this.changeEditMode()
-
         this.$emit("placeholderFilled", {
           questionData: this.questionData,
           new: this.new,
         });
         this.new = false;
-        await this.pushQuestion();
-        this.loading = false
+        this.pushQuestion().then(() => {
+          this.loading = false
+          this.changeEditMode()
+        })
       }
 
     },
