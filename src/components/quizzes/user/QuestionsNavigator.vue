@@ -99,24 +99,41 @@ export default {
           id: this.$route.params.quizID,
         }
       }).then(response => {
-        let quiz = response.data.quiz
-        if (!this.isReview &&
-            (new Date().getTime() < new Date(quiz.startTime).getTime() ||
-                new Date().getTime() > new Date(quiz.endTime))) {
-          this.$router.push({name: 'Quizzes'})
-          this.$store.dispatch('viewSnackbar', {
-            text: 'Invalid request',
-            color: 'error'
-          })
-        }
-        if (this.isReview && new Date().getTime() < new Date(quiz.endTime)) {
-          this.$router.push({name: 'Quizzes'})
-          this.$store.dispatch('viewSnackbar', {
-            text: 'Invalid request',
-            color: 'error'
-          })
-        }
         this.quiz = response.data.quiz
+        if (!this.isReview &&
+            (new Date().getTime() < new Date(this.quiz.startTime).getTime() ||
+                new Date().getTime() > new Date(this.quiz.endTime))) {
+          this.$router.push({name: 'Quizzes'})
+          this.$store.dispatch('viewSnackbar', {
+            text: 'Invalid request',
+            color: 'error'
+          })
+        } else if (this.isReview && new Date().getTime() < new Date(this.quiz.endTime)) {
+          this.$router.push({name: 'Quizzes'})
+          this.$store.dispatch('viewSnackbar', {
+            text: 'Invalid request',
+            color: 'error'
+          })
+        } else {
+          this.getQuizPermission()
+        }
+      })
+    },
+    getQuizPermission() {
+      api({
+        method: "GET",
+        url: "/payments/week",
+        params: {
+          eventDate: new Date(this.quiz.startTime).getTime()
+        }
+      }).then(response => {
+        if (!response.data.status) {
+          this.$router.push({name: 'Quizzes'})
+          this.$store.dispatch('viewSnackbar', {
+            text: "You don't have access to take this quiz. Contact the administrator for help",
+            color: 'error'
+          })
+        }
       })
     },
     getQuizGrade() {

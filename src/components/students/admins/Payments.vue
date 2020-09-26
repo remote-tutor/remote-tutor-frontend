@@ -134,7 +134,7 @@ export default {
 
       return api({
         method: "GET",
-        url: "/payments",
+        url: "/payments/month",
         params: {
           userID: this.userID,
           startDate: startDate,
