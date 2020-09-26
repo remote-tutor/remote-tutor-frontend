@@ -104,7 +104,11 @@
       </template>
     </v-data-table>
 
-    <Payments v-if="!pending" :dialog.sync="payment.dialog" :student-name="payment.studentName"></Payments>
+    <Payments v-if="!pending"
+              :dialog.sync="payment.dialog"
+              :student-name="payment.studentName"
+              :userID="payment.userID"
+    ></Payments>
 
   </v-card>
 </template>
@@ -148,6 +152,7 @@ export default {
       payment: {
         dialog: false,
         studentName: '',
+        userID: 0,
       },
 
     };
@@ -239,8 +244,16 @@ export default {
     handleClick(user) {
       if (this.pending)
         return
+      if (user.admin) {
+        this.$store.dispatch('viewSnackbar', {
+          text: "This user is an admin, you can't view admin payments",
+          color: "error",
+        })
+        return
+      }
       this.payment.dialog = true
       this.payment.studentName = user.fullName
+      this.payment.userID = user.ID
     }
   },
 };
