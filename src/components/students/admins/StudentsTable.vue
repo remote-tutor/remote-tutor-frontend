@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title>
-      Pending Students
+      {{tableTitle}}
       <v-spacer></v-spacer>
       <v-text-field
           v-model="searchBy.value"
@@ -25,6 +25,7 @@
       }"
         :items-per-page="10"
         class="elevation-1"
+        @click:row="handleClick"
     >
       <template v-slot:footer v-if="pending">
         <v-btn block color="primary" @click="submitState">Submit</v-btn>
@@ -102,14 +103,19 @@
         </v-row>
       </template>
     </v-data-table>
+
+    <Payments v-if="!pending" :dialog.sync="payment.dialog" :student-name="payment.studentName"></Payments>
+
   </v-card>
 </template>
 
 <script>
 import api from "@/gateways/api.js";
+import Payments from "@/components/students/admins/Payments";
 
 export default {
   name: "StudentsTable",
+  components: {Payments},
   props: ["pending"],
   data() {
     return {
@@ -117,6 +123,7 @@ export default {
       students: [],
       loading: false,
       options: {},
+      tableTitle: 'Active Students',
       headers: [
         {text: "Full Name", value: "fullName"},
         {text: "Username", value: "username"},
@@ -138,12 +145,18 @@ export default {
         {text: "Second Year", value: 2},
         {text: "Third Year", value: 3},
       ],
+      payment: {
+        dialog: false,
+        studentName: '',
+      },
+
     };
   },
   mounted() {
     this.getStudents();
     if (this.pending) {
       this.headers.push({text: "State", value: "status", sortable: false},)
+      this.tableTitle = 'Pending Students'
     }
   },
   watch: {
@@ -222,6 +235,12 @@ export default {
           data: formData,
         })
       }
+    },
+    handleClick(user) {
+      if (this.pending)
+        return
+      this.payment.dialog = true
+      this.payment.studentName = user.fullName
     }
   },
 };
