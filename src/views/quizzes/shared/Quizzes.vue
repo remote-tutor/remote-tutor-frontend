@@ -11,13 +11,13 @@
 
         <v-tabs-items v-model="tab">
           <v-tab-item>
-            <DataTable title="Current Quizzes" :type="0"></DataTable>
+            <QuizzesTable title="Current Quizzes" :type="0"></QuizzesTable>
           </v-tab-item>
           <v-tab-item>
-            <DataTable title="Upcoming Quizzes" :type="1"></DataTable>
+            <QuizzesTable title="Upcoming Quizzes" :type="1"></QuizzesTable>
           </v-tab-item>
           <v-tab-item>
-            <DataTable title="Past Quizzes" :type="-1"></DataTable>
+            <QuizzesTable title="Past Quizzes" :type="-1"></QuizzesTable>
           </v-tab-item>
         </v-tabs-items>
       </v-container>
@@ -26,14 +26,14 @@
 </template>
 
 <script>
-import DataTable from "@/components/quizzes/shared/DataTable";
+import QuizzesTable from "@/components/quizzes/shared/QuizzesTable";
 import AppBar from "@/components/utils/AppBar";
 
 export default {
   name: "Quizzes",
   components: {
     AppBar,
-    DataTable,
+    QuizzesTable,
   },
   data() {
     return {

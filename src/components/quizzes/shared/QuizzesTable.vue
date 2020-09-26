@@ -5,6 +5,12 @@
       class="elevation-1"
       :loading="loading"
       disable-sort
+      :options.sync="options"
+      :server-items-length="totalQuizzes"
+      :footer-props="{
+        'items-per-page-options': [10, 15, 20]
+      }"
+      :items-per-page="10"
   >
     <template v-slot:top>
 
@@ -107,6 +113,8 @@ export default {
   data: () => ({
     loading: false,
     dialog: false,
+    options: {},
+    totalQuizzes: 0,
     years: [
       {text: "First Year", value: 1},
       {text: "Second Year", value: 2},
@@ -142,10 +150,15 @@ export default {
     dialog(val) {
       val || this.close()
     },
+    options: {
+      handler() {
+        this.getQuizzes();
+      },
+      deep: true,
+    },
   },
 
   created() {
-    this.getQuizzes()
     this.emptyQuiz = Object.assign(this.editedQuiz, {})
     if (this.userData.admin) {
       this.headers.push({text: 'Actions', value: 'actions'})
@@ -160,34 +173,40 @@ export default {
       }
     }
   },
-
+  mounted() {
+    this.getQuizzes()
+  },
   methods: {
     getQuizzes() {
       this.loading = true
+      const {sortBy, sortDesc, page, itemsPerPage} = this.options
       api({
         method: "GET",
         url: "/quizzes" + this.url,
         params: {
-          year: this.selectedYear
+          year: this.selectedYear,
+          page: page,
+          itemsPerPage: itemsPerPage,
+          sortBy: sortBy,
+          sortDesc: sortDesc,
         }
-      }).then(async result => {
-        if (this.type === -1) this.quizzes = result.data.pastQuizzes
-        else if (this.type === 0) this.quizzes = result.data.currentQuizzes
-        else if (this.type === 1) this.quizzes = result.data.futureQuizzes
+      }).then(async response => {
+        this.totalQuizzes = response.data.totalQuizzes
+        if (this.type === -1) this.quizzes = response.data.pastQuizzes
+        else if (this.type === 0) this.quizzes = response.data.currentQuizzes
+        else if (this.type === 1) this.quizzes = response.data.futureQuizzes
         this.formatQuizzes()
-        if (this.type === 0 || this.type === 1) {
-          let quizzesPermissions = []
-          this.quizzes.forEach(quiz => {
-            quizzesPermissions.push(this.getQuizPermission(quiz))
-          })
-          await Promise.all(quizzesPermissions)
-              .then(response => {
-                this.quizzes.forEach((quiz, index) => {
-                  this.quizzes[index].access = response[index].data.status
-                })
-              })
-        }
 
+        let quizzesPermissions = []
+        this.quizzes.forEach(quiz => {
+          quizzesPermissions.push(this.getQuizPermission(quiz))
+        })
+        await Promise.all(quizzesPermissions)
+            .then(response => {
+              this.quizzes.forEach((quiz, index) => {
+                this.quizzes[index].access = response[index].data.status
+              })
+            })
       }).catch(error => {
         console.log(error)
       }).finally(() => {

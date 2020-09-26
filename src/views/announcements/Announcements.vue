@@ -4,13 +4,13 @@
     <v-main>
       <v-container>
         <Announcement
-          v-for="announcement in announcements"
-          :key="announcement.ID"
-          :announcement="announcement"
-          :placeholder-exists.sync="placeholderExists"
-          @deleteAnnouncement="deleteAnnouncement"
-          @updateAnnouncements="updateAnnouncements"
-          ></Announcement>
+            v-for="announcement in announcements"
+            :key="announcement.ID"
+            :announcement="announcement"
+            :placeholder-exists.sync="placeholderExists"
+            @deleteAnnouncement="deleteAnnouncement"
+            @updateAnnouncements="updateAnnouncements"
+        ></Announcement>
         <BottomPagination :length="totalPages" @pageChanged="pageChanged"></BottomPagination>
 
         <v-speed-dial v-model="fab" fixed bottom right direction="top" v-if="userData.admin">
@@ -81,6 +81,12 @@ export default {
         topic: "",
         content: "",
       },
+      options: {
+        sortBy: ['created_at'],
+        sortDesc: ['true'],
+        page: 1,
+        itemsPerPage: 5,
+      }
     };
   },
   methods: {
@@ -89,18 +95,20 @@ export default {
         method: "GET",
         url: "/announcements",
         params: {
-          length: this.length,
-          currentPage: this.currentPage,
+          itemsPerPage: this.options.itemsPerPage,
+          page: this.options.page,
+          sortBy: this.options.sortBy,
+          sortDesc: this.options.sortDesc,
           title: this.searchValues.title,
           topic: this.searchValues.topic,
           content: this.searchValues.content,
         },
       })
-        .then((response) => {
-          this.announcements = response.data.announcements;
-          let totalAnnouncements = response.data.total;
-          this.totalPages = Math.ceil(totalAnnouncements / this.length);
-        })
+          .then((response) => {
+            this.announcements = response.data.announcements;
+            let totalAnnouncements = response.data.total;
+            this.totalPages = Math.ceil(totalAnnouncements / this.length);
+          })
     },
     createPlaceholder() {
       if (this.placeholderExists) {
@@ -132,7 +140,7 @@ export default {
       this.getAnnouncements();
     },
     pageChanged(options) {
-      this.currentPage = options.currentPage;
+      this.options.page = options.currentPage;
       this.getAnnouncements();
     },
   },
