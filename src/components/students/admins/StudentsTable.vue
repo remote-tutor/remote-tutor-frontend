@@ -104,22 +104,22 @@
       </template>
     </v-data-table>
 
-    <Payments v-if="!pending"
+    <Payment v-if="!pending"
               :dialog.sync="payment.dialog"
               :student-name="payment.studentName"
               :userID="payment.userID"
-    ></Payments>
+    ></Payment>
 
   </v-card>
 </template>
 
 <script>
 import api from "@/gateways/api.js";
-import Payments from "@/components/students/admins/Payments";
+import Payment from "@/components/payments/shared/Payment";
 
 export default {
   name: "StudentsTable",
-  components: {Payments},
+  components: {Payment},
   props: ["pending"],
   data() {
     return {

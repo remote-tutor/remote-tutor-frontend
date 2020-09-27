@@ -9,7 +9,7 @@
           <v-toolbar-title>Payments</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
-            <v-btn dark text @click="updatePayments">Save</v-btn>
+            <v-btn dark text @click="updatePayments" v-if="userData.admin">Save</v-btn>
           </v-toolbar-items>
         </v-toolbar>
         <v-card-title>
@@ -52,7 +52,7 @@
             class="elevation-1"
         >
           <template v-slot:item.status="{ item }">
-            <v-simple-checkbox v-model="item.status" :ripple="false"></v-simple-checkbox>
+            <v-simple-checkbox v-model="item.status" :ripple="false" :disabled="!userData.admin"></v-simple-checkbox>
           </template>
 
         </v-data-table>
@@ -73,9 +73,10 @@
 
 <script>
 import api from "@/gateways/api";
+import {mapState} from "vuex";
 
 export default {
-  name: "Payments",
+  name: "Payment",
   props: ['dialog', 'studentName', "userID"],
   data() {
     return {
@@ -89,6 +90,9 @@ export default {
       menu: false,
       loadingDialog: false,
     }
+  },
+  computed: {
+    ...mapState(['userData'])
   },
   methods: {
     saveMonth() {
