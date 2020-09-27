@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title>
-      Pending Students
+      {{tableTitle}}
       <v-spacer></v-spacer>
       <v-text-field
           v-model="searchBy.value"
@@ -25,6 +25,7 @@
       }"
         :items-per-page="10"
         class="elevation-1"
+        @click:row="handleClick"
     >
       <template v-slot:footer v-if="pending">
         <v-btn block color="primary" @click="submitState">Submit</v-btn>
@@ -102,14 +103,23 @@
         </v-row>
       </template>
     </v-data-table>
+
+    <Payment v-if="!pending"
+              :dialog.sync="payment.dialog"
+              :student-name="payment.studentName"
+              :userID="payment.userID"
+    ></Payment>
+
   </v-card>
 </template>
 
 <script>
 import api from "@/gateways/api.js";
+import Payment from "@/components/payments/shared/Payment";
 
 export default {
   name: "StudentsTable",
+  components: {Payment},
   props: ["pending"],
   data() {
     return {
@@ -117,6 +127,7 @@ export default {
       students: [],
       loading: false,
       options: {},
+      tableTitle: 'Active Students',
       headers: [
         {text: "Full Name", value: "fullName"},
         {text: "Username", value: "username"},
@@ -138,12 +149,19 @@ export default {
         {text: "Second Year", value: 2},
         {text: "Third Year", value: 3},
       ],
+      payment: {
+        dialog: false,
+        studentName: '',
+        userID: 0,
+      },
+
     };
   },
   mounted() {
     this.getStudents();
     if (this.pending) {
       this.headers.push({text: "State", value: "status", sortable: false},)
+      this.tableTitle = 'Pending Students'
     }
   },
   watch: {
@@ -222,6 +240,20 @@ export default {
           data: formData,
         })
       }
+    },
+    handleClick(user) {
+      if (this.pending)
+        return
+      if (user.admin) {
+        this.$store.dispatch('viewSnackbar', {
+          text: "This user is an admin, you can't view admin payments",
+          color: "error",
+        })
+        return
+      }
+      this.payment.dialog = true
+      this.payment.studentName = user.fullName
+      this.payment.userID = user.ID
     }
   },
 };

@@ -4,6 +4,13 @@
       :items="quizzes"
       class="elevation-1"
       :loading="loading"
+      disable-sort
+      :options.sync="options"
+      :server-items-length="totalQuizzes"
+      :footer-props="{
+        'items-per-page-options': [10, 15, 20]
+      }"
+      :items-per-page="10"
   >
     <template v-slot:top>
 
@@ -44,20 +51,51 @@
       <v-btn small :to="{ name: 'QuizQuestions', params: {quizID: item.ID} }">GO TO</v-btn>
     </template>
     <template v-slot:item.start="{item}">
-      <v-btn small @click="solve(item)">Start</v-btn>
+      <v-btn small @click="solve(item)" v-if="item.access">Start</v-btn>
+
+      <v-tooltip bottom v-else>
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon color="red" dark v-bind="attrs" v-on="on">mdi-close-circle</v-icon>
+        </template>
+        <span>You don't have access to take this quiz. If you think there's an error, please contact the administrator</span>
+      </v-tooltip>
     </template>
+
     <template v-slot:item.review="{item}">
-      <v-btn small @click="review(item)">Review</v-btn>
+      <v-btn small @click="review(item)" v-if="item.access">Review</v-btn>
+
+      <v-tooltip bottom v-else>
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon color="red" dark v-bind="attrs" v-on="on">mdi-close-circle</v-icon>
+        </template>
+        <span>You don't have access to review this quiz. If you think there's an error, please contact the administrator</span>
+      </v-tooltip>
+    </template>
+
+    <template v-slot:item.access="{item}">
+      <v-tooltip bottom v-if="item.access">
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon color="green" dark v-bind="attrs" v-on="on">mdi-check-bold</v-icon>
+        </template>
+        <span>You could take this quiz when it starts</span>
+      </v-tooltip>
+
+      <v-tooltip bottom v-else>
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon color="red" dark v-bind="attrs" v-on="on">mdi-close-circle</v-icon>
+        </template>
+        <span>You don't have access to take this quiz. If you think there's an error, please contact the administrator</span>
+      </v-tooltip>
     </template>
     <template v-slot:item.actions="{ item }" v-if="userData.admin">
       <v-icon small class="mr-2" @click="editQuiz(item)" v-if="type === 1">
         mdi-pencil
       </v-icon>
       <ConfirmationDialog v-slot:item.actions="{ item }"
-          :datatable="true"
-          mainText="Delete Quiz"
-          message="You won't be able to restore the deleted quiz or its questions"
-          @confirm="deleteQuiz(item)">
+                          :datatable="true"
+                          mainText="Delete Quiz"
+                          message="You won't be able to restore the deleted quiz or its questions"
+                          @confirm="deleteQuiz(item)">
       </ConfirmationDialog>
     </template>
   </v-data-table>
@@ -75,6 +113,8 @@ export default {
   data: () => ({
     loading: false,
     dialog: false,
+    options: {},
+    totalQuizzes: 0,
     years: [
       {text: "First Year", value: 1},
       {text: "Second Year", value: 2},
@@ -82,9 +122,9 @@ export default {
     ],
     selectedYear: 1,
     headers: [
-      {text: 'Title', sortable: false, value: 'title'},
-      {text: 'Start At', value: 'formattedStartTime', sortable: false},
-      {text: 'End At', value: 'formattedEndTime', sortable: false},
+      {text: 'Title', value: 'title'},
+      {text: 'Start At', value: 'formattedStartTime'},
+      {text: 'End At', value: 'formattedEndTime'},
     ],
     quizzes: [],
     editedIndex: -1,
@@ -110,41 +150,76 @@ export default {
     dialog(val) {
       val || this.close()
     },
+    options: {
+      handler() {
+        this.getQuizzes();
+      },
+      deep: true,
+    },
   },
 
   created() {
-    this.getQuizzes()
     this.emptyQuiz = Object.assign(this.editedQuiz, {})
     if (this.userData.admin) {
-      this.headers.push({text: 'Actions', value: 'actions', sortable: false})
-      this.headers.splice(1, 0, {text: 'Go To', sortable: false, value: 'goTo'})
+      this.headers.push({text: 'Actions', value: 'actions'})
+      this.headers.splice(1, 0, {text: 'Go To', value: 'goTo'})
     } else {
-      if (this.type === 0) {
-        this.headers.splice(1, 0, {text: 'Start', sortable: false, value: 'start'})
+      if (this.type === 1) {
+        this.headers.splice(1, 0, {text: 'Access', value: 'access'})
+      } else if (this.type === 0) {
+        this.headers.splice(1, 0, {text: 'Start', value: 'start'})
       } else if (this.type === -1) {
-        this.headers.splice(1, 0, {text: 'Review', sortable: false, value: 'review'})
+        this.headers.splice(1, 0, {text: 'Review', value: 'review'})
       }
     }
   },
-
+  mounted() {
+    this.getQuizzes()
+  },
   methods: {
     getQuizzes() {
       this.loading = true
+      const {sortBy, sortDesc, page, itemsPerPage} = this.options
       api({
         method: "GET",
         url: "/quizzes" + this.url,
         params: {
-          year: this.selectedYear
+          year: this.selectedYear,
+          page: page,
+          itemsPerPage: itemsPerPage,
+          sortBy: sortBy,
+          sortDesc: sortDesc,
         }
-      }).then(result => {
-        if (this.type === -1) this.quizzes = result.data.pastQuizzes
-        else if (this.type === 0) this.quizzes = result.data.currentQuizzes
-        else if (this.type === 1) this.quizzes = result.data.futureQuizzes
+      }).then(async response => {
+        this.totalQuizzes = response.data.totalQuizzes
+        if (this.type === -1) this.quizzes = response.data.pastQuizzes
+        else if (this.type === 0) this.quizzes = response.data.currentQuizzes
+        else if (this.type === 1) this.quizzes = response.data.futureQuizzes
         this.formatQuizzes()
+
+        let quizzesPermissions = []
+        this.quizzes.forEach(quiz => {
+          quizzesPermissions.push(this.getQuizPermission(quiz))
+        })
+        await Promise.all(quizzesPermissions)
+            .then(response => {
+              this.quizzes.forEach((quiz, index) => {
+                this.quizzes[index].access = response[index].data.status
+              })
+            })
       }).catch(error => {
         console.log(error)
       }).finally(() => {
         this.loading = false
+      })
+    },
+    getQuizPermission(quiz) {
+      return api({
+        method: "GET",
+        url: "/payments/week",
+        params: {
+          eventDate: new Date(quiz.startTime).getTime()
+        }
       })
     },
     formatQuizzes() {
@@ -204,10 +279,10 @@ export default {
       this.close()
     },
     solve(item) {
-      this.$router.push({ name: 'SolveQuiz', params: { action: 'solve', quizID: item.ID } })
+      this.$router.push({name: 'SolveQuiz', params: {action: 'solve', quizID: item.ID}})
     },
     review(item) {
-      this.$router.push({ name: 'SolveQuiz', params: { action: 'review', quizID: item.ID } })
+      this.$router.push({name: 'SolveQuiz', params: {action: 'review', quizID: item.ID}})
     },
   },
 }
