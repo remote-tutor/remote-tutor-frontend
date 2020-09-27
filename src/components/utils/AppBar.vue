@@ -9,7 +9,7 @@
       <v-toolbar-title>{{ pageName }}</v-toolbar-title>
 
       <v-spacer></v-spacer>
-      <v-tooltip bottom>
+      <v-tooltip bottom v-if="!userData.admin">
         <template v-slot:activator="{ on }">
           <v-btn icon large v-on="on" @click="dialog = true">
             <v-icon>mdi-cash</v-icon>

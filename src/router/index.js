@@ -9,6 +9,7 @@ import AdminQuiz from '../views/quizzes/admins/Quiz.vue'
 import StudentQuiz from '../views/quizzes/users/Quiz.vue'
 import Grades from "@/views/grades/shared/Grades";
 import ResetPassword from "@/views/users/ResetPassword";
+import Assignments from "@/views/assignments/shared/Assignments";
 
 Vue.use(VueRouter)
 
@@ -85,6 +86,14 @@ const routes = [
     component: Grades,
     meta: {
       title: 'Grades'
+    }
+  },
+  {
+    path: '/assignments',
+    name: 'Assignments',
+    component: Assignments,
+    meta: {
+      title: 'Assignments'
     }
   },
   {
