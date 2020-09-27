@@ -11,6 +11,8 @@
       }"
       :items-per-page="10"
       must-sort
+      sort-by="CreatedAt"
+      sort-desc
   >
     <template v-slot:top>
       <v-toolbar flat color="white">
@@ -35,6 +37,7 @@
           <v-btn v-if="userData.admin"
                  color="primary"
                  dark
+                 @click="view({ID: -1})"
                  class="mb-2">Create Assignment
           </v-btn>
         </v-col>
@@ -50,7 +53,7 @@
     </template>
 
     <template v-slot:item.view="{item}">
-      <v-btn small v-if="item.access || userData.admin">View</v-btn>
+      <v-btn small v-if="item.access || userData.admin" @click="view(item)">View</v-btn>
 
       <v-tooltip bottom v-else>
         <template v-slot:activator="{ on, attrs }">
@@ -145,6 +148,9 @@ export default {
           eventDate: new Date(assignment.CreatedAt).getTime()
         }
       })
+    },
+    view(assignment) {
+      this.$router.push({name: 'Assignment', params: {assignmentID: assignment.ID}})
     }
   },
   watch: {
