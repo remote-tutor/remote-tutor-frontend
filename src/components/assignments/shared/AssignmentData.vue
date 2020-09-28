@@ -124,6 +124,7 @@ export default {
   data() {
     return {
       assignment: {
+        CreatedAt: '',
         title: '',
         year: 1,
         deadline: "",
@@ -175,6 +176,7 @@ export default {
       if (assignmentID > 0) {
         method = "PUT"
         formData.append("id", assignmentID)
+        formData.append("CreatedAt", Date.parse(this.assignment.CreatedAt))
       } else {
         method = "POST"
       }
@@ -184,8 +186,10 @@ export default {
       formData.append("deadline", Date.parse(this.assignment.deadline))
       formData.append("totalMark", this.assignment.totalMark)
       formData.append("modelAnswerPeriod", this.assignment.modelAnswerPeriod)
-      formData.append("questions", this.assignment.questionsBytes)
-      formData.append("modelAnswer", this.assignment.modelAnswerBytes)
+      formData.append("questions", this.assignment.questions)
+      formData.append("questionsFile", this.assignment.questionsBytes)
+      formData.append("modelAnswer", this.assignment.modelAnswer)
+      formData.append("modelAnswerFile", this.assignment.modelAnswerBytes)
       api({
         method: method,
         url: '/admin/assignments',
@@ -210,15 +214,20 @@ export default {
           file: fullPath
         }
       }).then(response => {
-        let words = fullPath.split(" ")
-        words.splice(0, 2)
         if (questionsFile) {
-          this.assignment.questionsFileName = words.join(" ")
+          let folders = fullPath.split("/questionsFile/")
+          this.assignment.questionsFileName = folders[folders.length - 1]
           this.assignment.questionsDownloadLink = URL.createObjectURL(new Blob([response.data]));
         } else {
-          this.assignment.modelAnswerFileName = words.join(" ")
+          let folders = fullPath.split("/modelAnswerFile/")
+          this.assignment.modelAnswerFileName = folders[folders.length - 1]
           this.assignment.modelAnswerDownloadLink = URL.createObjectURL(new Blob([response.data]));
         }
+      }).catch(() => {
+        this.$store.dispatch('viewSnackbar', {
+          text: 'Sorry we cannot download the requested file now, please try again later',
+          color: 'error'
+        })
       }).finally(() => {
         (questionsFile) ? this.loadingQuestions = false : this.loadingModelAnswer = false
       })
