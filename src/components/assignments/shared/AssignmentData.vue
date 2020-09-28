@@ -70,7 +70,7 @@
                 show-size
                 label="Model Answer"
                 prepend-icon="mdi-format-list-text"
-                :hint="'This file will be shown AFTER the deadline by ' +  assignment.hours  + ' hour(s)'"
+                :hint="'This file will be shown AFTER the deadline by ' +  assignment.modelAnswerPeriod  + ' hour(s)'"
                 persistent-hint
                 v-model="assignment.modelAnswerBytes"
             ></v-file-input>
@@ -83,6 +83,30 @@
             ></v-select>
           </v-col>
         </v-row>
+
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-btn outlined v-if="assignment.questions.length > 0">
+              <a :loading="loadingQuestions" :href="assignment.questionsDownloadLink"
+                 :download="assignment.questionsFileName" class="download-link">
+                Download Questions
+                <v-icon>mdi-cloud-download</v-icon>
+              </a>
+            </v-btn>
+            <div v-else>We couldn't find the questions file for this assignment</div>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-btn outlined v-if="assignment.modelAnswer.length > 0">
+              <a :loading="loadingModelAnswer" :href="assignment.modelAnswerDownloadLink"
+                 :download="assignment.modelAnswerFileName" class="download-link">
+                Download Model Answer
+                <v-icon>mdi-cloud-download</v-icon>
+              </a>
+            </v-btn>
+            <div v-else>No model answer associated with this question</div>
+          </v-col>
+        </v-row>
+
         <v-btn color="primary" type="submit" block :disabled="invalid" :loading="loading">
           Save Assignment
         </v-btn>
@@ -109,9 +133,15 @@ export default {
         modelAnswerBytes: [],
         questions: "",
         modelAnswer: "",
+        questionsDownloadLink: "",
+        modelAnswerDownloadLink: "",
+        questionsFileName: "",
+        modelAnswerFileName: "",
       },
       menu: false,
       loading: false,
+      loadingQuestions: false,
+      loadingModelAnswer: false,
       years: [
         {text: "First Year", value: 1},
         {text: "Second Year", value: 2},
@@ -132,6 +162,8 @@ export default {
       }
     }).then(response => {
       this.assignment = response.data.assignment
+      this.getFile(this.assignment.questions, true)
+      this.getFile(this.assignment.modelAnswer, false)
     })
   },
   methods: {
@@ -161,9 +193,34 @@ export default {
       }).then(() => {
         this.$router.push({name: 'Assignments'})
       })
-      .catch(err => console.log(err))
-      .finally(() => {
-        this.loading = false
+          .catch(err => console.log(err))
+          .finally(() => {
+            this.loading = false
+          })
+    },
+    getFile(fullPath, questionsFile) {
+      if (fullPath === "")
+        return
+      (questionsFile) ? this.loadingQuestions = true : this.loadingModelAnswer = true
+      api({
+        method: "GET",
+        url: "/assignments/assignment/file",
+        responseType: 'blob',
+        params: {
+          file: fullPath
+        }
+      }).then(response => {
+        let words = fullPath.split(" ")
+        words.splice(0, 2)
+        if (questionsFile) {
+          this.assignment.questionsFileName = words.join(" ")
+          this.assignment.questionsDownloadLink = URL.createObjectURL(new Blob([response.data]));
+        } else {
+          this.assignment.modelAnswerFileName = words.join(" ")
+          this.assignment.modelAnswerDownloadLink = URL.createObjectURL(new Blob([response.data]));
+        }
+      }).finally(() => {
+        (questionsFile) ? this.loadingQuestions = false : this.loadingModelAnswer = false
       })
     },
   }
@@ -171,5 +228,7 @@ export default {
 </script>
 
 <style scoped>
-
+.download-link {
+  text-decoration: none !important;
+}
 </style>
