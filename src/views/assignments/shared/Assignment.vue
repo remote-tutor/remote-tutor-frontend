@@ -3,7 +3,8 @@
     <AppBar page-name="Assignment"></AppBar>
     <v-main>
       <v-container>
-        <AssignmentData></AssignmentData>
+        <AdminAssignmentData v-if="userData.admin"></AdminAssignmentData>
+        <StudentAssignmentData v-else></StudentAssignmentData>
       </v-container>
     </v-main>
   </v-app>
@@ -11,10 +12,15 @@
 
 <script>
 import AppBar from "@/components/utils/AppBar";
-import AssignmentData from "@/components/assignments/shared/AssignmentData";
+import AdminAssignmentData from "@/components/assignments/admins/AssignmentData";
+import StudentAssignmentData from "@/components/assignments/users/AssignmentData";
+import {mapState} from "vuex";
 export default {
 name: "Assignment",
-  components: {AssignmentData, AppBar}
+  components: {AdminAssignmentData, StudentAssignmentData, AppBar},
+  computed: {
+    ...mapState(['userData']),
+  },
 }
 </script>
 

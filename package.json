@@ -11,6 +11,7 @@
     "axios": "^0.20.0",
     "core-js": "^3.6.5",
     "luxon": "^1.25.0",
+    "moment": "^2.29.0",
     "vee-validate": "^3.3.9",
     "vue": "^2.6.11",
     "vue-datetime": "^1.0.0-beta.14",
