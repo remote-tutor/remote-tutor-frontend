@@ -86,18 +86,20 @@
 
         <v-row>
           <v-col cols="12" md="6">
-            <v-btn outlined v-if="assignment.questions.length > 0">
-              <a :loading="loadingQuestions" :href="assignment.questionsDownloadLink"
+            <v-btn outlined v-if="assignment.questions.length > 0" :loading="loadingQuestions"
+                   @click="downloadQuestionsFile">
+              <a :href="assignment.questionsDownloadLink" id="questions-link"
                  :download="assignment.questionsFileName" class="download-link">
-                Download Questions
+                Questions
                 <v-icon>mdi-cloud-download</v-icon>
               </a>
             </v-btn>
             <div v-else>We couldn't find the questions file for this assignment</div>
           </v-col>
           <v-col cols="12" md="6">
-            <v-btn outlined v-if="assignment.modelAnswer.length > 0">
-              <a :loading="loadingModelAnswer" :href="assignment.modelAnswerDownloadLink"
+            <v-btn outlined v-if="assignment.modelAnswer.length > 0" :loading="loadingModelAnswer"
+                   @click="downloadModelAnswerFile">
+              <a :href="assignment.modelAnswerDownloadLink" id="model-answer-link"
                  :download="assignment.modelAnswerFileName" class="download-link">
                 Download Model Answer
                 <v-icon>mdi-cloud-download</v-icon>
@@ -163,8 +165,6 @@ export default {
       }
     }).then(response => {
       this.assignment = response.data.assignment
-      this.getFile(this.assignment.questions, true)
-      this.getFile(this.assignment.modelAnswer, false)
     })
   },
   methods: {
@@ -206,7 +206,7 @@ export default {
       if (fullPath === "")
         return
       (questionsFile) ? this.loadingQuestions = true : this.loadingModelAnswer = true
-      api({
+      return api({
         method: "GET",
         url: "/assignments/assignment/file",
         responseType: 'blob',
@@ -214,12 +214,11 @@ export default {
           file: fullPath
         }
       }).then(response => {
+        let folders = fullPath.split("/")
         if (questionsFile) {
-          let folders = fullPath.split("/questionsFile/")
           this.assignment.questionsFileName = folders[folders.length - 1]
           this.assignment.questionsDownloadLink = URL.createObjectURL(new Blob([response.data]));
         } else {
-          let folders = fullPath.split("/modelAnswerFile/")
           this.assignment.modelAnswerFileName = folders[folders.length - 1]
           this.assignment.modelAnswerDownloadLink = URL.createObjectURL(new Blob([response.data]));
         }
@@ -231,6 +230,21 @@ export default {
       }).finally(() => {
         (questionsFile) ? this.loadingQuestions = false : this.loadingModelAnswer = false
       })
+    },
+    downloadQuestionsFile() {
+      if (this.assignment.questionsFileName === undefined) {
+        this.getFile(this.assignment.questions, true).then(() => {
+          document.getElementById("questions-link").click()
+        })
+      }
+    },
+    downloadModelAnswerFile() {
+      if (this.assignment.modelAnswerFileName === undefined) {
+        // check if the modelAnswerPeriod has passed before retrieving the modelAnswer
+        this.getFile(this.assignment.modelAnswer, false).then(() => {
+          document.getElementById("model-answer-link").click()
+        })
+      }
     },
   }
 }
