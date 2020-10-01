@@ -83,8 +83,8 @@
 
             <v-row v-if="submission.userID !== 0 && submission.assignmentID !== 0">
               <v-col cols="12">
-                <v-btn outlined>
-                  <a :loading="loadingSubmission" :href="submission.downloadLink"
+                <v-btn outlined @click="downloadUserSubmissionFile">
+                  <a :loading="loadingSubmission" :href="submission.downloadLink" id="user-submission-link"
                      :download="submission.fileName" class="download-link">
                     Your Submission
                     <v-icon>mdi-cloud-download</v-icon>
@@ -109,7 +109,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" @click="pushSubmission" :loading="loading" :disabled="submission.bytes === undefined">
+            <v-btn color="primary" @click="pushSubmission" :loading="loading"
+                   :disabled="submission.bytes === undefined">
               Change Submission
             </v-btn>
           </v-card-actions>
@@ -149,9 +150,6 @@ export default {
         file: '',
         feedback: '',
         bytes: [],
-        fullLink: "",
-        downloadLink: "",
-        fileName: "",
       },
     }
   },
@@ -168,13 +166,15 @@ export default {
           .add(this.assignment.modelAnswerPeriod, 'hours')
           .isBefore(moment()) && this.assignment.modelAnswer.length > 0
     })
-    this.downloadUserSubmissionFile()
+    this.getSubmission()
   },
   methods: {
-    getFile(fullPath, questionsFile) {
+    getFile(fullPath, fileType) {
       if (fullPath === "")
         return
-      (questionsFile) ? this.loadingQuestions = true : this.loadingModelAnswer = true
+      if (fileType === 'questions') this.loadingQuestions = true
+      else if (fileType === 'modelAnswer') this.loadingModelAnswer = true
+      else if (fileType === 'userSubmission') this.loadingSubmission = true
       return api({
         method: "GET",
         url: "/assignments/assignment/file",
@@ -184,12 +184,15 @@ export default {
         }
       }).then(response => {
         let folders = fullPath.split("/")
-        if (questionsFile) {
+        if (fileType === 'questions') {
           this.assignment.questionsFileName = folders[folders.length - 1]
           this.assignment.questionsDownloadLink = URL.createObjectURL(new Blob([response.data]));
-        } else {
+        } else if (fileType === 'modelAnswer') {
           this.assignment.modelAnswerFileName = folders[folders.length - 1]
           this.assignment.modelAnswerDownloadLink = URL.createObjectURL(new Blob([response.data]));
+        } else if (fileType === 'userSubmission') {
+          this.submission.fileName = folders[folders.length - 1]
+          this.submission.downloadLink = URL.createObjectURL(new Blob([response.data]));
         }
       }).catch(() => {
         this.$store.dispatch('viewSnackbar', {
@@ -197,12 +200,14 @@ export default {
           color: 'error'
         })
       }).finally(() => {
-        (questionsFile) ? this.loadingQuestions = false : this.loadingModelAnswer = false
+        if (fileType === 'questions') this.loadingQuestions = false
+        else if (fileType === 'modelAnswer') this.loadingModelAnswer = false
+        else if (fileType === 'userSubmission') this.loadingSubmission = false
       })
     },
     downloadQuestionsFile() {
       if (this.assignment.questionsFileName === undefined) {
-        this.getFile(this.assignment.questions, true).then(() => {
+        this.getFile(this.assignment.questions, 'questions').then(() => {
           document.getElementById("questions-link").click()
         })
       }
@@ -210,13 +215,19 @@ export default {
     downloadModelAnswerFile() {
       if (this.showModelAnswer && this.assignment.modelAnswerFileName === undefined) {
         // check if the modelAnswerPeriod has passed before retrieving the modelAnswer
-        this.getFile(this.assignment.modelAnswer, false).then(() => {
+        this.getFile(this.assignment.modelAnswer, 'modelAnswer').then(() => {
           document.getElementById("model-answer-link").click()
         })
       }
     },
     downloadUserSubmissionFile() {
-      this.loadingSubmission = true
+      if (this.submission.fileName === undefined) {
+        this.getFile(this.submission.file, 'userSubmission').then(() => {
+          document.getElementById("user-submission-link").click()
+        })
+      }
+    },
+    getSubmission() {
       api({
         method: "GET",
         url: "/assignments/submission",
@@ -225,11 +236,6 @@ export default {
         }
       }).then(response => {
         this.submission = response.data.submission
-        let folders = this.submission.file.split("/")
-        this.submission.fileName = folders[folders.length - 1]
-        this.submission.downloadLink = URL.createObjectURL(new Blob([response.data]));
-      }).finally(() => {
-        this.loadingSubmission = false
       })
     },
     pushSubmission() {
@@ -242,6 +248,8 @@ export default {
         method: method,
         url: "/assignments/submissions",
         data: formData,
+      }).then(() => {
+        this.$router.push({name: 'Assignments'})
       }).finally(() => {
         this.loading = false
       })

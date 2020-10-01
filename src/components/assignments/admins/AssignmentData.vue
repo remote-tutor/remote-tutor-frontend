@@ -115,14 +115,18 @@
       </form>
 
     </ValidationObserver>
+
+    <SubmissionsTable :deadline="assignment.deadline"></SubmissionsTable>
   </div>
 </template>
 
 <script>
 import api from "@/gateways/api";
+import SubmissionsTable from "@/components/assignments/admins/SubmissionsTable";
 
 export default {
   name: "AssignmentData",
+  components: {SubmissionsTable},
   data() {
     return {
       assignment: {
