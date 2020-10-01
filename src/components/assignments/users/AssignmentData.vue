@@ -95,7 +95,7 @@
 
             <v-row>
               <v-col cols="12">
-                <v-file-input
+                <v-file-input v-if="!submission.graded"
                     chips
                     show-size
                     label="Submission"
@@ -104,10 +104,12 @@
                     prepend-icon="mdi-format-list-text"
                     v-model="submission.bytes"
                 ></v-file-input>
+                <div v-else-if="submission.feedback.length === 0">There's no feedback associated with this submission</div>
+                <div v-else>Feedback: {{submission.feedback}}</div>
               </v-col>
             </v-row>
           </v-card-text>
-          <v-card-actions>
+          <v-card-actions v-if="!submission.graded">
             <v-spacer></v-spacer>
             <v-btn color="primary" @click="pushSubmission" :loading="loading"
                    :disabled="submission.bytes === undefined">
@@ -230,7 +232,7 @@ export default {
     getSubmission() {
       api({
         method: "GET",
-        url: "/assignments/submission",
+        url: "/assignments/submissions/submission",
         params: {
           assignmentID: this.$route.params.assignmentID
         }

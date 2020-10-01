@@ -116,7 +116,7 @@
 
     </ValidationObserver>
 
-    <SubmissionsTable :deadline="assignment.deadline"></SubmissionsTable>
+    <SubmissionsTable :deadline="assignment.deadline" :total-mark="assignment.totalMark"></SubmissionsTable>
   </div>
 </template>
 
