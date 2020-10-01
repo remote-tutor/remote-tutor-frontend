@@ -80,6 +80,7 @@ export default {
         title: "",
         topic: "",
         content: "",
+        year: 1,
       },
       options: {
         sortBy: ['created_at'],
@@ -102,6 +103,7 @@ export default {
           title: this.searchValues.title,
           topic: this.searchValues.topic,
           content: this.searchValues.content,
+          year: this.searchValues.year,
         },
       })
           .then((response) => {
@@ -118,7 +120,7 @@ export default {
         });
       } else {
         this.placeholderExists = true;
-        this.announcements.unshift({ isNew: true, ID: 0 });
+        this.announcements.unshift({ isNew: true, ID: 0, year: this.searchValues.year });
         this.$vuetify.goTo(0)
       }
     },
@@ -132,7 +134,11 @@ export default {
       let oldAnnouncement = options.old
       let updatedAnnouncement = options.updated
       let index = this.announcements.indexOf(oldAnnouncement)
-      this.announcements[index] = updatedAnnouncement
+      if (updatedAnnouncement.year === this.searchValues.year) {
+        this.announcements[index] = updatedAnnouncement
+      } else {
+        this.announcements.splice(index, 1)
+      }
     },
     filterAnnouncements(options) {
       this.announcements = [];

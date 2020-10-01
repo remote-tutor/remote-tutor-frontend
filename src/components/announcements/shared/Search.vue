@@ -1,6 +1,15 @@
 <template>
   <div class="text-center">
     <v-sheet class="text-center">
+      <v-select v-if="userData.admin"
+          :items="years"
+          item-text="text"
+          item-value="value"
+          label="Year"
+          v-model="searchValues.year"
+          prepend-icon="mdi-school"
+      ></v-select>
+
       <v-text-field
         label="Title"
         prepend-icon="mdi-format-text"
@@ -30,6 +39,8 @@
 </template>
 
 <script>
+import {mapState} from "vuex";
+
 export default {
   name: "Search",
   data: () => ({
@@ -38,8 +49,17 @@ export default {
       title: "",
       topic: "",
       content: "",
+      year: 1,
     },
+    years: [
+      {text: "First Year", value: 1},
+      {text: "Second Year", value: 2},
+      {text: "Third Year", value: 3},
+    ],
   }),
+  computed: {
+    ...mapState(['userData'])
+  },
   mounted() {
     this.cachedSearchValues = Object.assign({}, this.searchValues);
   },

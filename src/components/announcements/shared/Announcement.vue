@@ -1,21 +1,38 @@
 <template>
   <v-col cols="12">
     <v-card elevation="5">
-      <TextField v-if="editMode"
-                 :value.sync="updatedAnnouncement.title"
-                 label="Title"
-                 pre-icon="mdi-format-text">
-      </TextField>
-      <v-card-title class="headline" v-else>
-        {{ updatedAnnouncement.title }}
-
-        <v-spacer></v-spacer>
-        <div>
-          <div class="text-body-1" v-if="!updatedAnnouncement.isNew">
-              {{ (updatedAnnouncement.CreatedAt).substring(0, 10) }}
-          </div>
-        </div>
-      </v-card-title>
+      <v-row v-if="editMode">
+        <v-col cols="12" md="6">
+          <TextField
+              :value.sync="updatedAnnouncement.title"
+              label="Title"
+              pre-icon="mdi-format-text">
+          </TextField>
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-select
+              :items="years"
+              item-text="text"
+              item-value="value"
+              label="Year"
+              v-model="updatedAnnouncement.year"
+              prepend-icon="mdi-school"
+          ></v-select>
+        </v-col>
+      </v-row>
+      <v-row v-else>
+        <v-col>
+          <v-card-title class="headline">
+            {{ updatedAnnouncement.title }}
+            <v-spacer></v-spacer>
+            <div>
+              <div class="text-body-1" v-if="!updatedAnnouncement.isNew">
+                {{ (updatedAnnouncement.CreatedAt).substring(0, 10) }}
+              </div>
+            </div>
+          </v-card-title>
+        </v-col>
+      </v-row>
 
       <TextField v-if="editMode"
                  :value.sync="updatedAnnouncement.topic"
@@ -76,6 +93,11 @@ export default {
       updatedAnnouncement: this.announcement || {},
       new: false,
       loading: false,
+      years: [
+        {text: "First Year", value: 1},
+        {text: "Second Year", value: 2},
+        {text: "Third Year", value: 3},
+      ],
     };
   },
   methods: {
@@ -97,6 +119,7 @@ export default {
       formData.append("title", this.updatedAnnouncement.title || "");
       formData.append("topic", this.updatedAnnouncement.topic || "");
       formData.append("content", this.updatedAnnouncement.content || "");
+      formData.append("year", this.updatedAnnouncement.year);
       let method = this.new ? "POST" : "PUT";
       api({
         method: method,
