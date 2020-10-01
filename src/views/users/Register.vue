@@ -25,11 +25,15 @@
                              rules="required">
                   </TextField>
 
-                  <TextField :value.sync="user.username"
-                             label="Username"
-                             pre-icon="mdi-account"
-                             rules="required">
-                  </TextField>
+                  <ValidationProvider v-slot="{errors}" rules="required|username">
+                    <v-text-field
+                        label="Username"
+                        prepend-icon="mdi-account"
+                        type="text"
+                        v-model="user.username"
+                        :error-messages="errors"
+                    ></v-text-field>
+                  </ValidationProvider>
 
                   <v-row>
                     <v-col cols="6">

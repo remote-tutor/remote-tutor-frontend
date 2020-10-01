@@ -1,5 +1,5 @@
-import { required, email, confirmed, excluded, numeric, max, min, image, required_if } from 'vee-validate/dist/rules';
-import { extend } from 'vee-validate';
+import {required, email, confirmed, excluded, numeric, max, min, image, required_if} from 'vee-validate/dist/rules';
+import {extend} from 'vee-validate';
 
 extend('required', {
     ...required,
@@ -53,6 +53,30 @@ extend('required_if', {
 
     },
     message: 'You must upload an image or enter text'
+})
+
+extend('username', {
+    validate: value => {
+        let regex = new RegExp("^(?=.{5,20})")
+        if (!regex.test(value))
+            return 'Username length must be 5 to 20 characters long'
+        regex = new RegExp("(\\s)")
+        if (regex.test(value))
+            return 'Username cannot contain spaces'
+        regex = new RegExp("^[a-zA-Z0-9._]+$")
+        if (!regex.test(value))
+            return 'The allowed characters are a-z, A-Z, 0-9, dot(.), and underscore(_)'
+        regex = new RegExp("^(?![_.0-9])")
+        if (!regex.test(value))
+            return 'Username must start with a letter'
+        regex = new RegExp("^(?!.*[_.]{2})")
+        if (!regex.test(value))
+            return 'You cannot have 2 consecutive special characters'
+        regex = new RegExp("(?<![_.])$")
+        if (!regex.test(value))
+            return 'You cannot have a special character at the end'
+        return true
+    },
 })
 
 // extend('min', {
