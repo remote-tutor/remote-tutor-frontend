@@ -33,7 +33,7 @@
               </v-list-item-icon>
               <v-list-item-title>Quizzes</v-list-item-title>
             </v-list-item>
-            <v-list-item link>
+            <v-list-item :to="{ name: 'Assignments' }">
               <v-list-item-icon>
                 <v-icon>mdi-comment-question</v-icon>
               </v-list-item-icon>
