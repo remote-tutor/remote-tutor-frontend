@@ -11,6 +11,7 @@ import Grades from "@/views/grades/shared/Grades";
 import ResetPassword from "@/views/users/ResetPassword";
 import Assignments from "@/views/assignments/shared/Assignments";
 import Assignment from "@/views/assignments/shared/Assignment";
+import Video from "@/views/videos/admins/Video";
 
 Vue.use(VueRouter)
 
@@ -104,6 +105,14 @@ const routes = [
     meta: {
       title: 'Assignment'
     },
+  },
+  {
+    path: '/video/:videoID',
+    name: 'EditVideo',
+    component: Video,
+    meta: {
+      title: 'Edit Video'
+    }
   },
   {
     path: '/password',

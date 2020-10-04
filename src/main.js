@@ -7,11 +7,13 @@ import { Datetime } from 'vue-datetime';
 import VueCountdownTimer from 'vuejs-countdown-timer'
 // You need a specific loader for CSS files
 import 'vue-datetime/dist/vue-datetime.css'
+import draggable from 'vuedraggable'
 
 Vue.component('ValidationObserver', ValidationObserver);
 Vue.component('ValidationProvider', ValidationProvider);
 Vue.component('Datetime', Datetime);
 Vue.use(VueCountdownTimer)
+Vue.component('draggable', draggable)
 import './plugins/vee-validate';
 import store from './store'
 
