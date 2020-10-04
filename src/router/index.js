@@ -12,6 +12,7 @@ import ResetPassword from "@/views/users/ResetPassword";
 import Assignments from "@/views/assignments/shared/Assignments";
 import Assignment from "@/views/assignments/shared/Assignment";
 import Video from "@/views/videos/admins/Video";
+import Videos from "@/views/videos/admins/Videos";
 
 Vue.use(VueRouter)
 
@@ -105,6 +106,14 @@ const routes = [
     meta: {
       title: 'Assignment'
     },
+  },
+  {
+    path: '/videos',
+    name: 'Videos',
+    component: Videos,
+    meta: {
+      title: 'Videos'
+    }
   },
   {
     path: '/video/:videoID',
