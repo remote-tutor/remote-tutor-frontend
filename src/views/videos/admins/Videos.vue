@@ -38,6 +38,7 @@
                   :index="index + 1"
                   :video="video"
                   @videoUpdated="getVideos"
+                  @videoDeleted="getVideos"
               ></VideoCard>
             </v-row>
           </v-col>
@@ -111,7 +112,6 @@ export default {
         url: "/admin/videos",
         data: formData,
       }).then(response => {
-        console.log(response)
         this.$router.push({name: 'EditVideo', params: {videoID: response.data.video.ID}})
       }).finally(() => {
         this.createLoading = false

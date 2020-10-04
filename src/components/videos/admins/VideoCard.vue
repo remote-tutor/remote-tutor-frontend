@@ -20,7 +20,12 @@
       <v-card-actions>
         <v-btn outlined :to="{name: 'EditVideo', params: {videoID: video.ID}}">Parts</v-btn>
         <v-spacer></v-spacer>
-        <v-btn outlined color="error">Delete</v-btn>
+        <ConfirmationDialog
+            buttonText="Delete"
+            mainText="Delete This Item?"
+            message="You won't be able to restore the deleted video or its parts"
+            @confirm="deleteVideo"
+        ></ConfirmationDialog>
         <v-btn icon @click="show = !show">
           <v-icon>{{ show ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
         </v-btn>
@@ -44,15 +49,27 @@
         </div>
       </v-expand-transition>
     </v-card>
+
+    <v-dialog v-model="dialog" persistent width="300">
+      <v-card color="primary" dark>
+        <v-card-text>
+          Please stand by
+          <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
   </v-col>
 </template>
 
 <script>
 import moment from "moment";
 import api from "@/gateways/api";
+import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
 
 export default {
   name: "VideoCard",
+  components: {ConfirmationDialog},
   props: ['index', 'video'],
   computed: {
     date: {
@@ -84,6 +101,7 @@ export default {
       ],
       saved: true,
       loading: false,
+      dialog: false,
     }
   },
   methods: {
@@ -109,7 +127,21 @@ export default {
       }).finally(() => {
         this.loading = false
       })
-    }
+    },
+    deleteVideo() {
+      this.dialog = true
+      let formData = new FormData()
+      formData.append("id", this.video.ID)
+      api({
+        method: "DELETE",
+        url: "/admin/videos",
+        data: formData
+      }).then(() => {
+        this.$emit('videoDeleted')
+      }).finally(() => {
+        this.dialog = false
+      })
+    },
   },
   filters: {
     moment: function (date) {
