@@ -18,7 +18,7 @@
             <v-list-item-icon>
               <ConfirmationDialog
                   v-if="element.ID"
-                  video
+                  video-part
                   buttonText="Delete"
                   mainText="Delete This Part?"
                   :deleted-item-name="element.name"
@@ -173,7 +173,7 @@ export default {
         this.deleteLoading = true
         let formData = new FormData()
         formData.append("id", element.ID)
-        formData.append("typedName", valueFromConfirmation.typedName)
+        formData.append("typedName", valueFromConfirmation.typedValue)
         api({
           method: "DELETE",
           url: "/admin/videos/parts",

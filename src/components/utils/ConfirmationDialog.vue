@@ -4,8 +4,12 @@
       <v-icon small v-bind="attrs" v-on="on">mdi-delete</v-icon>
     </template>
 
-    <template v-slot:activator="{ on, attrs }" v-else-if="video">
+    <template v-slot:activator="{ on, attrs }" v-else-if="videoPart">
       <v-icon v-bind="attrs" v-on="on">mdi-delete-forever</v-icon>
+    </template>
+
+    <template v-slot:activator="{ on, attrs }" v-else-if="video">
+      <v-btn v-bind="attrs" v-on="on" outlined color="red">Delete</v-btn>
     </template>
 
     <template v-slot:activator="{ on, attrs }" v-else>
@@ -21,14 +25,15 @@
 
       <v-card-text v-if="video">
         <strong>You must verify the item name (<i>{{ deletedItemName }}</i>) - without the parentheses - before deleting</strong>
-        <v-text-field label="Deleted Item Name" v-model="typedName"></v-text-field>
+        <v-text-field label="Deleted Item Name" v-model="typedValue"></v-text-field>
       </v-card-text>
       <v-divider></v-divider>
 
       <v-card-actions>
         <v-btn color="green darken-1" text @click="hideDialog">Cancel</v-btn>
         <v-spacer></v-spacer>
-        <v-btn color="error" text @click="confirm" v-if="video" :disabled="deletedItemName !== typedName">Confirm</v-btn>
+        <v-btn color="error" text @click="confirm" v-if="video || videoPart"
+               :disabled="deletedItemName !== typedValue">Confirm</v-btn>
         <v-btn color="error" text @click="confirm" v-else>Confirm</v-btn>
       </v-card-actions>
     </v-card>
@@ -45,12 +50,13 @@ export default {
     btnColor: String,
     datatable: Boolean,
     video: Boolean,
+    videoPart: Boolean,
     deletedItemName: String,
   },
   data() {
     return {
       dialog: false,
-      typedName: '',
+      typedValue: '',
     };
   },
   methods: {
@@ -60,7 +66,7 @@ export default {
     confirm() {
       this.hideDialog()
       this.$emit("confirm", {
-        typedName: this.typedName
+        typedValue: this.typedValue
       })
     }
   }

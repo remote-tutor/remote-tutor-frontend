@@ -4,7 +4,7 @@
     <v-main>
       <v-container>
         <v-row>
-          <div>Please note that the video will be created with the chosen settings (Year, Selected Day)</div>
+          <div>Please note that the video will be created with the chosen settings (Year, Selected Day, and Title)</div>
         </v-row>
         <v-row>
           <v-col cols="12" md="3" v-if="userData.admin">
@@ -15,19 +15,27 @@
               </v-col>
             </v-row>
             <v-row>
-              <v-col cols="6">
-                <v-select
-                    label="Year"
-                    :items="years"
-                    item-text="text"
-                    item-value="value"
-                    v-model="selectedYear"
-                    @change="getVideos"
-                ></v-select>
-              </v-col>
-              <v-col cols="6" align-self="center">
-                <v-btn color="primary" @click="createVideo" :loading="createLoading">Create Video</v-btn>
-              </v-col>
+              <v-select
+                  label="Year"
+                  :items="years"
+                  item-text="text"
+                  item-value="value"
+                  v-model="selectedYear"
+                  @change="getVideos"
+              ></v-select>
+            </v-row>
+            <v-row>
+              <v-text-field
+                  label="Title"
+                  v-model.trim="newVideoTitle"
+                  prepend-icon="mdi-format-text"
+                  counter>
+              </v-text-field>
+            </v-row>
+            <v-row>
+              <v-btn color="primary" @click="createVideo" block :loading="createLoading"
+                     :disabled="newVideoTitle.length === 0">Create Video
+              </v-btn>
             </v-row>
           </v-col>
           <v-col>
@@ -80,6 +88,7 @@ export default {
         {text: "Third Year", value: 3},
       ],
       selectedYear: 1,
+      newVideoTitle: '',
       pickedMonth: null,
       createLoading: false,
       videos: [],
@@ -107,6 +116,7 @@ export default {
       let formData = new FormData()
       formData.append("year", this.selectedYear)
       formData.append("availableFrom", new Date(this.date).getTime())
+      formData.append("title", this.newVideoTitle)
       api({
         method: "POST",
         url: "/admin/videos",
