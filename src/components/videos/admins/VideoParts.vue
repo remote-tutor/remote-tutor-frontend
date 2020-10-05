@@ -6,18 +6,18 @@
         show-size
         counter
         label="Upload Video (You can select multiple files to be uploaded)"
-        v-model="videoParts"
+        v-model="partsToUpload"
     ></v-file-input>
 
-    <div v-if="videoParts.length > 0">You can drag and drop the following list items to reorder the parts</div>
-    <draggable class="list-group" v-model="videoParts" v-bind="dragOptions">
+    <div v-if="allParts.length > 0">You can drag and drop the following list items to reorder the parts</div>
+    <draggable class="list-group" v-model="allParts" v-bind="dragOptions">
       <transition-group type="transition" name="flip-list">
-        <v-list-item class="list-group-item" v-for="(element, index) in videoParts" :key="element.name">
+        <v-list-item class="list-group-item" v-for="(element, index) in allParts" :key="element.name">
           Part#{{ index + 1 }}: {{ element.name }}
         </v-list-item>
       </transition-group>
     </draggable>
-    <v-btn v-if="videoParts.length > 0" block color="primary" @click="saveVideoParts">Save</v-btn>
+    <v-btn v-if="allParts.length > 0" block color="primary" @click="saveVideoParts">Save</v-btn>
 
     <v-dialog v-model="dialog" persistent width="500">
       <v-card>
@@ -32,10 +32,11 @@
                                  :color="(progress.finished) ? 'success' : 'blue-grey'"
                                  :indeterminate="progress.value > 99 && !progress.finished">
                 <template v-slot="{ value }">
-                  Part #{{ index + 1 }}: {{ videoParts[index].name }}
+                  Part #{{ index + 1 }}: {{ allParts[index].name }}
                   <v-spacer></v-spacer>
                   <strong v-if="progress.finished">
-                    Uploaded
+                    <span v-if="allParts[index].ID">Updated</span>
+                    <span v-else>Uploaded</span>
                     <v-icon>mdi-thumb-up</v-icon>
                   </strong>
                   <strong v-else-if="progress.value <= 99">{{ value }}%</strong>
@@ -58,10 +59,25 @@ export default {
   name: "VideoParts",
   data() {
     return {
-      videoParts: [],
+      partsToUpload: [],
+      allParts: [],
       dialog: false,
       progressIndicators: [],
     };
+  },
+  watch: {
+    partsToUpload: {
+      handler(val) {
+        for (let i = 0; i < this.allParts.length; i++) {
+          if (this.allParts[i].ID === undefined) {
+            this.allParts.splice(i, 1)
+            i--;
+          }
+        }
+        this.allParts = this.allParts.concat(val)
+      },
+      deep: true,
+    },
   },
   computed: {
     dragOptions() {
@@ -78,27 +94,29 @@ export default {
       this.dialog = true
       let apiCalls = []
       this.progressIndicators = []
-      this.videoParts.forEach((part, index) => {
+      this.allParts.forEach((part, index) => {
         apiCalls.push(this.saveVideoPart(index))
         this.progressIndicators.push({value: 0, id: index, finished: false})
       })
-      Promise.all(apiCalls).then(response => {
-        console.log(response)
+      Promise.all(apiCalls).then(() => {
+        this.getParts()
       }).finally(() => {
         this.dialog = false
       })
     },
     saveVideoPart(index) {
       let formData = new FormData()
-      formData.append("videoPart", this.videoParts[index])
+      formData.append("videoPart", this.allParts[index])
+      formData.append("id", this.allParts[index].ID)
       formData.append("videoID", this.$route.params.videoID)
+      formData.append("fileName", this.allParts[index].name)
       formData.append("number", (index + 1))
+      let method = (this.allParts[index].ID === undefined) ? "POST" : "PUT"
       return api({
-        method: "POST",
+        method: method,
         url: "/admin/videos/parts",
         data: formData,
         onUploadProgress: (progressEvent) => {
-          console.log(progressEvent)
           const totalLength = progressEvent.total
           if (!(totalLength === null || totalLength === undefined)) {
             this.progressIndicators[index].value = Math.round((progressEvent.loaded * 100) / totalLength);
@@ -108,6 +126,21 @@ export default {
         this.progressIndicators[index].finished = true
       })
     },
+    getParts() {
+      api({
+        method: "GET",
+        url: "/videos/parts",
+        params: {
+          videoID: this.$route.params.videoID
+        }
+      }).then(response => {
+        this.allParts = []
+        this.allParts = this.allParts.concat(response.data.parts)
+      })
+    },
+  },
+  mounted() {
+    this.getParts()
   }
 }
 </script>
