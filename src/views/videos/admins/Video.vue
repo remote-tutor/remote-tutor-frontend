@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <AppBar page-name="Edit Video"></AppBar>
+    <AppBar page-name="Video"></AppBar>
     <v-main>
       <v-container>
         <VideoParts></VideoParts>

@@ -3,7 +3,7 @@
     <AppBar page-name="Videos"></AppBar>
     <v-main>
       <v-container>
-        <v-row>
+        <v-row v-if="userData.admin">
           <div>Please note that the video will be created with the chosen settings (Year, Selected Day, and Title)</div>
         </v-row>
         <v-row>
@@ -38,16 +38,30 @@
               </v-btn>
             </v-row>
           </v-col>
+          <v-col cols="12" md="3" v-else>
+            <v-date-picker
+                v-model="pickedMonth"
+                type="month"
+            ></v-date-picker>
+          </v-col>
           <v-col>
-            <v-row>
-              <VideoCard
+            <v-row v-if="userData.admin">
+              <AdminVideoCard
                   v-for="(video, index) in videos"
                   :key="video.ID"
                   :index="index + 1"
                   :video="video"
                   @videoUpdated="getVideos"
                   @videoDeleted="getVideos"
-              ></VideoCard>
+              ></AdminVideoCard>
+            </v-row>
+            <v-row v-else>
+              <UserVideoCard
+                  v-for="(video, index) in videos"
+                  :key="video.ID"
+                  :index="index + 1"
+                  :video="video"
+              ></UserVideoCard>
             </v-row>
           </v-col>
         </v-row>
@@ -70,11 +84,12 @@
 import AppBar from "@/components/utils/AppBar";
 import {mapState} from "vuex";
 import api from "@/gateways/api";
-import VideoCard from "@/components/videos/admins/VideoCard";
+import AdminVideoCard from "@/components/videos/admins/VideoCard";
+import UserVideoCard from "@/components/videos/users/VideoCard";
 
 export default {
   name: "Videos",
-  components: {VideoCard, AppBar},
+  components: {AdminVideoCard, UserVideoCard, AppBar},
   computed: {
     ...mapState(['userData']),
   },
@@ -89,7 +104,7 @@ export default {
       ],
       selectedYear: 1,
       newVideoTitle: '',
-      pickedMonth: null,
+      pickedMonth: new Date().toISOString().substr(0, 7),
       createLoading: false,
       videos: [],
       dialog: false,
@@ -122,7 +137,7 @@ export default {
         url: "/admin/videos",
         data: formData,
       }).then(response => {
-        this.$router.push({name: 'EditVideo', params: {videoID: response.data.video.ID}})
+        this.$router.push({name: 'ViewVideo', params: {videoID: response.data.video.ID}})
       }).finally(() => {
         this.createLoading = false
       })

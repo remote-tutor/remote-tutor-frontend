@@ -22,7 +22,7 @@
       </v-card-subtitle>
       <v-card-text>Available At: {{ video.availableFrom | moment }}</v-card-text>
       <v-card-actions>
-        <v-btn outlined :to="{name: 'EditVideo', params: {videoID: video.ID}}">Parts</v-btn>
+        <v-btn outlined :to="{name: 'ViewVideo', params: {videoID: video.ID}}">Parts</v-btn>
         <v-spacer></v-spacer>
         <ConfirmationDialog
             buttonText="Delete"
@@ -153,7 +153,6 @@ export default {
       })
     },
     deleteVideo(valueFromConfirmation) {
-      console.log(valueFromConfirmation)
       this.dialog = true
       let formData = new FormData()
       formData.append("id", this.video.ID)
