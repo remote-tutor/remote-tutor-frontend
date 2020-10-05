@@ -12,14 +12,29 @@
     <div v-if="allParts.length > 0">You can drag and drop the following list items to reorder the parts</div>
     <draggable class="list-group" v-model="allParts" v-bind="dragOptions">
       <transition-group type="transition" name="flip-list">
-        <v-list-item class="list-group-item" v-for="(element, index) in allParts" :key="element.name">
-          Part#{{ index + 1 }}: {{ element.name }}
-        </v-list-item>
+        <div v-for="(element, index) in allParts" :key="element.name">
+          <v-list-item>
+            <v-list-item-title class="list-group-item">Part#{{ index + 1 }}: {{ element.name }}</v-list-item-title>
+            <v-list-item-icon>
+              <ConfirmationDialog
+                  v-if="element.ID"
+                  video
+                  buttonText="Delete"
+                  mainText="Delete This Part?"
+                  :deleted-item-name="element.name"
+                  message="You won't be able to restore the deleted video part!!"
+                  @confirm="deletePart($event, element)"
+              ></ConfirmationDialog>
+            </v-list-item-icon>
+          </v-list-item>
+          <v-divider></v-divider>
+        </div>
+
       </transition-group>
     </draggable>
     <v-btn v-if="allParts.length > 0" block color="primary" @click="saveVideoParts">Save</v-btn>
 
-    <v-dialog v-model="dialog" persistent width="500">
+    <v-dialog v-model="progressDialog" persistent width="500">
       <v-card>
         <v-card-title>
           Please stand by
@@ -49,20 +64,32 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="deleteLoading" persistent width="300">
+      <v-card color="primary" dark>
+        <v-card-text>
+          Please wait, we're deleting the part
+          <v-progress-linear indeterminate color="white"></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
   </div>
 </template>
 
 <script>
 import api from "@/gateways/api";
+import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
 
 export default {
   name: "VideoParts",
+  components: {ConfirmationDialog},
   data() {
     return {
       partsToUpload: [],
       allParts: [],
-      dialog: false,
+      progressDialog: false,
       progressIndicators: [],
+      deleteLoading: false,
     };
   },
   watch: {
@@ -91,7 +118,7 @@ export default {
   },
   methods: {
     saveVideoParts() {
-      this.dialog = true
+      this.progressDialog = true
       let apiCalls = []
       this.progressIndicators = []
       this.allParts.forEach((part, index) => {
@@ -101,7 +128,7 @@ export default {
       Promise.all(apiCalls).then(() => {
         this.getParts()
       }).finally(() => {
-        this.dialog = false
+        this.progressDialog = false
       })
     },
     saveVideoPart(index) {
@@ -137,6 +164,27 @@ export default {
         this.allParts = []
         this.allParts = this.allParts.concat(response.data.parts)
       })
+    },
+    deletePart(valueFromConfirmation, element) {
+      if (element.ID === undefined) {
+        let index = this.partsToUpload.indexOf(element)
+        this.partsToUpload.splice(index, 1)
+      } else {
+        this.deleteLoading = true
+        let formData = new FormData()
+        formData.append("id", element.ID)
+        formData.append("typedName", valueFromConfirmation.typedName)
+        api({
+          method: "DELETE",
+          url: "/admin/videos/parts",
+          data: formData,
+        }).then(() => {
+          this.getParts()
+        }).finally(() => {
+          this.deleteLoading = false
+        })
+      }
+
     },
   },
   mounted() {
