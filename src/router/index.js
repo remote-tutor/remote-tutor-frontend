@@ -11,7 +11,7 @@ import Grades from "@/views/grades/shared/Grades";
 import ResetPassword from "@/views/users/ResetPassword";
 import Assignments from "@/views/assignments/shared/Assignments";
 import Assignment from "@/views/assignments/shared/Assignment";
-import Video from "@/views/videos/admins/Video";
+import Video from "@/views/videos/shared/Video";
 import Videos from "@/views/videos/shared/Videos";
 
 Vue.use(VueRouter)
