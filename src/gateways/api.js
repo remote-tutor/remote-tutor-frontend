@@ -36,6 +36,9 @@ api.interceptors.response.use(function (response) {
             color: "error"
         })
     }
+    if (error.response.data.route !== undefined) {
+        router.push({name: error.response.data.route})
+    }
     return Promise.reject(error);
 });
 export default api 

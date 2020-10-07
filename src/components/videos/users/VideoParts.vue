@@ -35,20 +35,7 @@
       </v-card>
     </v-col>
     <v-col cols="12" sm="6" md="8">
-      <v-card v-show="partName.length > 0">
-        <v-toolbar color="primary" dark flat>
-          <v-toolbar-title>{{ partName }}</v-toolbar-title>
-        </v-toolbar>
-        <v-card-text>
-          <vue-plyr ref="plyr">
-            <video autoplay>
-              <!--<source src="https://media.vued.vanthink.cn/sparkle_your_name_am360p.mp4" type="video/mp4" size="360">-->
-              <!--<source src="https://media.vued.vanthink.cn/sparkle_your_name_am720p.mp4" type="video/mp4" size="720">-->
-              <!--<source src="https://media.vued.vanthink.cn/y2mate.com%20-%20sparkle_your_name_amv_K_7To_y9IAM_1080p.mp4" type="video/mp4" size="1080">-->
-            </video>
-          </vue-plyr>
-        </v-card-text>
-      </v-card>
+      <Player ref="player"></Player>
     </v-col>
 
     <v-dialog v-model="dialog" width="500">
@@ -88,13 +75,14 @@
 <script>
 import api from "@/gateways/api";
 import Timer from "@/components/utils/Timer";
+import Player from "@/components/videos/shared/Player";
 
 export default {
   name: "VideoParts",
-  components: {Timer},
+  components: {Player, Timer},
   computed: {
     player() {
-      return this.$refs.plyr.player
+      return this.$refs.player
     }
   },
   data() {
@@ -103,7 +91,6 @@ export default {
       watches: [],
       timers: [],
       cachedTimers: [],
-      videoSource: [],
       partName: '',
       dialog: false,
       timeUpDialog: false,
@@ -136,27 +123,11 @@ export default {
     },
     viewPart(part, index) {
       this.selectedIndex = index
-      this.partName = `Part#${index + 1}: ${part.name}`
       if (this.watches[index].userID === 0 && this.watches[index].videoPartID === 0)
         this.dialog = true
       else {
-        this.startPart()
+        this.player.startPart(part, index)
       }
-    },
-    startPart() {
-      this.videoSource = []
-      api({
-        method: "GET",
-        url: "videos/part",
-        params: {
-          id: this.parts[this.selectedIndex].ID
-        }
-      }).then(response => {
-        this.videoSource.push({
-          src: response.data.url,
-          size: 1080,
-        })
-      })
     },
     getUserWatchForPart(partID) {
       return api({
@@ -176,7 +147,7 @@ export default {
         data: formData
       }).then(response => {
         this.watches.splice(this.selectedIndex, 1, response.data.watch)
-        this.startPart()
+        this.player.startPart(this.parts[this.selectedIndex], this.selectedIndex)
       }).finally(() => {
         this.dialog = false
       })
@@ -202,15 +173,6 @@ export default {
       },
       deep: true
     },
-    videoSource: {
-      handler(val) {
-        this.player.source = {
-          type: 'video',
-          sources: val,
-        }
-      },
-      deep: true
-    }
   },
   mounted() {
     this.getParts()

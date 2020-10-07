@@ -15,7 +15,7 @@ Vue.component('ValidationProvider', ValidationProvider);
 Vue.component('Datetime', Datetime);
 Vue.use(VueCountdownTimer)
 Vue.component('draggable', draggable)
-Vue.use(VuePlyr)
+Vue.use(VuePlyr, {emit: ['error', 'play', 'seeking']})
 import './plugins/vee-validate';
 import store from './store'
 

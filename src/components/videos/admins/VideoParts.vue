@@ -1,37 +1,51 @@
 <template>
   <div>
-    <v-file-input
-        chips
-        multiple
-        show-size
-        counter
-        label="Upload Video (You can select multiple files to be uploaded)"
-        v-model="partsToUpload"
-    ></v-file-input>
+    <v-row>
+      <v-col cols="12">
+        <v-file-input
+            chips
+            multiple
+            show-size
+            counter
+            label="Upload Video (You can select multiple files to be uploaded)"
+            v-model="partsToUpload"
+        ></v-file-input>
+      </v-col>
+    </v-row>
 
-    <div v-if="allParts.length > 0">You can drag and drop the following list items to reorder the parts</div>
-    <draggable class="list-group" v-model="allParts" v-bind="dragOptions">
-      <transition-group type="transition" name="flip-list">
-        <div v-for="(element, index) in allParts" :key="element.name">
-          <v-list-item>
-            <v-list-item-title class="list-group-item">Part#{{ index + 1 }}: {{ element.name }}</v-list-item-title>
-            <v-list-item-icon>
-              <ConfirmationDialog
-                  v-if="element.ID"
-                  video-part
-                  buttonText="Delete"
-                  mainText="Delete This Part?"
-                  :deleted-item-name="element.name"
-                  message="You won't be able to restore the deleted video part!!"
-                  @confirm="deletePart($event, element)"
-              ></ConfirmationDialog>
-            </v-list-item-icon>
-          </v-list-item>
-          <v-divider></v-divider>
-        </div>
+    <v-row>
+      <v-col cols="12" sm="6" md="4">
+        <div v-if="allParts.length > 0">You can drag and drop the following list items to reorder the parts</div>
+        <draggable class="list-group" v-model="allParts" v-bind="dragOptions">
+          <transition-group type="transition" name="flip-list">
+            <div v-for="(element, index) in allParts" :key="element.name">
+              <v-list-item>
+                <v-list-item-title class="list-group-item">Part#{{ index + 1 }}: {{ element.name }}</v-list-item-title>
+                <v-list-item-icon v-if="element.ID">
+                  <v-icon @click="viewPart(element, index)">mdi-play</v-icon>
+                </v-list-item-icon>
+                <v-list-item-icon>
+                  <ConfirmationDialog
+                      v-if="element.ID"
+                      video-part
+                      buttonText="Delete"
+                      mainText="Delete This Part?"
+                      :deleted-item-name="element.name"
+                      message="You won't be able to restore the deleted video part!!"
+                      @confirm="deletePart($event, element)"
+                  ></ConfirmationDialog>
+                </v-list-item-icon>
+              </v-list-item>
+              <v-divider></v-divider>
+            </div>
+          </transition-group>
+        </draggable>
+      </v-col>
+      <v-col cols="12" sm="6" md="8">
+        <Player ref="player"></Player>
+      </v-col>
+    </v-row>
 
-      </transition-group>
-    </draggable>
     <v-btn v-if="allParts.length > 0" block color="primary" @click="saveVideoParts">Save</v-btn>
 
     <v-dialog v-model="progressDialog" persistent width="500">
@@ -79,10 +93,11 @@
 <script>
 import api from "@/gateways/api";
 import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
+import Player from "@/components/videos/shared/Player";
 
 export default {
   name: "VideoParts",
-  components: {ConfirmationDialog},
+  components: {Player, ConfirmationDialog},
   data() {
     return {
       partsToUpload: [],
@@ -114,7 +129,10 @@ export default {
         disabled: false,
         ghostClass: "ghost"
       };
-    }
+    },
+    player() {
+      return this.$refs.player
+    },
   },
   methods: {
     saveVideoParts() {
@@ -186,6 +204,9 @@ export default {
       }
 
     },
+    viewPart(element, index) {
+      this.player.startPart(element, index)
+    }
   },
   mounted() {
     this.getParts()
