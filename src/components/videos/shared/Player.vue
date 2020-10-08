@@ -1,10 +1,17 @@
 <template>
   <v-card>
     <v-toolbar color="primary" dark flat>
-      <v-toolbar-title>{{ partName }}</v-toolbar-title>
+      <v-toolbar-title>Video Name: {{ video.title }}</v-toolbar-title>
+    </v-toolbar>
+    <v-toolbar color="primary" dark flat>
+      <v-toolbar-title>Part Name: {{ partName }}</v-toolbar-title>
     </v-toolbar>
     <v-card-text>
-      <vue-plyr ref="plyr" @error="errorOccurred" @play="play" @seeking="seeking">
+      <v-row justify="center" align="center" v-show="loading">
+        <v-progress-circular indeterminate></v-progress-circular>
+      </v-row>
+
+      <vue-plyr ref="plyr" @error="errorOccurred" @play="play" @seeking="seeking" v-show="!loading">
         <video autoplay>
           <!--<source src="https://media.vued.vanthink.cn/sparkle_your_name_am360p.mp4" type="video/mp4" size="360">-->
           <!--<source src="https://media.vued.vanthink.cn/sparkle_your_name_am720p.mp4" type="video/mp4" size="720">-->
@@ -27,15 +34,18 @@ export default {
   },
   data() {
     return {
+      video: {},
       partName: '',
       partID: -1,
       videoSource: [],
       lastTimestamp: 0,
+      loading: false,
     }
   },
   methods: {
     startPart(part, index) {
-      if (part && index) {
+      this.loading = true
+      if (part) {
         this.partID = part.ID
         this.partName = `Part#${index + 1}: ${part.name}`
         this.lastTimestamp = 0
@@ -64,7 +74,22 @@ export default {
     },
     play() {
       this.player.currentTime = this.lastTimestamp; // Seeks to the last seeked value the user requested
-    }
+      this.loading = false
+    },
+    getVideo() {
+      api({
+        method: "GET",
+        url: "/videos/video",
+        params: {
+          id: this.$route.params.videoID
+        }
+      }).then(response => {
+        this.video = response.data.video
+      })
+    },
+  },
+  mounted() {
+    this.getVideo()
   },
   watch: {
     videoSource: {
