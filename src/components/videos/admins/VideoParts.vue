@@ -15,11 +15,14 @@
 
     <v-row>
       <v-col cols="12" sm="6" md="4">
-        <div v-if="allParts.length > 0">You can drag and drop the following list items to reorder the parts</div>
-        <draggable class="list-group" v-model="allParts" v-bind="dragOptions">
+        <div v-if="allParts.length > 0">You can reorder the parts using the handler on the left</div>
+        <draggable class="list-group" v-model="allParts" handle=".handle">
           <transition-group type="transition" name="flip-list">
             <div v-for="(element, index) in allParts" :key="element.name">
               <v-list-item>
+                <v-list-item-icon>
+                  <v-icon class="reorder handle">mdi-reorder-horizontal</v-icon>
+                </v-list-item-icon>
                 <v-list-item-title class="list-group-item">Part#{{ index + 1 }}: {{ element.name }}</v-list-item-title>
                 <v-list-item-icon v-if="element.ID">
                   <v-icon @click="viewPart(element, index)">mdi-play</v-icon>
@@ -124,7 +127,7 @@ export default {
   computed: {
     dragOptions() {
       return {
-        animation: 200,
+        animation: 0,
         group: "description",
         disabled: false,
         ghostClass: "ghost"
@@ -206,6 +209,8 @@ export default {
     },
     viewPart(element, index) {
       this.player.startPart(element, index)
+    },
+    test() {
     }
   },
   mounted() {
@@ -232,7 +237,7 @@ export default {
   min-height: 20px;
 }
 
-.list-group-item {
+.reorder {
   cursor: move;
 }
 </style>

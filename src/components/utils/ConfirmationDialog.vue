@@ -23,7 +23,7 @@
       <slot name="main-content"></slot>
       <v-card-subtitle>{{ message }}</v-card-subtitle>
 
-      <v-card-text v-if="video">
+      <v-card-text v-if="video || videoPart">
         <strong>You must verify the item name (<i>{{ deletedItemName }}</i>) - without the parentheses - before deleting</strong>
         <v-text-field label="Deleted Item Name" v-model="typedValue"></v-text-field>
       </v-card-text>

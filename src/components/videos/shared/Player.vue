@@ -11,7 +11,7 @@
         <v-progress-circular indeterminate></v-progress-circular>
       </v-row>
 
-      <vue-plyr ref="plyr" @error="errorOccurred" @play="play" @seeking="seeking" v-show="!loading">
+      <vue-plyr ref="plyr" @error="errorOccurred" @play="play" @pause="pause" @seeking="seeking" v-show="!loading">
         <video autoplay>
           <!--<source src="https://media.vued.vanthink.cn/sparkle_your_name_am360p.mp4" type="video/mp4" size="360">-->
           <!--<source src="https://media.vued.vanthink.cn/sparkle_your_name_am720p.mp4" type="video/mp4" size="720">-->
@@ -75,6 +75,9 @@ export default {
     play() {
       this.player.currentTime = this.lastTimestamp; // Seeks to the last seeked value the user requested
       this.loading = false
+    },
+    pause() {
+      this.lastTimestamp = this.player.currentTime
     },
     getVideo() {
       api({
