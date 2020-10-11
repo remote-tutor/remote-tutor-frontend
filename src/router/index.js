@@ -13,6 +13,7 @@ import Assignments from "@/views/assignments/shared/Assignments";
 import Assignment from "@/views/assignments/shared/Assignment";
 import Video from "@/views/videos/shared/Video";
 import Videos from "@/views/videos/shared/Videos";
+import Classes from "@/views/classes/users/Classes";
 
 Vue.use(VueRouter)
 
@@ -129,6 +130,14 @@ const routes = [
     component: ResetPassword,
     meta: {
       title: 'Reset Password'
+    }
+  },
+  {
+    path: '/classes',
+    name: 'Classes',
+    component: Classes,
+    meta: {
+      title: 'Classes'
     }
   }
 ]

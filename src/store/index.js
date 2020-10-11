@@ -13,6 +13,8 @@ export default new Vuex.Store({
       admin: false,
       name: '',
       token: '',
+      classes: [],
+      selectedClass: 0,
     },
   },
   plugins: [createPersistedState({
@@ -28,7 +30,13 @@ export default new Vuex.Store({
       state.userData.admin = userData.admin
       state.userData.name = userData.name
       state.userData.token = userData.token
-    }
+    },
+    SET_USER_CLASS(state, userClass) {
+      state.userData.selectedClass = userClass
+    },
+    SET_USER_CLASSES(state, classes) {
+      state.userData.classes = classes
+    },
   },
   actions: {
     viewSnackbar({ commit }, options) {
@@ -36,7 +44,13 @@ export default new Vuex.Store({
     },
     setUserData({commit}, options) {
       commit('SET_USER_DATA', options)
-    }
+    },
+    setUserClass({commit}, options) {
+      commit('SET_USER_CLASS', options)
+    },
+    setUserClasses({commit}, options) {
+      commit('SET_USER_CLASSES', options)
+    },
   },
   modules: {
   }
