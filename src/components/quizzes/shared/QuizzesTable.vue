@@ -143,7 +143,7 @@ export default {
       if (this.type === 1) return "/future"
       return ""
     },
-    ...mapState(['userData']),
+    ...mapState(['userData', 'classes']),
   },
 
   watch: {
@@ -156,6 +156,13 @@ export default {
       },
       deep: true,
     },
+    classes: {
+      handler() {
+        this.options.page = 1
+        this.getQuizzes()
+      },
+      deep: true
+    }
   },
 
   created() {

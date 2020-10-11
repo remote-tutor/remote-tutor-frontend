@@ -99,7 +99,7 @@ export default {
     this.getAssignments()
   },
   computed: {
-    ...mapState(['userData']),
+    ...mapState(['userData', 'classes']),
   },
   methods: {
     getAssignments() {
@@ -159,6 +159,13 @@ export default {
         this.getAssignments();
       },
       deep: true,
+    },
+    classes: {
+      handler() {
+        this.options.page = 1
+        this.getAssignments()
+      },
+      deep: true
     },
   },
 }

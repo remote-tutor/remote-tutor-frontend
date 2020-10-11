@@ -11,7 +11,7 @@
             @deleteAnnouncement="deleteAnnouncement"
             @updateAnnouncements="updateAnnouncements"
         ></Announcement>
-        <BottomPagination :length="totalPages" @pageChanged="pageChanged"></BottomPagination>
+        <BottomPagination :length="totalPages" :page.sync="options.page"></BottomPagination>
 
         <v-speed-dial v-model="fab" fixed bottom right direction="top" v-if="userData.admin">
           <template v-slot:activator>
@@ -65,7 +65,27 @@ export default {
     Search
   },
   computed: {
-    ...mapState(['userData'])
+    ...mapState(['userData', 'classes']),
+  },
+  watch: {
+    options: {
+      handler() {
+        this.getAnnouncements()
+      },
+      deep: true
+    },
+    classes: {
+      handler() {
+        this.options = {
+          sortBy: ['created_at'],
+          sortDesc: ['true'],
+          page: 1,
+          itemsPerPage: 5,
+        }
+        this.getAnnouncements()
+      },
+      deep: true
+    }
   },
   data() {
     return {
@@ -73,8 +93,6 @@ export default {
       sheet: false,
       announcements: [],
       placeholderExists: false,
-      currentPage: 1,
-      length: 5,
       totalPages: 1,
       searchValues: {
         title: "",
@@ -109,7 +127,7 @@ export default {
           .then((response) => {
             this.announcements = response.data.announcements;
             let totalAnnouncements = response.data.total;
-            this.totalPages = Math.ceil(totalAnnouncements / this.length);
+            this.totalPages = Math.ceil(totalAnnouncements / this.options.itemsPerPage);
           })
     },
     createPlaceholder() {
@@ -143,10 +161,6 @@ export default {
     filterAnnouncements(options) {
       this.announcements = [];
       this.searchValues = Object.assign({}, options.searchValues);
-      this.getAnnouncements();
-    },
-    pageChanged(options) {
-      this.options.page = options.currentPage;
       this.getAnnouncements();
     },
   },

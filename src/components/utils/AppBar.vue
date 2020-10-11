@@ -26,10 +26,10 @@
         </template>
 
         <v-list>
-          <v-list-item v-for="(studentClass, index) in userData.classes" :key="studentClass.hash"
+          <v-list-item v-for="(studentClass, index) in classes.values" :key="studentClass.hash"
                        @click="changeSelectedClass(index)">
             <v-list-item-title>
-              <v-icon v-if="index === userData.selectedClass">mdi-check</v-icon>
+              <v-icon v-if="index === classes.selectedClass">mdi-check</v-icon>
               {{ studentClass.class.organization.subject }}
               (Mr. {{ studentClass.class.organization.teacherName }})
             </v-list-item-title>
@@ -59,7 +59,7 @@ export default {
     Payment
   },
   computed: {
-    ...mapState(['userData'])
+    ...mapState(['userData', 'classes'])
   },
   data() {
     return {

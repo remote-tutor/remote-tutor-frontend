@@ -137,9 +137,17 @@ export default {
       else
         return "quizzes/grades"
     },
-    ...mapState(['userData']),
+    ...mapState(['userData', 'classes']),
   },
 
+  watch: {
+    classes: {
+      handler() {
+        this.getQuizzesGrades()
+      },
+      deep: true
+    }
+  },
   methods: {
     saveMonth() {
       this.$refs.menu.save(this.date)

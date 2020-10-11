@@ -13,12 +13,14 @@ export default new Vuex.Store({
       admin: false,
       name: '',
       token: '',
-      classes: [],
-      selectedClass: 0,
     },
+    classes: {
+      values: [],
+      selectedClass: 0,
+    }
   },
   plugins: [createPersistedState({
-    paths: ['userData']
+    paths: ['userData', 'classes']
   })],
   mutations: {
     VIEW_SNACKBAR(state, options) {
@@ -32,10 +34,10 @@ export default new Vuex.Store({
       state.userData.token = userData.token
     },
     SET_USER_CLASS(state, userClass) {
-      state.userData.selectedClass = userClass
+      state.classes.selectedClass = userClass
     },
     SET_USER_CLASSES(state, classes) {
-      state.userData.classes = classes
+      state.classes.values = classes
     },
   },
   actions: {

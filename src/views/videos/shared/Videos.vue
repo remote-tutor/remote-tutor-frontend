@@ -91,7 +91,7 @@ export default {
   name: "Videos",
   components: {AdminVideoCard, UserVideoCard, AppBar},
   computed: {
-    ...mapState(['userData']),
+    ...mapState(['userData', 'classes']),
   },
   data() {
     return {
@@ -149,6 +149,12 @@ export default {
   watch: {
     pickedMonth() {
       this.getVideos()
+    },
+    classes: {
+      handler() {
+        this.getVideos()
+      },
+      deep: true
     },
   },
 }
