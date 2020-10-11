@@ -49,13 +49,6 @@
                 counter>
             </v-text-field>
             <v-date-picker v-model="date" full-width first-day-of-week="5"></v-date-picker>
-            <v-select
-                label="Year"
-                :items="years"
-                item-text="text"
-                item-value="value"
-                v-model="year"
-            ></v-select>
             <v-btn block rounded color="primary" @click="updateVideo" :loading="loading" :disabled="title.length === 0">
               Save
             </v-btn>
@@ -95,15 +88,6 @@ export default {
         this.saved = false
       }
     },
-    year: {
-      get() {
-        return this.video.year
-      },
-      set(val) {
-        this.video.year = val
-        this.saved = false
-      }
-    },
     title: {
       get() {
         return this.video.title
@@ -117,11 +101,6 @@ export default {
   data() {
     return {
       show: false,
-      years: [
-        {text: "First Year", value: 1},
-        {text: "Second Year", value: 2},
-        {text: "Third Year", value: 3},
-      ],
       saved: true,
       loading: false,
       dialog: false,
@@ -134,7 +113,6 @@ export default {
       formData.append("id", this.video.ID)
       formData.append("title", this.video.title)
       formData.append("availableFrom", new Date(this.video.availableFrom).getTime())
-      formData.append("year", this.video.year)
       api({
         method: "PUT",
         url: "/admin/videos",

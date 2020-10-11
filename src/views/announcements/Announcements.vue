@@ -66,6 +66,9 @@ export default {
   },
   computed: {
     ...mapState(['userData', 'classes']),
+    selectedClass() {
+      return this.classes.values[this.classes.selectedClass].classHash
+    }
   },
   watch: {
     options: {
@@ -74,18 +77,15 @@ export default {
       },
       deep: true
     },
-    classes: {
-      handler() {
-        this.options = {
-          sortBy: ['created_at'],
-          sortDesc: ['true'],
-          page: 1,
-          itemsPerPage: 5,
-        }
-        this.getAnnouncements()
-      },
-      deep: true
-    }
+    selectedClass() {
+      this.options = {
+        sortBy: ['created_at'],
+        sortDesc: ['true'],
+        page: 1,
+        itemsPerPage: 5,
+      }
+      this.getAnnouncements()
+    },
   },
   data() {
     return {
@@ -98,7 +98,6 @@ export default {
         title: "",
         topic: "",
         content: "",
-        year: 1,
       },
       options: {
         sortBy: ['created_at'],
@@ -121,7 +120,6 @@ export default {
           title: this.searchValues.title,
           topic: this.searchValues.topic,
           content: this.searchValues.content,
-          year: this.searchValues.year,
         },
       })
           .then((response) => {
@@ -138,7 +136,7 @@ export default {
         });
       } else {
         this.placeholderExists = true;
-        this.announcements.unshift({ isNew: true, ID: 0, year: this.searchValues.year });
+        this.announcements.unshift({ isNew: true, ID: 0 });
         this.$vuetify.goTo(0)
       }
     },
@@ -152,7 +150,7 @@ export default {
       let oldAnnouncement = options.old
       let updatedAnnouncement = options.updated
       let index = this.announcements.indexOf(oldAnnouncement)
-      if (updatedAnnouncement.year === this.searchValues.year) {
+      if (updatedAnnouncement.classHash === this.selectedClass) {
         this.announcements[index] = updatedAnnouncement
       } else {
         this.announcements.splice(index, 1)

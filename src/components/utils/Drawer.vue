@@ -99,6 +99,8 @@ export default {
         name: '',
         token: ''
       })
+      this.$store.dispatch("setUserClasses", [])
+      this.$store.dispatch("setUserClass", 0)
       this.$router.push({name: 'Login'})
     }
   },

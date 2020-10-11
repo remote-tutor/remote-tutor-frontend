@@ -1,6 +1,10 @@
 <template>
   <v-card>
-    <v-card-title>{{ studentClass.class.organization.subject }}</v-card-title>
+    <v-card-title>
+      {{ studentClass.class.organization.subject }}
+      <v-spacer></v-spacer>
+      {{ studentClass.class.name }}
+    </v-card-title>
     <v-card-subtitle>Taught By: {{studentClass.class.organization.teacherName}}</v-card-subtitle>
     <v-card-actions>
       <v-btn color="primary" @click="changeSelectedClass">Select</v-btn>

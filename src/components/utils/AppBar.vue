@@ -32,6 +32,7 @@
               <v-icon v-if="index === classes.selectedClass">mdi-check</v-icon>
               {{ studentClass.class.organization.subject }}
               (Mr. {{ studentClass.class.organization.teacherName }})
+              {{ studentClass.class.name }}
             </v-list-item-title>
           </v-list-item>
           <v-list-item :to="{name: 'Classes'}">

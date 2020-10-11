@@ -3,7 +3,7 @@
     <ValidationObserver ref="observer" v-slot="{ invalid }">
       <form @submit.prevent="createAssignment">
         <v-row>
-          <v-col cols="12" md="6">
+          <v-col cols="12" sm="6">
             <ValidationProvider v-slot="{errors}" rules="required">
               <v-text-field
                   label="Title"
@@ -14,18 +14,8 @@
               ></v-text-field>
             </ValidationProvider>
           </v-col>
-          <v-col cols="12" md="6">
-            <v-select label="Year"
-                      :items="years"
-                      item-text="text"
-                      item-value="value"
-                      v-model="assignment.year"
-            ></v-select>
-          </v-col>
-        </v-row>
 
-        <v-row>
-          <v-col cols="6">
+          <v-col cols="6" sm="3">
             <v-icon>mdi-calendar</v-icon>
             <span>Deadline</span>
             <Datetime
@@ -40,7 +30,7 @@
               <div class="red--text">{{ errors[0] }}</div>
             </ValidationProvider>
           </v-col>
-          <v-col cols="6">
+          <v-col cols="6" sm="3">
             <ValidationProvider v-slot="{errors}" rules="required|numeric">
               <v-text-field
                   label="Total Mark"
@@ -123,16 +113,27 @@
 <script>
 import api from "@/gateways/api";
 import SubmissionsTable from "@/components/assignments/admins/SubmissionsTable";
+import {mapState} from "vuex";
 
 export default {
   name: "AssignmentData",
   components: {SubmissionsTable},
+  computed: {
+    ...mapState(['classes']),
+    selectedClass() {
+      return this.classes.values[this.classes.selectedClass].classHash
+    },
+  },
+  watch: {
+    selectedClass() {
+      this.$router.push({name: 'Assignments'})
+    }
+  },
   data() {
     return {
       assignment: {
         CreatedAt: '',
         title: '',
-        year: 1,
         deadline: "",
         totalMark: 10,
         modelAnswerPeriod: 1,
@@ -149,11 +150,6 @@ export default {
       loading: false,
       loadingQuestions: false,
       loadingModelAnswer: false,
-      years: [
-        {text: "First Year", value: 1},
-        {text: "Second Year", value: 2},
-        {text: "Third Year", value: 3},
-      ],
       hoursToDisplayModelAnswer: [0, 1, 2, 3, 6, 12]
     }
   },
@@ -186,7 +182,7 @@ export default {
       }
 
       formData.append("title", this.assignment.title)
-      formData.append("year", this.assignment.year)
+      formData.append("selectedClass", this.selectedClass)
       formData.append("deadline", Date.parse(this.assignment.deadline))
       formData.append("totalMark", this.assignment.totalMark)
       formData.append("modelAnswerPeriod", this.assignment.modelAnswerPeriod)

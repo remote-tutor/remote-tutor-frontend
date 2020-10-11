@@ -47,25 +47,6 @@
             </v-menu>
           </v-col>
           <v-col cols="6" sm="3" v-if="userData.admin">
-            <v-select
-                label="Year"
-                class="mt-5"
-                :items="years"
-                item-text="text"
-                item-value="value"
-                v-model="selectedYear"
-                @input="getQuizzesGrades"
-            ></v-select>
-          </v-col>
-
-        </v-toolbar>
-      </v-row>
-    </template>
-    <template v-slot:header v-if="userData.admin">
-      <thead>
-      <tr>
-        <th :colspan="headers.length">
-          <v-col cols="10">
             <v-text-field
                 v-model="search"
                 prepend-icon="mdi-magnify"
@@ -75,9 +56,9 @@
                 hide-details
             ></v-text-field>
           </v-col>
-        </th>
-      </tr>
-      </thead>
+
+        </v-toolbar>
+      </v-row>
     </template>
 
     <template v-slot:body.prepend="{}" v-if="$vuetify.breakpoint.smAndUp && headers.length > 0">
@@ -118,12 +99,6 @@ export default {
     expanded: [],
     date: new Date().toISOString().substr(0, 7),
     menu: false,
-    years: [
-      {text: "First Year", value: 1},
-      {text: "Second Year", value: 2},
-      {text: "Third Year", value: 3},
-    ],
-    selectedYear: 1,
     headers: [],
     grades: [],
     quizzes: [],
@@ -138,14 +113,14 @@ export default {
         return "quizzes/grades"
     },
     ...mapState(['userData', 'classes']),
+    selectedClass() {
+      return this.classes.values[this.classes.selectedClass].classHash
+    }
   },
 
   watch: {
-    classes: {
-      handler() {
-        this.getQuizzesGrades()
-      },
-      deep: true
+    selectedClass() {
+      this.getQuizzesGrades()
     }
   },
   methods: {
@@ -162,7 +137,6 @@ export default {
         method: "GET",
         url: "quizzes/month",
         params: {
-          year: this.selectedYear,
           date: new Date(this.date).getTime(),
         }
       })

@@ -22,18 +22,6 @@
         <v-spacer></v-spacer>
 
         <v-col md="3">
-          <v-select v-if="userData.admin"
-                    label="Year"
-                    class="mt-5"
-                    :items="years"
-                    item-text="text"
-                    item-value="value"
-                    v-model="selectedYear"
-                    @input="getAssignments"
-          ></v-select>
-        </v-col>
-
-        <v-col md="3">
           <v-btn v-if="userData.admin"
                  color="primary"
                  dark
@@ -64,7 +52,6 @@
     </template>
 
 
-
   </v-data-table>
 </template>
 
@@ -87,12 +74,6 @@ export default {
       ],
       assignments: [],
       totalAssignments: 0,
-      years: [
-        {text: "First Year", value: 1},
-        {text: "Second Year", value: 2},
-        {text: "Third Year", value: 3},
-      ],
-      selectedYear: 1,
     }
   },
   mounted() {
@@ -100,6 +81,9 @@ export default {
   },
   computed: {
     ...mapState(['userData', 'classes']),
+    selectedClass() {
+      return this.classes.values[this.classes.selectedClass].classHash
+    },
   },
   methods: {
     getAssignments() {
@@ -113,11 +97,10 @@ export default {
           modifiedSortBy.push(sortBy[i].replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`))
       }
 
-        api({
+      api({
         method: "GET",
         url: "/assignments",
         params: {
-          year: this.selectedYear,
           page: page,
           itemsPerPage: itemsPerPage,
           sortBy: modifiedSortBy,
@@ -160,12 +143,9 @@ export default {
       },
       deep: true,
     },
-    classes: {
-      handler() {
-        this.options.page = 1
-        this.getAssignments()
-      },
-      deep: true
+    selectedClass() {
+      this.options.page = 1
+      this.getAssignments()
     },
   },
 }

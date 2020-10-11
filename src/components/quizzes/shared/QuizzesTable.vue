@@ -19,17 +19,6 @@
           {{ title }}
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-col>
-          <v-select v-if="userData.admin"
-                    label="Year"
-                    class="mt-5"
-                    :items="years"
-                    item-text="text"
-                    item-value="value"
-                    v-model="selectedYear"
-                    @input="getQuizzes"
-          ></v-select>
-        </v-col>
         <v-dialog v-model="dialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn v-if="userData.admin"
@@ -115,12 +104,6 @@ export default {
     dialog: false,
     options: {},
     totalQuizzes: 0,
-    years: [
-      {text: "First Year", value: 1},
-      {text: "Second Year", value: 2},
-      {text: "Third Year", value: 3},
-    ],
-    selectedYear: 1,
     headers: [
       {text: 'Title', value: 'title'},
       {text: 'Start At', value: 'formattedStartTime'},
@@ -144,6 +127,9 @@ export default {
       return ""
     },
     ...mapState(['userData', 'classes']),
+    selectedClass() {
+      return this.classes.values[this.classes.selectedClass].classHash
+    },
   },
 
   watch: {
@@ -156,12 +142,9 @@ export default {
       },
       deep: true,
     },
-    classes: {
-      handler() {
-        this.options.page = 1
-        this.getQuizzes()
-      },
-      deep: true
+    selectedClass() {
+      this.options.page = 1
+      this.getQuizzes()
     }
   },
 
@@ -191,7 +174,6 @@ export default {
         method: "GET",
         url: "/quizzes" + this.url,
         params: {
-          year: this.selectedYear,
           page: page,
           itemsPerPage: itemsPerPage,
           sortBy: sortBy,
