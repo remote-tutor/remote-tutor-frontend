@@ -14,6 +14,7 @@ import Assignment from "@/views/assignments/shared/Assignment";
 import Video from "@/views/videos/shared/Video";
 import Videos from "@/views/videos/shared/Videos";
 import Classes from "@/views/classes/shared/Classes";
+import Class from "@/views/classes/admins/Class";
 
 Vue.use(VueRouter)
 
@@ -138,6 +139,14 @@ const routes = [
     component: Classes,
     meta: {
       title: 'Classes'
+    }
+  },
+  {
+    path: '/class/:classHash',
+    name: 'Class',
+    component: Class,
+    meta: {
+      title: 'Class'
     }
   }
 ]
