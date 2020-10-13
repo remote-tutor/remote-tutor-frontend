@@ -10,26 +10,59 @@
       <v-spacer></v-spacer>
       {{ availableClass.name }}
     </v-card-title>
-    <v-card-subtitle v-if="studentClass">Taught By: {{studentClass.class.organization.teacherName}}</v-card-subtitle>
-    <v-card-subtitle v-if="availableClass">Taught By: {{availableClass.organization.teacherName}}</v-card-subtitle>
+    <v-card-subtitle v-if="studentClass">Taught By: {{ studentClass.class.organization.teacherName }}</v-card-subtitle>
+    <v-card-subtitle v-if="availableClass">Taught By: {{ availableClass.organization.teacherName }}</v-card-subtitle>
     <v-card-actions>
-      <v-btn color="primary" @click="changeSelectedClass" v-if="studentClass">Select</v-btn>
-      <v-btn color="primary" @click="enrollToClass" v-if="availableClass">Enroll</v-btn>
+      <v-btn color="primary" @click="changeSelectedClass" v-if="studentClass && studentClass.activated">Select</v-btn>
+      <v-tooltip bottom v-if="studentClass && !studentClass.activated">
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon color="red" dark v-bind="attrs" v-on="on">mdi-close-circle</v-icon>
+        </template>
+        <span>Waiting for activation</span>
+      </v-tooltip>
+      <v-btn color="primary" :loading="loading"
+             @click="enrollToClass(availableClass.hash)" v-if="availableClass && !selected">Enroll
+      </v-btn>
+      <v-tooltip bottom v-if="availableClass && selected">
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon color="green" dark v-bind="attrs" v-on="on">mdi-check</v-icon>
+        </template>
+        <span>You've enrolled successfully! - wait for admin verification to access the class -</span>
+      </v-tooltip>
     </v-card-actions>
   </v-card>
 </template>
 
 <script>
+import api from "@/gateways/api";
+
 export default {
   name: "ClassCard",
   props: ['studentClass', 'index', 'availableClass'],
+  data() {
+    return {
+      loading: false,
+      selected: false,
+    }
+  },
   methods: {
     changeSelectedClass() {
       this.$store.dispatch('setUserClass', this.index)
       this.$router.push({name: 'Announcements'})
     },
-    enrollToClass() {
-
+    enrollToClass(classHash) {
+      this.loading = true
+      let formData = new FormData()
+      formData.append("selectedClass", classHash)
+      api({
+        method: "POST",
+        url: "/classes/enroll",
+        data: formData
+      }).then(() => {
+        this.selected = true
+      }).finally(() => {
+        this.loading = false
+      })
     },
   },
 }

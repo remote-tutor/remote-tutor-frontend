@@ -13,17 +13,22 @@
         <v-tabs-items v-model="selection">
           <v-tab-item>
             <v-card>
-              <v-card-text v-if="userClasses.length > 0">
+              <v-card-text>
                 <v-row justify="center" v-if="loading">
                   <v-progress-circular indeterminate size="70"></v-progress-circular>
                 </v-row>
-                <v-row v-else>
+                <v-row v-else-if="userClasses.length > 0 && !loading">
                   <v-col cols="12" sm="6" md="4" v-for="(studentClass, index) in userClasses" :key="studentClass.hash">
                     <ClassCard :student-class="studentClass" :index="index"></ClassCard>
                   </v-col>
                 </v-row>
+                <v-row v-if="pendingClasses.length > 0">
+                  <v-col cols="12" sm="6" md="4" v-for="(studentClass, index) in pendingClasses" :key="studentClass.hash">
+                    <ClassCard :student-class="studentClass" :index="index"></ClassCard>
+                  </v-col>
+                </v-row>
               </v-card-text>
-              <v-card-text v-else>
+              <v-card-text v-if="userClasses.length === 0 && pendingClasses.length === 0">
                 You're not enrolled in any classes.
                 <v-btn text @click="selection = 1">ENROLL NOW!</v-btn>
               </v-card-text>
@@ -79,6 +84,7 @@ export default {
   data() {
     return {
       userClasses: [],
+      pendingClasses: [],
       availableClasses: [],
       totalClasses: 0,
       selection: 0,
@@ -124,8 +130,15 @@ export default {
         method: "GET",
         url: "/classes",
       }).then(response => {
-        this.userClasses = response.data.classes
-        this.$store.dispatch('setUserClasses', response.data.classes)
+        this.userClasses = []
+        this.pendingClasses = []
+        response.data.classes.forEach(classUser => {
+          if (classUser.activated)
+            this.userClasses.push(classUser)
+          else
+            this.pendingClasses.push(classUser)
+        })
+        this.$store.dispatch('setUserClasses', this.userClasses)
         if (this.userClasses.length > 0)
           this.$store.dispatch('setUserClass', 0)
       }).finally(() => {
