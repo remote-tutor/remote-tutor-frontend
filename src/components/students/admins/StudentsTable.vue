@@ -31,74 +31,12 @@
         <v-btn block color="primary" @click="submitState">Submit</v-btn>
       </template>
 
-      <template v-slot:item.fullName="props" v-if="pending">
-        <v-edit-dialog
-            :return-value.sync="props.item.fullName"
-        > {{ props.item.fullName }}
-          <template v-slot:input>
-            <v-text-field
-                v-model="props.item.fullName"
-                label="Edit"
-                single-line
-                counter
-            ></v-text-field>
-          </template>
-        </v-edit-dialog>
-      </template>
-
-      <template v-slot:item.year="props" v-if="pending">
-        <v-edit-dialog persistent large :return-value.sync="props.item.year">
-          <v-btn small fab elevation="3">
-            {{ props.item.year }}
-          </v-btn>
-          <template v-slot:input>
-            <v-select
-                label="Year"
-                :items="years"
-                item-text="text"
-                item-value="value"
-                v-model="props.item.year"
-            ></v-select>
-          </template>
-
-        </v-edit-dialog>
-      </template>
-
-      <template v-slot:item.phoneNumber="props" v-if="pending">
-        <v-edit-dialog :return-value.sync="props.item.phoneNumber">
-          <v-btn text :color="props.item.phoneNumber.length !== 11 ? 'red': ''">{{ props.item.phoneNumber }}</v-btn>
-          <template v-slot:input>
-            <v-text-field
-                v-model="props.item.phoneNumber"
-                label="Edit"
-                single-line
-                counter
-            ></v-text-field>
-          </template>
-        </v-edit-dialog>
-      </template>
-
-      <template v-slot:item.parentNumber="props" v-if="pending">
-        <v-edit-dialog :return-value.sync="props.item.parentNumber">
-          <v-btn text :color="props.item.parentNumber.length !== 11 ? 'red': ''">{{ props.item.parentNumber }}</v-btn>
-          <template v-slot:input>
-            <v-text-field
-                v-model="props.item.parentNumber"
-                label="Edit"
-                single-line
-                counter
-            ></v-text-field>
-          </template>
-        </v-edit-dialog>
-      </template>
-
       <template v-slot:item.CreatedAt="{ item }">{{ item.CreatedAt.substring(0, 10) }}</template>
       <template v-slot:item.status="{ item }" v-if="pending">
         <v-row>
           <v-radio-group v-model="item.status" row>
-            <v-radio label="Admin" value="1"></v-radio>
-            <v-radio label="Student" value="0"></v-radio>
-            <v-radio label="Decline" value="-1"></v-radio>
+            <v-radio label="Accept" value="true"></v-radio>
+            <v-radio label="Decline" value="false"></v-radio>
           </v-radio-group>
         </v-row>
       </template>
@@ -116,11 +54,18 @@
 <script>
 import api from "@/gateways/api.js";
 import Payment from "@/components/payments/shared/Payment";
+import {mapState} from "vuex";
 
 export default {
   name: "StudentsTable",
   components: {Payment},
   props: ["pending"],
+  computed: {
+    ...mapState(['classes']),
+    selectedClass() {
+      return this.classes.values[this.classes.selectedClass].classHash
+    }
+  },
   data() {
     return {
       totalStudents: 0,
@@ -129,11 +74,10 @@ export default {
       options: {},
       tableTitle: 'Active Students',
       headers: [
-        {text: "Full Name", value: "fullName"},
-        {text: "Username", value: "username"},
-        {text: "Phone Number", value: "phoneNumber", sortable: false},
-        {text: "Parent Number", value: "parentNumber", sortable: false},
-        {text: "Year", value: "year"},
+        {text: "Full Name", value: "user.fullName"},
+        {text: "Username", value: "user.username"},
+        {text: "Phone Number", value: "user.phoneNumber", sortable: false},
+        {text: "Parent Number", value: "user.parentNumber", sortable: false},
         {text: "Registered At", value: "CreatedAt"},
       ],
       searchByItems: [
@@ -171,6 +115,10 @@ export default {
       },
       deep: true,
     },
+    selectedClass() {
+      this.options.page = 1
+      this.getStudents()
+    },
   },
   methods: {
     getStudents() {
@@ -186,7 +134,7 @@ export default {
       }
       api({
         method: "GET",
-        url: "/admin/students",
+        url: "/admin/classes/students",
         params: {
           page: page,
           itemsPerPage: itemsPerPage,
@@ -228,15 +176,11 @@ export default {
         if (this.students[i].status === undefined)
           continue
         let formData = new FormData()
-        formData.append("userID", this.students[i].ID)
-        formData.append("fullName", this.students[i].fullName)
+        formData.append("classUserID", this.students[i].ID)
         formData.append("status", this.students[i].status)
-        formData.append("year", this.students[i].year)
-        formData.append("phoneNumber", this.students[i].phoneNumber)
-        formData.append("parentNumber", this.students[i].parentNumber)
         await api({
           method: "PUT",
-          url: "/students",
+          url: "/admin/classes/students",
           data: formData,
         })
       }
