@@ -12,6 +12,31 @@
             Taught By Mr. {{ classValue.organization.teacherName }}
           </v-card-title>
           <v-card-text>
+
+            <v-row>
+              <v-col cols="12" sm="8">
+                <v-autocomplete
+                    label="Add New Admin(s)" chips clearable rounded solo dense item-value="user.ID"
+                    :items="students" v-model="newAdmin" :search-input.sync="search" item-text="user.fullName"
+                >
+                  <template v-slot:append-item>
+                    <v-list-item v-if="loadingStudents">
+                      <v-progress-circular indeterminate></v-progress-circular>
+                    </v-list-item>
+                    <v-list-item v-else-if="noMoreStudents" disabled>
+                      No More Students, Change Search Value
+                    </v-list-item>
+                    <v-list-item @click="getStudents(true)" v-else>
+                      Load More...
+                    </v-list-item>
+                  </template>
+                </v-autocomplete>
+              </v-col>
+              <v-col cols="12" sm="4">
+                <v-btn block color="primary" @click="addAdminToOrganization">Add Admin to Organization</v-btn>
+              </v-col>
+            </v-row>
+
             <v-data-table
                 v-model="selected"
                 :headers="headers"
@@ -54,10 +79,16 @@ export default {
       ],
       admins: [],
       selected: [],
+      newAdmin: 0,
+      students: [],
+      studentsPage: 1,
+      search: '',
       loading: false,
       classValue: {
         organization: {}
       },
+      loadingStudents: false,
+      noMoreStudents: false,
     }
   },
   methods: {
@@ -80,17 +111,63 @@ export default {
         this.classValue = response.data.class
       })
     },
+    getStudents(append) {
+      this.noMoreStudents = false
+      this.loadingStudents = true
+      if (append)
+        this.studentsPage++
+      else
+        this.studentsPage = 1
+      api({
+        method: 'GET',
+        url: '/admin/classes/students',
+        params: {
+          page: this.studentsPage,
+          itemsPerPage: 10,
+          sortBy: [],
+          sortDesc: [],
+          searchByField: 'fullName',
+          searchByValue: this.search
+        }
+      }).then(response => {
+        if (append)
+          this.students = this.students.concat(response.data.students)
+        else
+          this.students = response.data.students
+        if (response.data.students.length < 10)
+          this.noMoreStudents = true
+      }).finally(() => {
+        this.loadingStudents = false
+      })
+    },
+    addAdminToOrganization() {
+      let formData = new FormData()
+      formData.append("userID", this.newAdmin)
+      formData.append("selectedClass", this.selectedClass)
+      api({
+        method: 'POST',
+        url: '/admin/classes/admins',
+        data: formData
+      }).then(() => {
+        this.getAdmins()
+        this.newAdmin = 0
+      })
+    }
   },
   watch: {
     selectedClass(val) {
       this.$router.replace({name: 'Class', params: {classHash: val}})
       this.getClass()
       this.getAdmins()
+    },
+    search() {
+      this.getStudents()
     }
   },
   mounted() {
     this.getClass()
     this.getAdmins()
+    this.getStudents()
   }
 }
 </script>
