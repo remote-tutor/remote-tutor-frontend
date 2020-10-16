@@ -76,7 +76,6 @@ export default {
       })
           .then((response) => {
             this.$store.dispatch("setUserData", {
-              admin: response.data.admin,
               name: response.data.name,
               token: response.data.token,
             })

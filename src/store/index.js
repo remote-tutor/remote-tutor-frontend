@@ -29,12 +29,13 @@ export default new Vuex.Store({
       state.visible = true
     },
     SET_USER_DATA(state, userData) {
-      state.userData.admin = userData.admin
       state.userData.name = userData.name
       state.userData.token = userData.token
     },
     SET_USER_CLASS(state, userClass) {
       state.classes.selectedClass = userClass
+        if (state.classes.values.length > 0)
+          state.userData.admin = state.classes.values[state.classes.selectedClass].admin
     },
     SET_USER_CLASSES(state, classes) {
       state.classes.values = classes

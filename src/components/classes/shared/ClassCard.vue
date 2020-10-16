@@ -22,9 +22,6 @@
         <span>Waiting for activation</span>
       </v-tooltip>
       <v-spacer></v-spacer>
-      <v-btn v-if="userData.admin && studentClass.activated" text
-             :to="{name: 'Class', params: {classHash: studentClass.classHash} }">Manage
-      </v-btn>
     </v-card-actions>
 
     <v-card-actions v-else-if="availableClass">
@@ -65,7 +62,7 @@ export default {
     enrollToClass(classHash) {
       this.loading = true
       let formData = new FormData()
-      formData.append("selectedClass", classHash)
+      formData.append("newSelectedClass", classHash)
       api({
         method: "POST",
         url: "/classes/enroll",

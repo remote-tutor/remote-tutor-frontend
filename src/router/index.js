@@ -13,8 +13,8 @@ import Assignments from "@/views/assignments/shared/Assignments";
 import Assignment from "@/views/assignments/shared/Assignment";
 import Video from "@/views/videos/shared/Video";
 import Videos from "@/views/videos/shared/Videos";
-import Classes from "@/views/classes/shared/Classes";
-import Class from "@/views/classes/admins/Class";
+import EnrolledClasses from "@/views/classes/shared/EnrolledClasses";
+import AllClasses from "@/views/classes/shared/AllClasses";
 
 Vue.use(VueRouter)
 
@@ -136,19 +136,19 @@ const routes = [
   {
     path: '/classes',
     name: 'Classes',
-    component: Classes,
+    component: EnrolledClasses,
     meta: {
-      title: 'Classes'
+      title: 'Enrolled Classes'
     }
   },
   {
-    path: '/class/:classHash',
-    name: 'Class',
-    component: Class,
+    path: '/classes/all',
+    name: 'AllClasses',
+    component: AllClasses,
     meta: {
-      title: 'Class'
+      title: 'Available Classes'
     }
-  }
+  },
 ]
 
 const router = new VueRouter({
