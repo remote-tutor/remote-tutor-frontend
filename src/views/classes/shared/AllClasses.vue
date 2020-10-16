@@ -34,6 +34,7 @@
             </v-row>
           </v-card-text>
         </v-card>
+        <BottomPagination :length="totalClasses" :page.sync="options.page"></BottomPagination>
       </v-container>
     </v-main>
   </v-app>
@@ -43,13 +44,15 @@
 import AppBar from "@/components/utils/AppBar";
 import api from "@/gateways/api";
 import ClassCard from "@/components/classes/shared/ClassCard";
+import BottomPagination from "@/components/announcements/shared/BottomPagination";
 
 export default {
   name: "AllClasses",
-  components: {ClassCard, AppBar},
+  components: {BottomPagination, ClassCard, AppBar},
   data() {
     return {
       availableClasses: [],
+      totalClasses: 0,
       loading: false,
       searchValues: {
         className: '',
