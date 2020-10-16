@@ -25,27 +25,57 @@
       }"
         :items-per-page="10"
         class="elevation-1"
-        @click:row="handleClick"
     >
       <template v-slot:footer v-if="pending">
-        <v-btn block color="primary" @click="submitState">Submit</v-btn>
+        <v-btn block color="primary" @click="sendState">Submit</v-btn>
       </template>
 
       <template v-slot:item.CreatedAt="{ item }">{{ item.CreatedAt.substring(0, 10) }}</template>
       <template v-slot:item.status="{ item }" v-if="pending">
         <v-row>
-          <v-radio-group v-model="item.status" row>
+          <v-radio-group v-model="item.status" row @change="(item.status === 'false') ? item.admin = false : ()=>{} ">
             <v-radio label="Accept" value="true"></v-radio>
             <v-radio label="Decline" value="false"></v-radio>
           </v-radio-group>
         </v-row>
       </template>
+      <template v-slot:item.pendingAdmin="{ item }">
+        <v-simple-checkbox v-model="item.admin" :ripple="false"
+                           :disabled="(!item.status || item.status === 'false')"></v-simple-checkbox>
+      </template>
+      <template v-slot:item.payments="{ item }">
+        <v-tooltip bottom v-if="item.admin">
+          <template v-slot:activator="{ on }">
+            <v-btn small fab text v-on="on" class="btn-admin-payment">
+              <v-icon>mdi-cancel</v-icon>
+            </v-btn>
+          </template>
+          <span>There's no payments for admin users</span>
+        </v-tooltip>
+        <v-btn small fab text @click="viewPayments(item)" v-else>
+          <v-icon>mdi-cash</v-icon>
+        </v-btn>
+      </template>
+      <template v-slot:item.admin="{ item }">
+        <v-row>
+          <v-simple-checkbox v-model="item.admin" :ripple="false" disabled></v-simple-checkbox>
+          <ConfirmationDialog
+              buttonText="Change Status"
+              :mainText="(item.admin) ? 'Convert this ADMIN to STUDENT ?' :
+               'Are you sure you want to convert this user to an admin ?'"
+              :message="(item.admin) ? 'This user won\'t be able to create announcement, quiz, video, etc...' :
+               'This user will have admin privileges to create, edit, and delete components for this class'"
+              @confirm="changeAdminStatus(item)"
+              admin-status></ConfirmationDialog>
+        </v-row>
+      </template>
+
     </v-data-table>
 
     <Payment v-if="!pending"
-              :dialog.sync="payment.dialog"
-              :student-name="payment.studentName"
-              :userID="payment.userID"
+             :dialog.sync="payment.dialog"
+             :student-name="payment.studentName"
+             :userID="payment.userID"
     ></Payment>
 
   </v-card>
@@ -55,10 +85,11 @@
 import api from "@/gateways/api.js";
 import Payment from "@/components/payments/shared/Payment";
 import {mapState} from "vuex";
+import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
 
 export default {
   name: "StudentsTable",
-  components: {Payment},
+  components: {ConfirmationDialog, Payment},
   props: ["pending"],
   computed: {
     ...mapState(['classes']),
@@ -105,7 +136,11 @@ export default {
     this.getStudents();
     if (this.pending) {
       this.headers.push({text: "State", value: "status", sortable: false},)
+      this.headers.push({text: "Admin", value: "pendingAdmin", sortable: false},)
       this.tableTitle = 'Pending Students'
+    } else {
+      this.headers.push({text: "Payments", value: "payments", sortable: false})
+      this.headers.push({text: "Admin", value: "admin"})
     }
   },
   watch: {
@@ -122,14 +157,19 @@ export default {
   },
   methods: {
     getStudents() {
+      this.students = []
       this.loading = true;
       const {sortBy, sortDesc, page, itemsPerPage} = this.options;
       let modifiedSortBy = []
       for (let i = 0; i < sortBy.length; i++) {
         if (sortBy[i] === 'CreatedAt')
           modifiedSortBy.push('created_at')
-        else
-          modifiedSortBy.push(sortBy[i].replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`))
+        else if (sortBy[i] === 'admin')
+          modifiedSortBy.push('admin')
+        else {
+          let columnName = sortBy[i].split(".")[1]
+          modifiedSortBy.push(columnName.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`))
+        }
 
       }
       api({
@@ -163,29 +203,37 @@ export default {
       this.options.page = 1;
       this.getStudents();
     },
-    submitState() {
+    sendState() {
+      let studentsToUpdate = []
       this.loading = true
-      this.sendState().then(() => {
-        this.students = []
-        this.getStudents()
-      })
-
-    },
-    async sendState() {
       for (let i = 0; i < this.students.length; i++) {
-        if (this.students[i].status === undefined)
-          continue
-        let formData = new FormData()
-        formData.append("classUserID", this.students[i].ID)
-        formData.append("status", this.students[i].status)
-        await api({
-          method: "PUT",
-          url: "/admin/classes/students",
-          data: formData,
-        })
+        if (this.students[i].status !== undefined)
+          studentsToUpdate.push(this.updateClassUser(this.students[i]))
       }
+      Promise.all(studentsToUpdate).then(() => {
+        this.getStudents()
+      }).finally(() => {
+        this.loading = false
+      })
     },
-    handleClick(user) {
+    updateClassUser(classUser) {
+      let formData = new FormData()
+      formData.append("classUserID", classUser.ID);
+      (this.pending) ?
+          formData.append("status", classUser.status) :
+          formData.append("status", true)
+      formData.append("admin", classUser.admin)
+      return api({
+        method: "PUT",
+        url: "/admin/classes/students",
+        data: formData,
+      })
+    },
+    changeAdminStatus(classUser) {
+      classUser.admin = !classUser.admin
+      this.updateClassUser(classUser)
+    },
+    viewPayments(user) {
       if (this.pending)
         return
       if (user.admin) {
@@ -196,9 +244,15 @@ export default {
         return
       }
       this.payment.dialog = true
-      this.payment.studentName = user.fullName
-      this.payment.userID = user.ID
+      this.payment.studentName = user.user.fullName
+      this.payment.userID = user.user.ID
     }
   },
 };
 </script>
+
+<style scoped>
+.btn-admin-payment {
+  cursor: not-allowed;
+}
+</style>
