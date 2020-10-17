@@ -34,7 +34,7 @@
             </v-row>
           </v-card-text>
         </v-card>
-        <BottomPagination :length="totalClasses" :page.sync="options.page"></BottomPagination>
+        <BottomPagination :length="totalPages" :page.sync="options.page"></BottomPagination>
       </v-container>
     </v-main>
   </v-app>
@@ -52,7 +52,7 @@ export default {
   data() {
     return {
       availableClasses: [],
-      totalClasses: 0,
+      totalPages: 0,
       loading: false,
       searchValues: {
         className: '',
@@ -99,7 +99,8 @@ export default {
         }
       }).then(response => {
         this.availableClasses = response.data.classes
-        this.totalClasses = response.data.total
+        let totalClasses = response.data.total
+        this.totalPages = Math.ceil(totalClasses / this.options.itemsPerPage);
       }).finally(() => {
         this.loading = false
       })
