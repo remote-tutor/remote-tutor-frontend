@@ -15,17 +15,6 @@
                 :error-messages="errors"
             ></v-text-field>
           </ValidationProvider>
-          <ValidationProvider v-slot="{errors}" rules="excluded:0">
-            <v-select
-                :items="years"
-                item-text="text"
-                item-value="value"
-                label="Year"
-                :error-messages="errors"
-                v-model="quiz.year"
-                prepend-icon="mdi-school"
-            ></v-select>
-          </ValidationProvider>
           <v-icon>mdi-calendar</v-icon>
           <span>Start Date</span>
           <Datetime
@@ -76,15 +65,9 @@ export default {
       loading: false,
       quiz: this.staticQuiz || {
         title: "",
-        year: 0,
         startTime: "",
         endTime: "",
       },
-      years: [
-        {text: "First Year", value: 1},
-        {text: "Second Year", value: 2},
-        {text: "Third Year", value: 3},
-      ],
     };
   },
   computed: {
@@ -94,7 +77,10 @@ export default {
     method() {
       return this.editedIndex === -1 ? 'POST' : 'PUT'
     },
-    ...mapState(['userData'])
+    selectedClass() {
+      return this.classes.values[this.classes.selectedClass].classHash
+    },
+    ...mapState(['userData', 'classes'])
   },
 
   methods: {
@@ -105,7 +91,7 @@ export default {
         let formData = new FormData();
         formData.append("id", this.quiz.ID)
         formData.append("title", this.quiz.title);
-        formData.append("year", this.quiz.year);
+        formData.append("selectedClass", this.selectedClass);
         formData.append("startTime", Date.parse(this.quiz.startTime));
         formData.append("endTime", Date.parse(this.quiz.endTime));
         api({

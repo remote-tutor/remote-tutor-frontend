@@ -11,6 +11,12 @@ let api = axios.create({
 api.interceptors.request.use(function (config) {
     const token = store.state.userData.token;
     config.headers.Authorization = `Bearer ${token}`;
+    if (store.state.classes.values.length > 0) {
+        let selectedClass = store.state.classes.selectedClass
+        if (!config.params)
+            config.params = {}
+        config.params['selectedClass'] = store.state.classes.values[selectedClass].classHash
+    }
     return config;
 }, function (error) {
     return Promise.reject(error);
@@ -26,6 +32,7 @@ api.interceptors.response.use(function (response) {
     }
     return response;
 }, function (error) {
+    console.log(error)
     let status = error.response.status
     if ((status === 400 || status === 401) && router.currentRoute.name !== 'Login') {
         router.push({name: 'Login'})

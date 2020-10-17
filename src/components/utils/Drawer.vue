@@ -57,6 +57,12 @@
               </v-list-item-icon>
               <v-list-item-title>Lessons</v-list-item-title>
             </v-list-item>
+            <v-list-item :to="{ name: 'Classes' }">
+              <v-list-item-icon>
+                <v-icon>mdi-teach</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Classes</v-list-item-title>
+            </v-list-item>
             <v-list-item :to="{ name: 'ResetPassword' }">
               <v-list-item-icon>
                 <v-icon>mdi-lock</v-icon>
@@ -99,6 +105,8 @@ export default {
         name: '',
         token: ''
       })
+      this.$store.dispatch("setUserClasses", [])
+      this.$store.dispatch("setUserClass", 0)
       this.$router.push({name: 'Login'})
     }
   },

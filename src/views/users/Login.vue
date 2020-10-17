@@ -76,11 +76,10 @@ export default {
       })
           .then((response) => {
             this.$store.dispatch("setUserData", {
-              admin: response.data.admin,
               name: response.data.name,
               token: response.data.token,
             })
-            this.$router.push({name: 'Announcements'})
+            this.$router.push({name: 'Classes'})
           })
           .finally(() => {
             this.loading = false;

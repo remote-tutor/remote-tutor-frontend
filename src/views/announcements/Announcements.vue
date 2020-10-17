@@ -11,7 +11,7 @@
             @deleteAnnouncement="deleteAnnouncement"
             @updateAnnouncements="updateAnnouncements"
         ></Announcement>
-        <BottomPagination :length="totalPages" @pageChanged="pageChanged"></BottomPagination>
+        <BottomPagination :length="totalPages" :page.sync="options.page"></BottomPagination>
 
         <v-speed-dial v-model="fab" fixed bottom right direction="top" v-if="userData.admin">
           <template v-slot:activator>
@@ -65,7 +65,27 @@ export default {
     Search
   },
   computed: {
-    ...mapState(['userData'])
+    ...mapState(['userData', 'classes']),
+    selectedClass() {
+      return this.classes.values[this.classes.selectedClass].classHash
+    }
+  },
+  watch: {
+    options: {
+      handler() {
+        this.getAnnouncements()
+      },
+      deep: true
+    },
+    selectedClass() {
+      this.options = {
+        sortBy: ['created_at'],
+        sortDesc: ['true'],
+        page: 1,
+        itemsPerPage: 5,
+      }
+      this.getAnnouncements()
+    },
   },
   data() {
     return {
@@ -73,14 +93,11 @@ export default {
       sheet: false,
       announcements: [],
       placeholderExists: false,
-      currentPage: 1,
-      length: 5,
       totalPages: 1,
       searchValues: {
         title: "",
         topic: "",
         content: "",
-        year: 1,
       },
       options: {
         sortBy: ['created_at'],
@@ -103,13 +120,12 @@ export default {
           title: this.searchValues.title,
           topic: this.searchValues.topic,
           content: this.searchValues.content,
-          year: this.searchValues.year,
         },
       })
           .then((response) => {
             this.announcements = response.data.announcements;
             let totalAnnouncements = response.data.total;
-            this.totalPages = Math.ceil(totalAnnouncements / this.length);
+            this.totalPages = Math.ceil(totalAnnouncements / this.options.itemsPerPage);
           })
     },
     createPlaceholder() {
@@ -120,7 +136,7 @@ export default {
         });
       } else {
         this.placeholderExists = true;
-        this.announcements.unshift({ isNew: true, ID: 0, year: this.searchValues.year });
+        this.announcements.unshift({ isNew: true, ID: 0 });
         this.$vuetify.goTo(0)
       }
     },
@@ -134,7 +150,7 @@ export default {
       let oldAnnouncement = options.old
       let updatedAnnouncement = options.updated
       let index = this.announcements.indexOf(oldAnnouncement)
-      if (updatedAnnouncement.year === this.searchValues.year) {
+      if (updatedAnnouncement.classHash === this.selectedClass) {
         this.announcements[index] = updatedAnnouncement
       } else {
         this.announcements.splice(index, 1)
@@ -143,10 +159,6 @@ export default {
     filterAnnouncements(options) {
       this.announcements = [];
       this.searchValues = Object.assign({}, options.searchValues);
-      this.getAnnouncements();
-    },
-    pageChanged(options) {
-      this.options.page = options.currentPage;
       this.getAnnouncements();
     },
   },

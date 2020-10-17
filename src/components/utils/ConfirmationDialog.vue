@@ -12,6 +12,17 @@
       <v-btn v-bind="attrs" v-on="on" outlined color="red">Delete</v-btn>
     </template>
 
+    <template v-slot:activator="{ on: onShowDialog }" v-else-if="adminStatus">
+      <v-tooltip bottom v-on="onShowDialog">
+        <template v-slot:activator="{ on: onTooltip }">
+          <v-btn small fab text v-on="{...onShowDialog, ...onTooltip}">
+            <v-icon>mdi-account-switch-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>Change Admin Status</span>
+      </v-tooltip>
+    </template>
+
     <template v-slot:activator="{ on, attrs }" v-else>
       <v-btn :color="btnColor || 'error'" dark v-bind="attrs" v-on="on">{{ buttonText }}</v-btn>
     </template>
@@ -51,6 +62,7 @@ export default {
     datatable: Boolean,
     video: Boolean,
     videoPart: Boolean,
+    adminStatus: Boolean,
     deletedItemName: String,
   },
   data() {

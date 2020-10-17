@@ -61,14 +61,6 @@
                     </v-col>
                   </v-row>
 
-                  <v-select
-                      label="Year"
-                      :items="years"
-                      item-text="text"
-                      item-value="value"
-                      v-model="user.year"
-                  ></v-select>
-
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -99,15 +91,9 @@ export default {
         username: "",
         password: "",
         confirmPassword: "",
-        year: 1,
         phoneNumber: "",
         parentNumber: "",
       },
-      years: [
-        {text: "First Year", value: 1},
-        {text: "Second Year", value: 2},
-        {text: "Third Year", value: 3},
-      ],
     };
   },
 
@@ -121,7 +107,6 @@ export default {
         formData.append("username", this.user.username);
         formData.append("password", this.user.password);
         formData.append("confirmPassword", this.user.confirmPassword);
-        formData.append("year", this.user.year);
         formData.append("phoneNumber", this.user.phoneNumber);
         formData.append("parentNumber", this.user.parentNumber);
         api({

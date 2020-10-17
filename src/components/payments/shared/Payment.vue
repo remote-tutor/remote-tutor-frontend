@@ -92,7 +92,10 @@ export default {
     }
   },
   computed: {
-    ...mapState(['userData'])
+    ...mapState(['userData', 'classes']),
+    selectedClass() {
+      return this.classes.values[this.classes.selectedClass].classHash
+    },
   },
   methods: {
     saveMonth() {
@@ -181,6 +184,7 @@ export default {
         formData.append("userID", this.userID)
         formData.append("startDate", new Date(week.from).getTime())
         formData.append("endDate", new Date(week.to).getTime())
+        formData.append("selectedClass", this.selectedClass)
         return api({
           method: method,
           url: "/admin/payments",

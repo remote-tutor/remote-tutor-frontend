@@ -15,16 +15,6 @@
               </v-col>
             </v-row>
             <v-row>
-              <v-select
-                  label="Year"
-                  :items="years"
-                  item-text="text"
-                  item-value="value"
-                  v-model="selectedYear"
-                  @change="getVideos"
-              ></v-select>
-            </v-row>
-            <v-row>
               <v-text-field
                   label="Title"
                   v-model.trim="newVideoTitle"
@@ -91,18 +81,15 @@ export default {
   name: "Videos",
   components: {AdminVideoCard, UserVideoCard, AppBar},
   computed: {
-    ...mapState(['userData']),
+    ...mapState(['userData', 'classes']),
+    selectedClass() {
+      return this.classes.values[this.classes.selectedClass].classHash
+    }
   },
   data() {
     return {
       date: new Date().toISOString().substr(0, 10),
       menu: false,
-      years: [
-        {text: "First Year", value: 1},
-        {text: "Second Year", value: 2},
-        {text: "Third Year", value: 3},
-      ],
-      selectedYear: 1,
       newVideoTitle: '',
       pickedMonth: new Date().toISOString().substr(0, 7),
       createLoading: false,
@@ -117,7 +104,6 @@ export default {
         method: "GET",
         url: "/videos",
         params: {
-          year: this.selectedYear,
           date: new Date(this.pickedMonth).getTime(),
         }
       }).then(response => {
@@ -129,7 +115,7 @@ export default {
     createVideo() {
       this.createLoading = true
       let formData = new FormData()
-      formData.append("year", this.selectedYear)
+      formData.append("selectedClass", this.selectedClass)
       formData.append("availableFrom", new Date(this.date).getTime())
       formData.append("title", this.newVideoTitle)
       api({
@@ -149,6 +135,12 @@ export default {
   watch: {
     pickedMonth() {
       this.getVideos()
+    },
+    classes: {
+      handler() {
+        this.getVideos()
+      },
+      deep: true
     },
   },
 }
