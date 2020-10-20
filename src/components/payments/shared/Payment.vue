@@ -73,6 +73,7 @@
 
 <script>
 import api from "@/gateways/api";
+import { initializeMonthWeeks } from "@/components/payments/weeks/weeks"
 import {mapState} from "vuex";
 
 export default {
@@ -103,20 +104,7 @@ export default {
       this.initializeWeeks()
     },
     initializeWeeks() {
-      let friday = this.getFirstFriday()
-      let selectedMonth = friday.getMonth()
-      this.weeks = []
-      while (friday.getMonth() === selectedMonth) {
-        let startOfWeek = friday.toISOString().substr(0, 10)
-        friday.setDate(friday.getDate() + 7)
-        let endOfWeek = friday.toISOString().substr(0, 10)
-        this.weeks.push({
-          from: startOfWeek,
-          to: endOfWeek,
-          status: false,
-          ID: -1
-        })
-      }
+      this.weeks = initializeMonthWeeks(this.date)
       this.getPayments().then(response => {
         response.forEach(payment => {
           this.weeks.forEach((week, index) => {
@@ -129,12 +117,6 @@ export default {
         })
       })
     },
-    getFirstFriday() {
-      let firstFriday = new Date(this.date)
-      firstFriday.setDate(firstFriday.getDate() + (5 + 7 - firstFriday.getDay()) % 7)
-      return firstFriday
-    },
-
     getPayments() {
       let startDate = new Date(this.weeks[0].from).getTime()
       let endDate = new Date(this.weeks[this.weeks.length - 1].to).getTime()
