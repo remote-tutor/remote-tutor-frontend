@@ -11,7 +11,7 @@
                       :selected-question.sync="selectedQuestion"
                       :disable-previous="selectedQuestion === 0"
                       :disable-next="selectedQuestion === questions.length - 1"
-                      :isReview="isReview"
+                      :isReview="isReview" :saving="saving"
             ></Question>
           </v-col>
           <v-col class="col-12 col-md-3">
@@ -48,7 +48,8 @@ export default {
       submissions: [],
       selectedQuestion: 0,
       quizID: this.$route.params.quizID,
-      isReview: this.$route.params.action === 'review'
+      isReview: this.$route.params.action === 'review',
+      saving: false,
     }
   },
   computed: {
@@ -86,34 +87,14 @@ export default {
       })
       // GET SUBMISSIONS
     },
-    updateChoice(options) {
-      let method = (this.submissions[this.selectedQuestion] === -1) ? "POST" : "PUT"
-      let formData = new FormData()
-      formData.append("mcqID", this.questions[this.selectedQuestion].question.ID)
-      formData.append("quizID", this.quizID)
-      formData.append("userResult", options.choice)
-      api({
-        method: method,
-        url: "/quizzes/submissions/mcq",
-        data: formData
-      }).then(() => {
-        this.$store.dispatch('viewSnackbar', {
-          text: 'Question #' + (this.selectedQuestion + 1) + ' has been saved successfully',
-          color: 'success'
-        })
-        let updatedSubmissions = this.submissions.slice() // to convince Vue that the array actually changed
-        updatedSubmissions[this.selectedQuestion] = options.choice
-        this.submissions = updatedSubmissions
-      }).catch(async () => {
-        let oldValue = this.submissions[this.selectedQuestion] // get the original value of the submission
-        await this.submissions.splice(this.selectedQuestion, 1, 0) // force the submissions array to change
-        this.submissions.splice(this.selectedQuestion, 1, oldValue) // return the submission to its previous value
-
-        await this.$store.dispatch('viewSnackbar', {
-          text: 'Error saving question #' + (this.selectedQuestion + 1),
-          color: 'error'
-        })
-      })
+    async updateChoice(options) {
+      if (options.status) {
+        this.submissions.splice(this.selectedQuestion, 1, options.choice)
+      } else {
+        let oldValue = this.submissions[this.selectedQuestion]
+        await this.submissions.splice(this.selectedQuestion, 1, 0)
+        this.submissions.splice(this.selectedQuestion, 1, oldValue)
+      }
     },
     createQuizGrade() {
       let formData = new FormData()

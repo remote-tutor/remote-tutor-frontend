@@ -59,7 +59,7 @@
             <v-img v-if="questionData.question.image !== undefined" :src="questionData.question.imageSrc"></v-img>
 
             <div v-if="questionData.mcq">
-              <v-radio-group v-model="questionData.correctAnswer" :readonly="!editMode" :disabled="!editMode">
+              <v-radio-group v-model="questionData.correctAnswer" :readonly="!editMode" :disabled="!editMode" mandatory>
                 <Choice
                     v-for="choice in questionData.choices"
                     :key="choice.ID"
