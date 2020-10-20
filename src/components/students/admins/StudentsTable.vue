@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title>
-      {{tableTitle}}
+      {{ tableTitle }}
       <v-spacer></v-spacer>
       <v-text-field
           v-model="searchBy.value"
@@ -14,6 +14,53 @@
       <v-spacer></v-spacer>
       <v-select :items="searchByItems" v-model="searchBy.field" label="Search By" @input="search"></v-select>
     </v-card-title>
+    <v-card-subtitle v-if="!pending">
+      All Students Access
+      <v-row>
+        <v-col cols="6" md="4">
+          <v-select
+              return-object
+              label="Week"
+              :items="weeks"
+              item-text="textValue"
+              v-model="selectedWeek"
+          >
+          </v-select>
+        </v-col>
+        <v-col cols="6" md="2">
+          <v-menu
+              ref="menu"
+              v-model="menu"
+              :close-on-content-click="false"
+              :return-value.sync="date"
+              transition="scale-transition">
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                  v-model="date"
+                  label="Month"
+                  readonly
+                  v-bind="attrs"
+                  v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+                v-model="date"
+                type="month"
+                no-title
+                scrollable>
+              <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
+              <v-btn text color="primary" @click="saveMonth">OK</v-btn>
+            </v-date-picker>
+          </v-menu>
+        </v-col>
+        <v-col>
+          <v-btn block color="primary"
+                 :disabled="Object.keys(selectedWeek).length === 0" @click="giveAccessToAllStudents">
+            Give Access to All Students
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-card-subtitle>
     <v-data-table
         :headers="headers"
         :items="students"
@@ -86,6 +133,7 @@ import api from "@/gateways/api.js";
 import Payment from "@/components/payments/shared/Payment";
 import {mapState} from "vuex";
 import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
+import {initializeMonthWeeks} from "@/components/payments/weeks/weeks";
 
 export default {
   name: "StudentsTable",
@@ -129,7 +177,10 @@ export default {
         studentName: '',
         userID: 0,
       },
-
+      date: new Date().toISOString().substr(0, 7),
+      menu: false,
+      weeks: [],
+      selectedWeek: {}
     };
   },
   mounted() {
@@ -141,6 +192,7 @@ export default {
     } else {
       this.headers.push({text: "Payments", value: "payments", sortable: false})
       this.headers.push({text: "Admin", value: "admin"})
+      this.weeks = initializeMonthWeeks(this.date)
     }
   },
   watch: {
@@ -246,6 +298,21 @@ export default {
       this.payment.dialog = true
       this.payment.studentName = user.user.fullName
       this.payment.userID = user.user.ID
+    },
+    saveMonth() {
+      this.$refs.menu.save(this.date)
+      this.weeks = initializeMonthWeeks(this.date)
+    },
+    giveAccessToAllStudents() {
+      let formData = new FormData()
+      formData.append("startDate", new Date(this.selectedWeek.from).getTime())
+      formData.append("endDate", new Date(this.selectedWeek.to).getTime())
+      formData.append("selectedClass", this.selectedClass)
+      api({
+        method: "POST",
+        url: "/admin/payments/all",
+        data: formData,
+      })
     }
   },
 };
