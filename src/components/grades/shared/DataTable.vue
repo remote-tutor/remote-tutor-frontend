@@ -5,7 +5,6 @@
       item-key="fullName"
       class="elevation-1"
       :loading="loading"
-      multi-sort
       :search="search"
       single-expand
       :expanded.sync="expanded"

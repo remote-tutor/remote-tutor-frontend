@@ -56,7 +56,7 @@ export default {
   methods: {
     updateSelectedChoice(userChoice) {
       this.saving = true
-      let method = (this.selectedChoice === -1) ? "POST" : "PUT"
+      let method = (this.selectedChoice === null) ? "POST" : "PUT"
       let formData = new FormData()
       formData.append("mcqID", this.question.question.ID)
       formData.append("quizID", this.$route.params.quizID)
@@ -74,9 +74,9 @@ export default {
           choice: userChoice,
           status: true
         })
-      }).catch(async () => {
+      }).catch(() => {
         this.$store.dispatch('viewSnackbar', {
-          text: 'Error saving question #' + (this.selectedQuestion + 1),
+          text: 'Error saving question #' + (this.selectedQuestion + 1) + '. Please refresh the page and try again',
           color: 'error'
         })
         this.$emit('updateChoice', {

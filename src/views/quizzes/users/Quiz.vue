@@ -65,7 +65,7 @@ export default {
         }
       })
       this.questions = response.data.mcqs
-      this.submissions = Array(this.questions.length).fill(-1)
+      this.submissions = Array(this.questions.length).fill(null)
       this.selectedQuestion = 0
       api({
         method: "GET",
