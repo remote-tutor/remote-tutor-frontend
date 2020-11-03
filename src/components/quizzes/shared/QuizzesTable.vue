@@ -8,7 +8,9 @@
       :options.sync="options"
       :server-items-length="totalQuizzes"
       :footer-props="{
-        'items-per-page-options': [10, 15, 20]
+        'items-per-page-options': [10, 15, 20],
+        'show-current-page': true,
+        'show-first-last-page': true,
       }"
       :items-per-page="10"
   >

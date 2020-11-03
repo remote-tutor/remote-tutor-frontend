@@ -9,6 +9,10 @@
       single-expand
       :expanded.sync="expanded"
       show-expand
+      :footer-props="{
+        'show-current-page': true,
+        'show-first-last-page': true,
+      }"
   >
     <template v-slot:top>
       <v-row>
