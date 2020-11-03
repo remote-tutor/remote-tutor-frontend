@@ -12,7 +12,7 @@
               color="deep-purple accent-3"
               group>
             <v-row dense>
-              <v-col v-for="(submission, index) in submissions" :key="submission.ID" cols="3">
+              <v-col v-for="(submission, index) in submissions" :key="index" cols="3">
                 <v-btn class="rounded-circle"
                        :color="getButtonColor(index)"
                        :value="index"
@@ -87,7 +87,7 @@ export default {
 
       if (this.updatedSelection === index)
         return 'primary'
-      if (this.submissions[index] === -1)
+      if (this.submissions[index] === null)
         return 'secondary'
       return 'light-blue'
     },

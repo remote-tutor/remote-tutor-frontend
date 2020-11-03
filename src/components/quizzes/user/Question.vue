@@ -22,17 +22,14 @@
       <div v-if="mcq">
         <v-radio-group v-model="updatedChoice"
                        :readonly="isReview"
-                       :disabled="isReview"
-                       @change="(val) => $emit('updateChoice', {choice: val || -1})"
+                       :disabled="isReview || saving"
                        column>
-          <v-col>
-            <v-radio v-for="choice in question.choices" class="pa-1"
-                     :key="choice.ID"
-                     :value="choice.ID"
-                     :label="choice.text"
-                     :class="getLabelColor(choice)">
-            </v-radio>
-          </v-col>
+          <v-radio v-for="choice in question.choices" class="pa-1"
+                   :key="choice.ID"
+                   :value="choice.ID"
+                   :label="choice.text"
+                   :class="getLabelColor(choice)">
+          </v-radio>
         </v-radio-group>
       </div>
 
@@ -46,15 +43,50 @@
 </template>
 
 <script>
+import api from "@/gateways/api";
+
 export default {
   name: "Question",
   props: ['question', 'mcq', 'selectedChoice', 'selectedQuestion', 'disablePrevious', 'disableNext', 'isReview'],
   data() {
     return {
-      updatedChoice: this.selectedChoice || -1
+      saving: false,
     }
   },
   methods: {
+    updateSelectedChoice(userChoice) {
+      this.saving = true
+      let method = (this.selectedChoice === null) ? "POST" : "PUT"
+      let formData = new FormData()
+      formData.append("mcqID", this.question.question.ID)
+      formData.append("quizID", this.$route.params.quizID)
+      formData.append("userResult", userChoice)
+      api({
+        method: method,
+        url: "/quizzes/submissions/mcq",
+        data: formData
+      }).then(() => {
+        this.$store.dispatch('viewSnackbar', {
+          text: 'Question #' + (this.selectedQuestion + 1) + ' has been saved successfully',
+          color: 'success'
+        })
+        this.$emit('updateChoice', {
+          choice: userChoice,
+          status: true
+        })
+      }).catch(() => {
+        this.$store.dispatch('viewSnackbar', {
+          text: 'Error saving question #' + (this.selectedQuestion + 1) + '. Please refresh the page and try again',
+          color: 'error'
+        })
+        this.$emit('updateChoice', {
+          choice: userChoice,
+          status: false
+        })
+      }).finally(() => {
+        this.saving = false
+      })
+    },
     updateSelectedQuestion(value) {
       if (this.disablePrevious && value === -1)
         return
@@ -70,13 +102,16 @@ export default {
       return ''
     }
   },
-  watch: {
-    selectedChoice: function (val) {
-      this.updatedChoice = val || -1
-    }
-  },
   computed: {
-    imageSrc: function() {
+    updatedChoice: {
+      get() {
+        return this.selectedChoice
+      },
+      set(val) {
+        this.updateSelectedChoice(val)
+      }
+    },
+    imageSrc: function () {
       return process.env.VUE_APP_API_URL + "/image/" + this.question.question.imagePath
     }
   },
@@ -85,7 +120,7 @@ export default {
 </script>
 
 <style scoped>
->>>.theme--light.v-radio--is-disabled.highlighted label {
+>>> .theme--light.v-radio--is-disabled.highlighted label {
   color: black !important;
 }
 </style>

@@ -5,11 +5,14 @@
       item-key="fullName"
       class="elevation-1"
       :loading="loading"
-      multi-sort
       :search="search"
       single-expand
       :expanded.sync="expanded"
       show-expand
+      :footer-props="{
+        'show-current-page': true,
+        'show-first-last-page': true,
+      }"
   >
     <template v-slot:top>
       <v-row>

@@ -68,7 +68,9 @@
         :server-items-length="totalStudents"
         :loading="loading"
         :footer-props="{
-        'items-per-page-options': [10, 15, 20]
+        'items-per-page-options': [10, 15, 20],
+        'show-current-page': true,
+        'show-first-last-page': true,
       }"
         :items-per-page="10"
         class="elevation-1"
