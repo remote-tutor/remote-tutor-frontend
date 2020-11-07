@@ -44,8 +44,8 @@
           </transition-group>
         </draggable>
       </v-col>
-      <v-col cols="12" sm="6" md="8">
-        <Player ref="player"></Player>
+      <v-col cols="12" sm="6" md="8" v-if="video !== null">
+        <Player ref="player" :video="video"></Player>
       </v-col>
     </v-row>
 
@@ -101,6 +101,7 @@ import Player from "@/components/videos/shared/Player";
 export default {
   name: "VideoParts",
   components: {Player, ConfirmationDialog},
+  props: ['video'],
   data() {
     return {
       partsToUpload: [],
@@ -156,7 +157,7 @@ export default {
       let formData = new FormData()
       formData.append("videoPart", this.allParts[index])
       formData.append("id", this.allParts[index].ID)
-      formData.append("videoID", this.$route.params.videoID)
+      formData.append("videoID", this.video.ID)
       formData.append("fileName", this.allParts[index].name)
       formData.append("number", (index + 1))
       let method = (this.allParts[index].ID === undefined) ? "POST" : "PUT"
@@ -179,7 +180,7 @@ export default {
         method: "GET",
         url: "/videos/parts",
         params: {
-          videoID: this.$route.params.videoID
+          videoHash: this.$route.params.videoHash
         }
       }).then(response => {
         this.allParts = []

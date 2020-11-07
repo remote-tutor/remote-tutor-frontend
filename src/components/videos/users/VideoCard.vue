@@ -23,7 +23,7 @@
       </v-card-subtitle>
       <v-card-text>Available At: {{ video.availableFrom | moment }}</v-card-text>
       <v-card-actions v-if="isAvailableToWatch">
-        <v-btn outlined :to="{name: 'ViewVideo', params: {videoID: video.ID}}">Parts</v-btn>
+        <v-btn outlined :to="{name: 'ViewVideo', params: {videoHash: video.hash}}">Parts</v-btn>
       </v-card-actions>
     </v-card>
   </v-col>

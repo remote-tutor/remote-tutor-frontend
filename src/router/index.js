@@ -118,7 +118,7 @@ const routes = [
     }
   },
   {
-    path: '/video/:videoID',
+    path: '/video/:videoHash',
     name: 'ViewVideo',
     component: Video,
     meta: {

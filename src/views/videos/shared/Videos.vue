@@ -123,7 +123,7 @@ export default {
         url: "/admin/videos",
         data: formData,
       }).then(response => {
-        this.$router.push({name: 'ViewVideo', params: {videoID: response.data.video.ID}})
+        this.$router.push({name: 'ViewVideo', params: {videoHash: response.data.video.hash}})
       }).finally(() => {
         this.createLoading = false
       })

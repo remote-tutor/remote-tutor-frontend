@@ -22,7 +22,7 @@
       </v-card-subtitle>
       <v-card-text>Available At: {{ video.availableFrom | moment }}</v-card-text>
       <v-card-actions>
-        <v-btn outlined :to="{name: 'ViewVideo', params: {videoID: video.ID}}">Parts</v-btn>
+        <v-btn outlined :to="{name: 'ViewVideo', params: {videoHash: video.hash}}">Parts</v-btn>
         <v-spacer></v-spacer>
         <ConfirmationDialog
             buttonText="Delete"

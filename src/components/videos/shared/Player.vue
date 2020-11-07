@@ -27,6 +27,7 @@ import api from "@/gateways/api";
 
 export default {
   name: "Player",
+  props: ['video'],
   computed: {
     player() {
       return this.$refs.plyr.player
@@ -34,7 +35,6 @@ export default {
   },
   data() {
     return {
-      video: {},
       partName: '',
       partID: -1,
       videoSource: [],
@@ -79,20 +79,6 @@ export default {
     pause() {
       this.lastTimestamp = this.player.currentTime
     },
-    getVideo() {
-      api({
-        method: "GET",
-        url: "/videos/video",
-        params: {
-          id: this.$route.params.videoID
-        }
-      }).then(response => {
-        this.video = response.data.video
-      })
-    },
-  },
-  mounted() {
-    this.getVideo()
   },
   watch: {
     videoSource: {

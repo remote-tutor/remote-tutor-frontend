@@ -34,8 +34,8 @@
         </v-card-text>
       </v-card>
     </v-col>
-    <v-col cols="12" sm="6" md="8">
-      <Player ref="player"></Player>
+    <v-col cols="12" sm="6" md="8" v-if="video !== null">
+      <Player ref="player" :video="video"></Player>
     </v-col>
 
     <v-dialog v-model="dialog" width="500">
@@ -80,6 +80,7 @@ import Player from "@/components/videos/shared/Player";
 export default {
   name: "VideoParts",
   components: {Player, Timer},
+  props: ['video'],
   computed: {
     player() {
       return this.$refs.player
@@ -103,7 +104,7 @@ export default {
         method: "GET",
         url: "/videos/parts",
         params: {
-          videoID: this.$route.params.videoID
+          videoHash: this.$route.params.videoHash
         }
       }).then(response => {
         this.parts = response.data.parts
