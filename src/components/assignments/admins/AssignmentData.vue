@@ -76,24 +76,18 @@
 
         <v-row>
           <v-col cols="12" md="6">
-            <v-btn outlined v-if="assignment.questions.length > 0" :loading="loadingQuestions"
-                   @click="downloadQuestionsFile">
-              <a :href="assignment.questionsDownloadLink" id="questions-link"
-                 :download="assignment.questionsFileName" class="download-link">
-                Questions
-                <v-icon>mdi-cloud-download</v-icon>
-              </a>
+            <v-btn outlined v-if="assignment.questions.length > 0"
+                   :href="assignment.questions" target="_blank">
+              Questions
+              <v-icon>mdi-cloud-download</v-icon>
             </v-btn>
             <div v-else>We couldn't find the questions file for this assignment</div>
           </v-col>
           <v-col cols="12" md="6">
-            <v-btn outlined v-if="assignment.modelAnswer.length > 0" :loading="loadingModelAnswer"
-                   @click="downloadModelAnswerFile">
-              <a :href="assignment.modelAnswerDownloadLink" id="model-answer-link"
-                 :download="assignment.modelAnswerFileName" class="download-link">
-                Download Model Answer
-                <v-icon>mdi-cloud-download</v-icon>
-              </a>
+            <v-btn outlined v-if="assignment.modelAnswer.length > 0"
+                   :href="assignment.modelAnswer" target="_blank">
+              Model Answer
+              <v-icon>mdi-cloud-download</v-icon>
             </v-btn>
             <div v-else>No model answer associated with this question</div>
           </v-col>
@@ -141,15 +135,8 @@ export default {
         modelAnswerBytes: [],
         questions: "",
         modelAnswer: "",
-        questionsDownloadLink: "",
-        modelAnswerDownloadLink: "",
-        questionsFileName: "",
-        modelAnswerFileName: "",
       },
-      menu: false,
       loading: false,
-      loadingQuestions: false,
-      loadingModelAnswer: false,
       hoursToDisplayModelAnswer: [0, 1, 2, 3, 6, 12]
     }
   },
@@ -201,50 +188,6 @@ export default {
           .finally(() => {
             this.loading = false
           })
-    },
-    getFile(fullPath, questionsFile) {
-      if (fullPath === "")
-        return
-      (questionsFile) ? this.loadingQuestions = true : this.loadingModelAnswer = true
-      return api({
-        method: "GET",
-        url: "/assignments/assignment/file",
-        responseType: 'blob',
-        params: {
-          file: fullPath
-        }
-      }).then(response => {
-        let folders = fullPath.split("/")
-        if (questionsFile) {
-          this.assignment.questionsFileName = folders[folders.length - 1]
-          this.assignment.questionsDownloadLink = URL.createObjectURL(new Blob([response.data]));
-        } else {
-          this.assignment.modelAnswerFileName = folders[folders.length - 1]
-          this.assignment.modelAnswerDownloadLink = URL.createObjectURL(new Blob([response.data]));
-        }
-      }).catch(() => {
-        this.$store.dispatch('viewSnackbar', {
-          text: 'Sorry we cannot download the requested file now, please try again later',
-          color: 'error'
-        })
-      }).finally(() => {
-        (questionsFile) ? this.loadingQuestions = false : this.loadingModelAnswer = false
-      })
-    },
-    downloadQuestionsFile() {
-      if (this.assignment.questionsFileName === undefined) {
-        this.getFile(this.assignment.questions, true).then(() => {
-          document.getElementById("questions-link").click()
-        })
-      }
-    },
-    downloadModelAnswerFile() {
-      if (this.assignment.modelAnswerFileName === undefined) {
-        // check if the modelAnswerPeriod has passed before retrieving the modelAnswer
-        this.getFile(this.assignment.modelAnswer, false).then(() => {
-          document.getElementById("model-answer-link").click()
-        })
-      }
     },
   }
 }

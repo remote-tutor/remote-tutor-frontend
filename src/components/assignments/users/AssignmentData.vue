@@ -21,24 +21,16 @@
           <v-card-text>
             <v-row>
               <v-col cols="12" md="6">
-                <v-btn outlined v-if="assignment.questions.length > 0" :loading="loadingQuestions"
-                       @click="downloadQuestionsFile">
-                  <a :href="assignment.questionsDownloadLink" id="questions-link"
-                     :download="assignment.questionsFileName" class="download-link">
-                    Questions
-                    <v-icon>mdi-cloud-download</v-icon>
-                  </a>
+                <v-btn outlined v-if="assignment.questions.length > 0" :href="assignment.questions" target="_blank">
+                  Questions
+                  <v-icon>mdi-cloud-download</v-icon>
                 </v-btn>
                 <div v-else>We couldn't find the questions file for this assignment</div>
               </v-col>
               <v-col cols="12" md="6">
-                <v-btn outlined v-if="showModelAnswer" :loading="loadingModelAnswer"
-                       @click="downloadModelAnswerFile">
-                  <a :href="assignment.modelAnswerDownloadLink" id="model-answer-link"
-                     :download="assignment.modelAnswerFileName" class="download-link">
-                    Model Answer
-                    <v-icon>mdi-cloud-download</v-icon>
-                  </a>
+                <v-btn outlined v-if="showModelAnswer" :href="assignment.modelAnswer" target="_blank">
+                  Model Answer
+                  <v-icon>mdi-cloud-download</v-icon>
                 </v-btn>
                 <div v-else-if="assignment.modelAnswerPeriod === 0">
                   The model answer will be available immediately after the deadline (if found)
@@ -83,12 +75,9 @@
 
             <v-row v-if="submission.userID !== 0 && submission.assignmentID !== 0">
               <v-col cols="12">
-                <v-btn outlined @click="downloadUserSubmissionFile">
-                  <a :loading="loadingSubmission" :href="submission.downloadLink" id="user-submission-link"
-                     :download="submission.fileName" class="download-link">
-                    Your Submission
-                    <v-icon>mdi-cloud-download</v-icon>
-                  </a>
+                <v-btn outlined :href="submission.file" target="_blank">
+                  Your Submission
+                  <v-icon>mdi-cloud-download</v-icon>
                 </v-btn>
               </v-col>
             </v-row>
@@ -131,9 +120,6 @@ export default {
   data() {
     return {
       loading: false,
-      loadingQuestions: false,
-      loadingModelAnswer: false,
-      loadingSubmission: false,
       showModelAnswer: false,
       assignment: {
         title: '',
@@ -171,64 +157,6 @@ export default {
     })
   },
   methods: {
-    getFile(fullPath, fileType) {
-      if (fullPath === "")
-        return
-      if (fileType === 'questions') this.loadingQuestions = true
-      else if (fileType === 'modelAnswer') this.loadingModelAnswer = true
-      else if (fileType === 'userSubmission') this.loadingSubmission = true
-      return api({
-        method: "GET",
-        url: "/assignments/assignment/file",
-        responseType: 'blob',
-        params: {
-          file: fullPath
-        }
-      }).then(response => {
-        let folders = fullPath.split("/")
-        if (fileType === 'questions') {
-          this.assignment.questionsFileName = folders[folders.length - 1]
-          this.assignment.questionsDownloadLink = URL.createObjectURL(new Blob([response.data]));
-        } else if (fileType === 'modelAnswer') {
-          this.assignment.modelAnswerFileName = folders[folders.length - 1]
-          this.assignment.modelAnswerDownloadLink = URL.createObjectURL(new Blob([response.data]));
-        } else if (fileType === 'userSubmission') {
-          this.submission.fileName = folders[folders.length - 1]
-          this.submission.downloadLink = URL.createObjectURL(new Blob([response.data]));
-        }
-      }).catch(() => {
-        this.$store.dispatch('viewSnackbar', {
-          text: 'Sorry we cannot download the requested file now, please try again later',
-          color: 'error'
-        })
-      }).finally(() => {
-        if (fileType === 'questions') this.loadingQuestions = false
-        else if (fileType === 'modelAnswer') this.loadingModelAnswer = false
-        else if (fileType === 'userSubmission') this.loadingSubmission = false
-      })
-    },
-    downloadQuestionsFile() {
-      if (this.assignment.questionsFileName === undefined) {
-        this.getFile(this.assignment.questions, 'questions').then(() => {
-          document.getElementById("questions-link").click()
-        })
-      }
-    },
-    downloadModelAnswerFile() {
-      if (this.showModelAnswer && this.assignment.modelAnswerFileName === undefined) {
-        // check if the modelAnswerPeriod has passed before retrieving the modelAnswer
-        this.getFile(this.assignment.modelAnswer, 'modelAnswer').then(() => {
-          document.getElementById("model-answer-link").click()
-        })
-      }
-    },
-    downloadUserSubmissionFile() {
-      if (this.submission.fileName === undefined) {
-        this.getFile(this.submission.file, 'userSubmission').then(() => {
-          document.getElementById("user-submission-link").click()
-        })
-      }
-    },
     getSubmission() {
       api({
         method: "GET",
@@ -278,7 +206,5 @@ export default {
 </script>
 
 <style scoped>
-.download-link {
-  text-decoration: none !important;
-}
+
 </style>

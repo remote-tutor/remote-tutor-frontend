@@ -43,14 +43,7 @@
         <v-icon v-else>mdi-clipboard-alert</v-icon>
       </template>
       <template v-slot:item.download="{ item }">
-        <v-btn x-small fab @click="downloadSubmissionFile(submissions.indexOf(item))"
-               :loading="downloadSubmissions[submissions.indexOf(item)].loading">
-          <a :href="downloadSubmissions[submissions.indexOf(item)].downloadLink"
-             :download="downloadSubmissions[submissions.indexOf(item)].fileName"
-             :id="'index-' + submissions.indexOf(item) + '-link'"
-             class="download-link">
-
-          </a>
+        <v-btn x-small fab :href="item.file" target="_blank">
           <v-icon>mdi-download</v-icon>
         </v-btn>
       </template>
@@ -136,7 +129,6 @@ export default {
     return {
       totalSubmissions: 0,
       submissions: [],
-      downloadSubmissions: [],
       loading: false,
       options: {},
       headers: [
@@ -184,7 +176,6 @@ export default {
     getSubmissions() {
       this.loading = true
       this.submissions = []
-      this.downloadSubmissions = []
       const {sortBy, sortDesc, page, itemsPerPage} = this.options
       let modifiedSortBy = []
       for (let i = 0; i < sortBy.length; i++) {
@@ -204,45 +195,9 @@ export default {
       }).then(response => {
         this.totalSubmissions = response.data.totalSubmissions
         this.submissions = response.data.submissions
-        this.submissions.forEach(submission => {
-          this.downloadSubmissions.push({
-            fullPath: submission.file,
-            loading: false,
-          })
-        })
       }).finally(() => {
         this.loading = false
       })
-    },
-    getSubmissionFile(index) {
-      this.downloadSubmissions[index].loading = true
-      return api({
-        method: "GET",
-        url: "/assignments/assignment/file",
-        responseType: 'blob',
-        params: {
-          file: this.downloadSubmissions[index].fullPath
-        }
-      }).then(response => {
-        let folders = this.downloadSubmissions[index].fullPath.split("/")
-        this.downloadSubmissions[index].fileName = folders[folders.length - 1]
-        this.downloadSubmissions[index].downloadLink = URL.createObjectURL(new Blob([response.data]));
-      }).catch((error) => {
-        console.log(error)
-        this.$store.dispatch('viewSnackbar', {
-          text: 'Sorry we cannot download the requested file now, please try again later',
-          color: 'error'
-        })
-      }).finally(() => {
-        this.downloadSubmissions[index].loading = false
-      })
-    },
-    downloadSubmissionFile(index) {
-      if (this.downloadSubmissions[index].fileName === undefined) {
-        this.getSubmissionFile(index).then(() => {
-          document.getElementById('index-' + index + '-link').click()
-        })
-      }
     },
     momentDifference(deadline, uploadedAt) {
       deadline = moment(deadline)
@@ -251,7 +206,6 @@ export default {
       return diff >= 0;
     },
     save(submission) {
-      console.log(submission)
       if (isNaN(submission.mark) || submission.mark < 0 || submission.mark > this.totalMark) {
         this.$store.dispatch('viewSnackbar', {
           text: 'You must put a valid mark value',
