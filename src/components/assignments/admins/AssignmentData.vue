@@ -77,7 +77,7 @@
         <v-row>
           <v-col cols="12" md="6">
             <v-btn outlined v-if="assignment.questions.length > 0"
-                   :href="assignment.questions" target="_blank">
+                   @click="getUrl(questionsLoading, assignment.questions)" :loading="questionsLoading.value">
               Questions
               <v-icon>mdi-cloud-download</v-icon>
             </v-btn>
@@ -85,7 +85,7 @@
           </v-col>
           <v-col cols="12" md="6">
             <v-btn outlined v-if="assignment.modelAnswer.length > 0"
-                   :href="assignment.modelAnswer" target="_blank">
+                   @click="getUrl(answersLoading, assignment.modelAnswer)" :loading="answersLoading.value">
               Model Answer
               <v-icon>mdi-cloud-download</v-icon>
             </v-btn>
@@ -108,6 +108,7 @@
 import api from "@/gateways/api";
 import SubmissionsTable from "@/components/assignments/admins/SubmissionsTable";
 import {mapState} from "vuex";
+import {getSignedUrl} from '@/components/assignments/shared/signedUrl';
 
 export default {
   name: "AssignmentData",
@@ -137,6 +138,8 @@ export default {
         modelAnswer: "",
       },
       loading: false,
+      questionsLoading: {value: false},
+      answersLoading: {value: false},
       hoursToDisplayModelAnswer: [0, 1, 2, 3, 6, 12]
     }
   },
@@ -188,6 +191,9 @@ export default {
           .finally(() => {
             this.loading = false
           })
+    },
+    getUrl(loading, link) {
+      getSignedUrl(this, loading, link)
     },
   }
 }

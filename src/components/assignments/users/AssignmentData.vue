@@ -21,14 +21,16 @@
           <v-card-text>
             <v-row>
               <v-col cols="12" md="6">
-                <v-btn outlined v-if="assignment.questions.length > 0" :href="assignment.questions" target="_blank">
+                <v-btn outlined v-if="assignment.questions.length > 0"
+                       @click="getUrl(questionsLoading, assignment.questions)" :loading="questionsLoading.value">
                   Questions
                   <v-icon>mdi-cloud-download</v-icon>
                 </v-btn>
                 <div v-else>We couldn't find the questions file for this assignment</div>
               </v-col>
               <v-col cols="12" md="6">
-                <v-btn outlined v-if="showModelAnswer" :href="assignment.modelAnswer" target="_blank">
+                <v-btn outlined v-if="assignment.modelAnswer.length > 0"
+                       @click="getUrl(answersLoading, assignment.modelAnswer)" :loading="answersLoading.value">
                   Model Answer
                   <v-icon>mdi-cloud-download</v-icon>
                 </v-btn>
@@ -75,7 +77,8 @@
 
             <v-row v-if="submission.userID !== 0 && submission.assignmentID !== 0">
               <v-col cols="12">
-                <v-btn outlined :href="submission.file" target="_blank">
+                <v-btn outlined @click="getUrl(submissionLoading, submission.file)"
+                       :loading="submissionLoading.value">
                   Your Submission
                   <v-icon>mdi-cloud-download</v-icon>
                 </v-btn>
@@ -114,6 +117,7 @@
 <script>
 import api from "@/gateways/api";
 import moment from "moment"
+import {getSignedUrl} from '@/components/assignments/shared/signedUrl';
 
 export default {
   name: "AssignmentData",
@@ -139,6 +143,9 @@ export default {
         feedback: '',
         bytes: [],
       },
+      questionsLoading: {value: false},
+      answersLoading: {value: false},
+      submissionLoading: {value: false},
     }
   },
   created() {
@@ -184,7 +191,10 @@ export default {
       }).finally(() => {
         this.loading = false
       })
-    }
+    },
+    getUrl(loading, link) {
+      getSignedUrl(this, loading, link)
+    },
   },
   filters: {
     moment: function (date) {

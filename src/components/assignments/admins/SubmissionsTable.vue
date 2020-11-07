@@ -43,7 +43,7 @@
         <v-icon v-else>mdi-clipboard-alert</v-icon>
       </template>
       <template v-slot:item.download="{ item }">
-        <v-btn x-small fab :href="item.file" target="_blank">
+        <v-btn x-small fab @click="getSignedUrl(item)" :loading="item.file === null">
           <v-icon>mdi-download</v-icon>
         </v-btn>
       </template>
@@ -229,6 +229,24 @@ export default {
         submission.feedback = response.data.submission.feedback
       }).finally(() => {
         this.saveSubmissionDialog = false
+      })
+    },
+    getSignedUrl(submission) {
+      let fileLink = submission.file
+      submission.file = null // to display loading button
+      api({
+        method: "GET",
+        url: "/assignments/assignment/file",
+        params: {
+          originalUrl: fileLink
+        }
+      }).then(response => {
+        let link = document.createElement('a')
+        link.href = response.data.url
+        link.target = "_blank"
+        link.click()
+      }).finally(() => {
+        submission.file = fileLink
       })
     },
   },
