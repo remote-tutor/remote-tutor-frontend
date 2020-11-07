@@ -106,7 +106,7 @@ export default {
     Choice,
     ConfirmationDialog,
   },
-  props: ['staticID', 'staticText', 'staticTotalMark', 'staticChoices', 'staticCorrectAnswer', 'staticImage', 'staticImagePath', 'isNew'],
+  props: ['staticID', 'staticText', 'staticTotalMark', 'staticChoices', 'staticCorrectAnswer', 'staticImage', 'staticImagePath', 'isNew', 'quiz'],
   computed: {
     ...mapState(['userData'])
   },
@@ -190,7 +190,7 @@ export default {
       formData.append("id", this.questionData.question.ID);
       formData.append("text", this.questionData.question.text);
       formData.append("totalMark", this.questionData.question.totalMark);
-      formData.append("quizID", this.$route.params.quizID);
+      formData.append("quizID", this.quiz.ID);
       formData.append("correctAnswer", this.questionData.correctAnswer);
       formData.append("image", this.questionData.question.image)
       let method = this.new ? "POST" : "PUT";
@@ -266,7 +266,7 @@ export default {
     deleteQuestion() {
       let formData = new FormData()
       formData.append("id", this.questionData.question.ID)
-      formData.append("quizID", this.$route.params.quizID);
+      formData.append("quizID", this.quiz.ID);
       api({
         method: "DELETE",
         url: "/admin/quizzes/questions/mcq",

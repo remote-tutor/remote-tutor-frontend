@@ -39,7 +39,7 @@
       </v-toolbar>
     </template>
     <template v-slot:item.goTo="{item}">
-      <v-btn small :to="{ name: 'QuizQuestions', params: {quizID: item.ID} }">GO TO</v-btn>
+      <v-btn small :to="{ name: 'QuizQuestions', params: {quizHash: item.hash} }">GO TO</v-btn>
     </template>
     <template v-slot:item.start="{item}">
       <v-btn small @click="solve(item)" v-if="item.access">Start</v-btn>
@@ -264,16 +264,16 @@ export default {
         Object.assign(this.quizzes[this.editedIndex], options.quiz)
       } else {
         this.quizzes.unshift(options.quiz)
-        this.$router.push({name: 'QuizQuestions', params: {quizID: options.quiz.ID}})
+        this.$router.push({name: 'QuizQuestions', params: {quizHash: options.quiz.hash}})
       }
       this.formatQuizzes()
       this.close()
     },
     solve(item) {
-      this.$router.push({name: 'SolveQuiz', params: {action: 'solve', quizID: item.ID}})
+      this.$router.push({name: 'SolveQuiz', params: {action: 'solve', quizHash: item.hash}})
     },
     review(item) {
-      this.$router.push({name: 'SolveQuiz', params: {action: 'review', quizID: item.ID}})
+      this.$router.push({name: 'SolveQuiz', params: {action: 'review', quizHash: item.hash}})
     },
   },
 }

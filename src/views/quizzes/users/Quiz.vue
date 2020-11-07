@@ -12,13 +12,15 @@
                       :disable-previous="selectedQuestion === 0"
                       :disable-next="selectedQuestion === questions.length - 1"
                       :isReview="isReview" :saving="saving"
+                      :quiz="quiz"
             ></Question>
           </v-col>
-          <v-col class="col-12 col-md-3">
+          <v-col class="col-12 col-md-3" v-if="quiz !== null">
             <QuestionsNavigator :submissions="submissions"
                                 :questions="questions"
                                 :selected-question.sync="selectedQuestion"
                                 :isReview="isReview"
+                                :quiz="quiz"
             ></QuestionsNavigator>
           </v-col>
         </v-row>
@@ -47,7 +49,7 @@ export default {
       questions: [],
       submissions: [],
       selectedQuestion: 0,
-      quizID: this.$route.params.quizID,
+      quiz: null,
       isReview: this.$route.params.action === 'review',
       saving: false,
     }
@@ -61,7 +63,7 @@ export default {
         method: "GET",
         url: "/quizzes/questions",
         params: {
-          quizID: this.$route.params.quizID
+          quizID: this.quiz.ID
         }
       })
       this.questions = response.data.mcqs
@@ -71,7 +73,7 @@ export default {
         method: "GET",
         url: "/quizzes/submissions",
         params: {
-          quizID: this.$route.params.quizID
+          quizID: this.quiz.ID
         }
       }).then(response => {
         let mcqSubmissions = response.data.mcqSubmissions
@@ -98,18 +100,30 @@ export default {
     },
     createQuizGrade() {
       let formData = new FormData()
-      formData.append("quizID", this.$route.params.quizID)
+      formData.append("quizID", this.quiz.ID)
       api({
         method: "POST",
         url: "/quizzes/grades",
         data: formData,
       })
-    }
+    },
+    getQuiz() {
+      return api({
+        method: "GET",
+        url: "/quizzes/quiz",
+        params: {
+          quizHash: this.$route.params.quizHash,
+        }
+      })
+    },
   },
-  mounted() {
-    this.getQuestions()
-    if (!this.isReview)
-      this.createQuizGrade()
+  created() {
+    this.getQuiz().then(response => {
+      this.quiz = response.data.quiz
+      this.getQuestions()
+      if (!this.isReview)
+        this.createQuizGrade()
+    })
   },
 }
 </script>

@@ -70,7 +70,7 @@ const routes = [
     }
   },
   {
-    path: '/quizzes/questions/:quizID',
+    path: '/quizzes/questions/:quizHash',
     name: 'QuizQuestions',
     component: AdminQuiz,
     meta: {
@@ -78,7 +78,7 @@ const routes = [
     } 
   },
   {
-    path: '/quizzes/:action/:quizID',
+    path: '/quizzes/:action/:quizHash',
     name: 'SolveQuiz',
     component: StudentQuiz,
     meta: {

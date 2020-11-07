@@ -6,6 +6,7 @@
         <Question v-if="placeholderExists" :isNew="true"
                   @deleteNewQuestion="deleteNewQuestion"
                   @placeholderFilled="placeholderFilled"
+                  :quiz="quiz"
                   :admin="admin">
         </Question>
 
@@ -19,6 +20,7 @@
                   :static-image="question.question.image"
                   :static-image-path="question.question.imagePath"
                   :isNew="question.isNew"
+                  :quiz="quiz"
                   @deleteQuestion="deleteQuestion"
         ></Question>
 
@@ -49,16 +51,25 @@ export default {
       questions: [],
       admin: true,
       placeholderExists: false,
-
+      quiz: null,
     }
   },
   methods: {
+    getQuiz() {
+      return api({
+        method: "GET",
+        url: "/quizzes/quiz",
+        params: {
+          quizHash: this.$route.params.quizHash,
+        }
+      })
+    },
     getQuestions() {
       api({
         method: "GET",
         url: "/quizzes/questions",
         params: {
-          quizID: this.$route.params.quizID
+          quizID: this.quiz.ID
         }
       }).then(response => {
         this.questions = response.data.mcqs
@@ -95,7 +106,10 @@ export default {
     }
   },
   mounted() {
-    this.getQuestions()
+    this.getQuiz().then((response) => {
+      this.quiz = response.data.quiz
+      this.getQuestions()
+    })
   }
 };
 </script>

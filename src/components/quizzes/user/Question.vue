@@ -47,7 +47,7 @@ import api from "@/gateways/api";
 
 export default {
   name: "Question",
-  props: ['question', 'mcq', 'selectedChoice', 'selectedQuestion', 'disablePrevious', 'disableNext', 'isReview'],
+  props: ['question', 'mcq', 'selectedChoice', 'selectedQuestion', 'disablePrevious', 'disableNext', 'isReview', 'quiz'],
   data() {
     return {
       saving: false,
@@ -59,7 +59,7 @@ export default {
       let method = (this.selectedChoice === null) ? "POST" : "PUT"
       let formData = new FormData()
       formData.append("mcqID", this.question.question.ID)
-      formData.append("quizID", this.$route.params.quizID)
+      formData.append("quizID", this.quiz.ID)
       formData.append("userResult", userChoice)
       api({
         method: method,
