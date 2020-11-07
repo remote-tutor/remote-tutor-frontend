@@ -102,7 +102,7 @@ const routes = [
     }
   },
   {
-    path: '/assignment/:assignmentID',
+    path: '/assignment/:assignmentHash',
     name: 'Assignment',
     component: Assignment,
     meta: {

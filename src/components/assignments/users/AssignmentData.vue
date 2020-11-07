@@ -160,15 +160,15 @@ export default {
       method: "GET",
       url: "/assignments/assignment",
       params: {
-        assignmentID: this.$route.params.assignmentID
+        assignmentHash: this.$route.params.assignmentHash
       }
     }).then(response => {
       this.assignment = response.data.assignment
       this.showModelAnswer = moment(this.assignment.deadline)
           .add(this.assignment.modelAnswerPeriod, 'hours')
           .isBefore(moment()) && this.assignment.modelAnswer.length > 0
+      this.getSubmission()
     })
-    this.getSubmission()
   },
   methods: {
     getFile(fullPath, fileType) {
@@ -234,7 +234,7 @@ export default {
         method: "GET",
         url: "/assignments/submissions/submission",
         params: {
-          assignmentID: this.$route.params.assignmentID
+          assignmentHash: this.assignment.hash
         }
       }).then(response => {
         this.submission = response.data.submission
@@ -243,7 +243,8 @@ export default {
     pushSubmission() {
       this.loading = true
       let formData = new FormData()
-      formData.append("assignmentID", this.$route.params.assignmentID)
+      formData.append("assignmentID", this.assignment.ID)
+      formData.append("assignmentHash", this.assignment.hash)
       formData.append("submissionFile", this.submission.bytes)
       let method = (this.submission.userID === 0 && this.submission.assignmentID === 0) ? "POST" : "PUT"
       api({

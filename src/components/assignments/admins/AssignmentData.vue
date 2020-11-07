@@ -154,14 +154,14 @@ export default {
     }
   },
   created() {
-    let assignmentID = this.$route.params.assignmentID
-    if (assignmentID <= 0)
+    let assignmentHash = this.$route.params.assignmentHash
+    if (assignmentHash <= 0)
       return
     api({
       method: "GET",
       url: "/assignments/assignment",
       params: {
-        assignmentID: this.$route.params.assignmentID
+        assignmentHash: this.$route.params.assignmentHash
       }
     }).then(response => {
       this.assignment = response.data.assignment
@@ -170,13 +170,13 @@ export default {
   methods: {
     createAssignment() {
       this.loading = true
-      let assignmentID = this.$route.params.assignmentID
+      let assignmentID = this.assignment.ID
       let formData = new FormData()
       let method = ""
       if (assignmentID > 0) {
         method = "PUT"
         formData.append("id", assignmentID)
-        formData.append("CreatedAt", Date.parse(this.assignment.CreatedAt))
+        formData.append("hash", this.assignment.hash)
       } else {
         method = "POST"
       }

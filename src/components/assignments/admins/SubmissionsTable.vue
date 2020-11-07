@@ -152,11 +152,21 @@ export default {
       expanded: [],
       searchBy: "",
       validateMark: mark => (mark >= 0 && mark <= this.totalMark) || 'You must enter a valid mark value',
-      saveSubmissionDialog: false
+      saveSubmissionDialog: false,
+      assignment: {},
     }
   },
   mounted() {
-    this.getSubmissions()
+    api({
+      method: "GET",
+      url: "/assignments/assignment",
+      params: {
+        assignmentHash: this.$route.params.assignmentHash
+      }
+    }).then(response => {
+      this.assignment = response.data.assignment
+      this.getSubmissions()
+    })
   },
   watch: {
     options: {
@@ -184,7 +194,7 @@ export default {
         method: "GET",
         url: "/admin/assignments/submissions",
         params: {
-          assignmentID: this.$route.params.assignmentID,
+          assignmentID: this.assignment.ID,
           page: page,
           itemsPerPage: itemsPerPage,
           sortBy: modifiedSortBy,
@@ -241,6 +251,7 @@ export default {
       return diff >= 0;
     },
     save(submission) {
+      console.log(submission)
       if (isNaN(submission.mark) || submission.mark < 0 || submission.mark > this.totalMark) {
         this.$store.dispatch('viewSnackbar', {
           text: 'You must put a valid mark value',
@@ -251,7 +262,7 @@ export default {
       this.saveSubmissionDialog = true
       let formData = new FormData()
       formData.append("userID", submission.userID)
-      formData.append("assignmentID", submission.assignmentID)
+      formData.append("assignmentHash", this.assignment.hash)
       formData.append("mark", submission.mark)
       formData.append("feedback", submission.feedback)
       api({

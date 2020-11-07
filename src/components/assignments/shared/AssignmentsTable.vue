@@ -27,7 +27,7 @@
           <v-btn v-if="userData.admin"
                  color="primary"
                  dark
-                 @click="view({ID: -1})"
+                 @click="view({hash: -1})"
                  class="mb-2">Create Assignment
           </v-btn>
         </v-col>
@@ -135,7 +135,8 @@ export default {
       })
     },
     view(assignment) {
-      this.$router.push({name: 'Assignment', params: {assignmentID: assignment.ID}})
+      console.log(assignment)
+      this.$router.push({name: 'Assignment', params: {assignmentHash: assignment.hash}})
     }
   },
   watch: {
