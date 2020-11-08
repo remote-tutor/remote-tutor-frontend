@@ -56,7 +56,8 @@
               {{ questionData.question.text }}
             </v-card-title>
 
-            <v-img v-if="questionData.question.image !== undefined" :src="questionData.question.imageSrc"></v-img>
+            <v-img v-if="questionData.question.imageSrc.length > 0"
+                   :src="questionData.question.imageSrc"></v-img>
 
             <div v-if="questionData.mcq">
               <v-radio-group v-model="questionData.correctAnswer" :readonly="!editMode" :disabled="!editMode" mandatory>
@@ -206,7 +207,8 @@ export default {
       })
       this.questionData.question.ID = response.data.mcq.question.ID;
       this.questionData.question.imagePath = response.data.mcq.question.imagePath
-
+      if (method === "POST")
+        this.questionData.question.image = []
 
     },
     async sendChoices() {
@@ -286,8 +288,7 @@ export default {
           this.questionData.question.imageSrc = URL.createObjectURL(this.questionData.question.image)
     },
     getImage() {
-      const url = process.env.VUE_APP_API_URL;
-      this.questionData.question.imageSrc = url + "/image/" + this.staticImagePath
+      this.questionData.question.imageSrc = this.questionData.question.imagePath
     }
   },
   created() {
