@@ -31,7 +31,7 @@
 
             <v-row v-if="editMode">
               <v-col cols="12" sm="8">
-                <ValidationProvider v-slot="{errors}" rules="required_if:question-image" vid="question-text">
+                <ValidationProvider v-slot="{errors}" vid="question-text">
                   <v-textarea
                       ref="question-text"
                       label="Question Text"
@@ -44,7 +44,7 @@
                 </ValidationProvider>
               </v-col>
               <v-col cols="12" sm="4">
-                <ValidationProvider v-slot="{errors}" rules="image|required_if:question-text" vid="question-image">
+                <ValidationProvider v-slot="{errors}" rules="image" vid="question-image">
                   <v-file-input accept="image/*" small-chips show-size
                                 label="Question" v-model="questionData.question.image" @change="previewImage"
                                 prepend-icon="mdi-file-question" :error-messages="errors"></v-file-input>
