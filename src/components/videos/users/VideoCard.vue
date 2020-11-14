@@ -44,7 +44,7 @@ export default {
   },
   computed: {
     isAvailableToWatch() {
-      return new Date() >= new Date(this.video.availableFrom);
+      return new Date() >= new Date(this.video.availableFrom) && this.access;
     }
   },
   methods: {

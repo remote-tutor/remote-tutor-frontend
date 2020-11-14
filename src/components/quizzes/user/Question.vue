@@ -13,26 +13,22 @@
 
       </v-col>
     </v-toolbar>
-    <v-card-text>
-      <v-card-title class="headline">
-        {{ question.question.text }}
-      </v-card-title>
+    <v-card-title class="headline">
+      {{ question.question.text }}
       <v-img v-if="question.question.imagePath.length > 0" :src="question.question.imagePath"></v-img>
-
-      <div v-if="mcq">
-        <v-radio-group v-model="updatedChoice"
-                       :readonly="isReview"
-                       :disabled="isReview || saving"
-                       column>
-          <v-radio v-for="choice in question.choices" class="pa-1"
-                   :key="choice.ID"
-                   :value="choice.ID"
-                   :label="choice.text"
-                   :class="getLabelColor(choice)">
-          </v-radio>
-        </v-radio-group>
-      </div>
-
+    </v-card-title>
+    <v-card-text>
+      <v-radio-group v-model="updatedChoice"
+                     :readonly="isReview"
+                     :disabled="isReview || saving"
+                     column>
+        <v-radio v-for="(choice, index) in question.choices" class="pa-1"
+                 :key="index"
+                 :value="choice.ID"
+                 :label="choice.text"
+                 :class="getLabelColor(choice)">
+        </v-radio>
+      </v-radio-group>
     </v-card-text>
     <v-card-actions>
       <v-btn color="secondary" @click="updateSelectedQuestion(-1)" :disabled="disablePrevious">Previous</v-btn>
