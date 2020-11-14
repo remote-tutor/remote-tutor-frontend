@@ -22,7 +22,7 @@
               </v-col>
             </v-row>
           </v-btn-toggle>
-          <Timer :end-time="quiz.endTime" :time-up.sync="timeUp" v-if="!isReview"></Timer>
+          <Timer :end-time="validTill" :time-up.sync="timeUp" v-if="!isReview && fetch.quizGrade"></Timer>
         </v-col>
 
         <v-card-subtitle v-if="isReview">Score: {{ quizGrade.grade }} / {{ quiz.totalMark }}</v-card-subtitle>
@@ -74,6 +74,10 @@ export default {
       quizGrade: {},
       dialog: false,
       timeUp: false,
+      validTill: null,
+      fetch: {
+        quizGrade: false,
+      },
     }
   },
   methods: {
@@ -93,7 +97,7 @@ export default {
     checkQuiz() {
       if (!this.isReview &&
           (new Date().getTime() < new Date(this.quiz.startTime).getTime() ||
-              new Date().getTime() > new Date(this.quiz.endTime))) {
+              new Date().getTime() > new Date(this.validTill).getTime())) {
         this.$router.push({name: 'Quizzes'})
         this.$store.dispatch('viewSnackbar', {
           text: 'Invalid request',
@@ -126,6 +130,15 @@ export default {
         }
       })
     },
+    createQuizGrade() {
+      let formData = new FormData()
+      formData.append("quizID", this.quiz.ID)
+      return api({
+        method: "POST",
+        url: "/quizzes/grades",
+        data: formData,
+      })
+    },
     getQuizGrade() {
       api({
         method: "GET",
@@ -156,9 +169,14 @@ export default {
     }
   },
   mounted() {
-    this.checkQuiz()
     if (this.isReview)
       this.getQuizGrade()
+    else
+      this.createQuizGrade().then(response => {
+        this.validTill = response.data.validTill
+        this.fetch.quizGrade = true
+        this.checkQuiz()
+      })
   },
 }
 </script>

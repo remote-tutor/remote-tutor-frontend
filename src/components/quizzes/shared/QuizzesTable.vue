@@ -42,7 +42,14 @@
       <v-btn small :to="{ name: 'QuizQuestions', params: {quizHash: item.hash} }">GO TO</v-btn>
     </template>
     <template v-slot:item.start="{item}">
-      <v-btn small @click="solve(item)" v-if="item.access">Start</v-btn>
+      <v-icon @click="solve(item)" v-if="item.remainingTime && item.access">mdi-clock-start</v-icon>
+
+      <v-tooltip bottom v-else-if="!item.remainingTime">
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon  v-bind="attrs" v-on="on">mdi-timer-off</v-icon>
+        </template>
+        <span>You've consumed your available time. The grade will be revealed after the end time for the quiz</span>
+      </v-tooltip>
 
       <v-tooltip bottom v-else>
         <template v-slot:activator="{ on, attrs }">
@@ -78,6 +85,13 @@
         <span>You don't have access to take this quiz. If you think there's an error, please contact the administrator</span>
       </v-tooltip>
     </template>
+
+    <template v-slot:item.studentTime="{item}">
+      <span v-if="item.studentTime / 60 >= 1">{{Math.floor(item.studentTime / 60)}}H</span>
+      <span v-if="item.studentTime / 60 >= 1 && item.studentTime % 60 >= 1">: </span>
+      <span v-if="item.studentTime % 60 >= 1">{{item.studentTime % 60}}M</span>
+    </template>
+
     <template v-slot:item.actions="{ item }" v-if="userData.admin">
       <v-icon small class="mr-2" @click="editQuiz(item)" v-if="type === 1">
         mdi-pencil
@@ -110,6 +124,7 @@ export default {
       {text: 'Title', value: 'title'},
       {text: 'Start At', value: 'formattedStartTime'},
       {text: 'End At', value: 'formattedEndTime'},
+      {text: 'Max Time', value: 'studentTime'}
     ],
     quizzes: [],
     editedIndex: -1,
@@ -117,7 +132,7 @@ export default {
       text: '',
       startTime: "0",
       endTime: "0",
-      year: 0,
+      studentTime: 30,
     },
   }),
 
@@ -181,7 +196,7 @@ export default {
           sortBy: sortBy,
           sortDesc: sortDesc,
         }
-      }).then(async response => {
+      }).then(response => {
         this.totalQuizzes = response.data.totalQuizzes
         if (this.type === -1) this.quizzes = response.data.pastQuizzes
         else if (this.type === 0) this.quizzes = response.data.currentQuizzes
@@ -189,15 +204,33 @@ export default {
         this.formatQuizzes()
 
         let quizzesPermissions = []
+        let studentRemainingTime = []
         this.quizzes.forEach(quiz => {
           quizzesPermissions.push(this.getQuizPermission(quiz))
+          studentRemainingTime.push(this.geStudentRemainingTime(quiz))
         })
-        await Promise.all(quizzesPermissions)
-            .then(response => {
-              this.quizzes.forEach((quiz, index) => {
-                this.quizzes[index].access = response[index].data.status
-              })
-            })
+        let allPromises = [
+          Promise.all(studentRemainingTime)
+              .then(response => {
+                this.quizzes.forEach((quiz, index) => {
+                  if (response[index].data.recordFound) {
+                    this.quizzes[index].remainingTime =
+                        (new Date(response[index].data.studentTime).getTime() >= new Date().getTime())
+                  } else {
+                    this.quizzes[index].remainingTime = true
+                  }
+
+                })
+              }),
+        ]
+        if (this.type === 0)
+          allPromises.push(Promise.all(quizzesPermissions)
+              .then(response => {
+                this.quizzes.forEach((quiz, index) => {
+                  this.quizzes[index].access = response[index].data.status
+                })
+              }))
+        return Promise.allSettled(allPromises)
       }).catch(error => {
         console.log(error)
       }).finally(() => {
@@ -210,6 +243,15 @@ export default {
         url: "/payments/week",
         params: {
           eventDate: new Date(quiz.startTime).getTime()
+        }
+      })
+    },
+    geStudentRemainingTime(quiz) {
+      return api({
+        method: "GET",
+        url: "/quizzes/grades/time",
+        params: {
+          quizID: quiz.ID
         }
       })
     },
