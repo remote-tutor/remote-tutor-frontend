@@ -38,6 +38,15 @@
         </v-dialog>
       </v-toolbar>
     </template>
+
+    <template v-slot:item.startTime="{item}">
+      {{ item.startTime | momentFormatDate }}
+    </template>
+
+    <template v-slot:item.endTime="{item}">
+      {{ item.endTime | momentFormatDate }}
+    </template>
+
     <template v-slot:item.goTo="{item}">
       <v-btn small :to="{ name: 'QuizQuestions', params: {quizHash: item.hash} }">GO TO</v-btn>
     </template>
@@ -46,7 +55,7 @@
 
       <v-tooltip bottom v-else-if="!item.remainingTime">
         <template v-slot:activator="{ on, attrs }">
-          <v-icon  v-bind="attrs" v-on="on">mdi-timer-off</v-icon>
+          <v-icon v-bind="attrs" v-on="on">mdi-timer-off</v-icon>
         </template>
         <span>You've consumed your available time. The grade will be revealed after the end time for the quiz</span>
       </v-tooltip>
@@ -87,9 +96,9 @@
     </template>
 
     <template v-slot:item.studentTime="{item}">
-      <span v-if="item.studentTime / 60 >= 1">{{Math.floor(item.studentTime / 60)}}H</span>
+      <span v-if="item.studentTime / 60 >= 1">{{ Math.floor(item.studentTime / 60) }}H</span>
       <span v-if="item.studentTime / 60 >= 1 && item.studentTime % 60 >= 1">: </span>
-      <span v-if="item.studentTime % 60 >= 1">{{item.studentTime % 60}}M</span>
+      <span v-if="item.studentTime % 60 >= 1">{{ item.studentTime % 60 }}M</span>
     </template>
 
     <template v-slot:item.actions="{ item }" v-if="userData.admin">
@@ -111,6 +120,7 @@ import api from "@/gateways/api";
 import Quiz from "@/components/quizzes/admins/Quiz";
 import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
 import {mapState} from "vuex";
+import moment from 'moment'
 
 export default {
   components: {ConfirmationDialog, Quiz},
@@ -122,8 +132,8 @@ export default {
     totalQuizzes: 0,
     headers: [
       {text: 'Title', value: 'title'},
-      {text: 'Start At', value: 'formattedStartTime'},
-      {text: 'End At', value: 'formattedEndTime'},
+      {text: 'Start At', value: 'startTime'},
+      {text: 'End At', value: 'endTime'},
       {text: 'Max Time', value: 'studentTime'}
     ],
     quizzes: [],
@@ -201,7 +211,6 @@ export default {
         if (this.type === -1) this.quizzes = response.data.pastQuizzes
         else if (this.type === 0) this.quizzes = response.data.currentQuizzes
         else if (this.type === 1) this.quizzes = response.data.futureQuizzes
-        this.formatQuizzes()
 
         let quizzesPermissions = []
         let studentRemainingTime = []
@@ -210,8 +219,16 @@ export default {
           studentRemainingTime.push(this.geStudentRemainingTime(quiz))
         })
         let allPromises = [
-          Promise.all(studentRemainingTime)
+          Promise.all(quizzesPermissions)
               .then(response => {
+                this.quizzes.forEach((quiz, index) => {
+                  this.quizzes[index].access = response[index].data.status
+                })
+              }),
+        ]
+        if (this.type === 0)
+          allPromises.push(
+              Promise.all(studentRemainingTime).then(response => {
                 this.quizzes.forEach((quiz, index) => {
                   if (response[index].data.recordFound) {
                     this.quizzes[index].remainingTime =
@@ -219,17 +236,9 @@ export default {
                   } else {
                     this.quizzes[index].remainingTime = true
                   }
-
                 })
               }),
-        ]
-        if (this.type === 0)
-          allPromises.push(Promise.all(quizzesPermissions)
-              .then(response => {
-                this.quizzes.forEach((quiz, index) => {
-                  this.quizzes[index].access = response[index].data.status
-                })
-              }))
+          )
         return Promise.allSettled(allPromises)
       }).catch(error => {
         console.log(error)
@@ -255,26 +264,6 @@ export default {
         }
       })
     },
-    formatQuizzes() {
-      this.quizzes.forEach((quiz, index) => {
-        this.quizzes[index].formattedStartTime = this.formatDate(quiz.startTime)
-        this.quizzes[index].formattedEndTime = this.formatDate(quiz.endTime)
-      })
-      this.quizzes.sort((a, b) => {
-        return new Date(a.startTime) - new Date(b.startTime)
-      })
-    },
-    formatDate(value) {
-      let date = new Date(value)
-      return date.getFullYear() + "/" +
-          ("0" + (date.getMonth() + 1)).slice(-2) + "/" +
-          ("0" + date.getDate()).slice(-2) + " " +
-          ("0" + (date.getHours() % 12 || 12)).slice(-2) + ":" +
-          ("0" + date.getMinutes()).slice(-2) + " " +
-          ((date.getHours() > 12) ? "PM" : "AM")
-
-    },
-
     editQuiz(quiz) {
       this.editedIndex = this.quizzes.indexOf(quiz)
       this.editedQuiz = Object.assign({}, quiz)
@@ -308,7 +297,6 @@ export default {
         this.quizzes.unshift(options.quiz)
         this.$router.push({name: 'QuizQuestions', params: {quizHash: options.quiz.hash}})
       }
-      this.formatQuizzes()
       this.close()
     },
     solve(item) {
@@ -318,5 +306,10 @@ export default {
       this.$router.push({name: 'SolveQuiz', params: {action: 'review', quizHash: item.hash}})
     },
   },
+  filters: {
+    momentFormatDate: function (date) {
+      return moment(date).format('dddd Do MMM YYYY, h:mm a');
+    },
+  }
 }
 </script>
