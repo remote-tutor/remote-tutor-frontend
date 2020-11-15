@@ -21,7 +21,10 @@
           <span>You don't have access to view this video. If you think there's an error, please contact the administrator</span>
         </v-tooltip>
       </v-card-subtitle>
-      <v-card-text>Available At: {{ video.availableFrom | moment }}</v-card-text>
+      <v-card-text>
+        <p>Available From: {{ video.availableFrom | moment }}</p>
+        <p>Available To: {{ video.availableTo | moment }}</p>
+      </v-card-text>
       <v-card-actions v-if="isAvailableToWatch">
         <v-btn outlined :to="{name: 'ViewVideo', params: {videoHash: video.hash}}">Parts</v-btn>
       </v-card-actions>
@@ -44,7 +47,8 @@ export default {
   },
   computed: {
     isAvailableToWatch() {
-      return new Date() >= new Date(this.video.availableFrom) && this.access;
+      return new Date() >= new Date(this.video.availableFrom) &&
+          new Date() < new Date(this.video.availableTo) && this.access;
     }
   },
   methods: {
