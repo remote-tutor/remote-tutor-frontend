@@ -105,15 +105,6 @@ export default {
         this.video.availableTo = val[0]
       }
     },
-    date: {
-      get() {
-        return moment(this.video.availableFrom).format("YYYY-MM-DD")
-      },
-      set(val) {
-        this.video.availableFrom = val
-        this.saved = false
-      }
-    },
     title: {
       get() {
         return this.video.title
@@ -134,8 +125,6 @@ export default {
   },
   methods: {
     updateVideo() {
-      console.log(this.video.availableFrom)
-      console.log(this.video.availableTo)
       this.loading = true
       let formData = new FormData()
       formData.append("id", this.video.ID)
