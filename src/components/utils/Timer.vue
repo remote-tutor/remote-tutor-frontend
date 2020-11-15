@@ -6,7 +6,7 @@
       :end-time="endTime"
       :interval="1000"
       :start-label="'Until start:'"
-      end-label="Remaining"
+      :end-label="(simple) ? '' : 'Remaining'"
       label-position="begin"
       end-text="Time's Up"
       :day-txt="'days'"
@@ -51,7 +51,7 @@
 <script>
 export default {
   name: 'Timer',
-  props: ['endTime', 'timeUp'],
+  props: ['endTime', 'timeUp', 'simple'],
   methods: {
     startCallBack() {},
     endCallBack() {

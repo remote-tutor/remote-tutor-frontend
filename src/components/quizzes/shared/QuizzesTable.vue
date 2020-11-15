@@ -5,6 +5,8 @@
       class="elevation-1"
       :loading="loading"
       disable-sort
+      sort-by="start_time"
+      sort-desc
       :options.sync="options"
       :server-items-length="totalQuizzes"
       :footer-props="{
@@ -47,13 +49,20 @@
       {{ item.endTime | momentFormatDate }}
     </template>
 
+    <template v-slot:item.remainingTime="{item}">
+      <span v-if="!item.started">Start Now!</span>
+      <span v-else>
+        <Timer :end-time="item.remainingTime" :simple="true"></Timer>
+      </span>
+    </template>
+
     <template v-slot:item.goTo="{item}">
       <v-btn small :to="{ name: 'QuizQuestions', params: {quizHash: item.hash} }">GO TO</v-btn>
     </template>
     <template v-slot:item.start="{item}">
-      <v-icon @click="solve(item)" v-if="item.remainingTime && item.access">mdi-clock-start</v-icon>
+      <v-icon @click="solve(item)" v-if="item.timeAvailable && item.access">mdi-clock-start</v-icon>
 
-      <v-tooltip bottom v-else-if="!item.remainingTime">
+      <v-tooltip bottom v-else-if="!item.timeAvailable">
         <template v-slot:activator="{ on, attrs }">
           <v-icon v-bind="attrs" v-on="on">mdi-timer-off</v-icon>
         </template>
@@ -121,9 +130,10 @@ import Quiz from "@/components/quizzes/admins/Quiz";
 import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
 import {mapState} from "vuex";
 import moment from 'moment'
+import Timer from "@/components/utils/Timer";
 
 export default {
-  components: {ConfirmationDialog, Quiz},
+  components: {Timer, ConfirmationDialog, Quiz},
   props: ['title', 'type'],
   data: () => ({
     loading: false,
@@ -134,7 +144,7 @@ export default {
       {text: 'Title', value: 'title'},
       {text: 'Start At', value: 'startTime'},
       {text: 'End At', value: 'endTime'},
-      {text: 'Max Time', value: 'studentTime'}
+      {text: 'Max Time', value: 'studentTime'},
     ],
     quizzes: [],
     editedIndex: -1,
@@ -185,6 +195,7 @@ export default {
         this.headers.splice(1, 0, {text: 'Access', value: 'access'})
       } else if (this.type === 0) {
         this.headers.splice(1, 0, {text: 'Start', value: 'start'})
+        this.headers.push({text: 'Remaining Time', value: 'remainingTime'},)
       } else if (this.type === -1) {
         this.headers.splice(1, 0, {text: 'Review', value: 'review'})
       }
@@ -231,10 +242,13 @@ export default {
               Promise.all(studentRemainingTime).then(response => {
                 this.quizzes.forEach((quiz, index) => {
                   if (response[index].data.recordFound) {
-                    this.quizzes[index].remainingTime =
+                    this.quizzes[index].started = true
+                    this.quizzes[index].timeAvailable =
                         (new Date(response[index].data.studentTime).getTime() >= new Date().getTime())
+                    this.quizzes[index].remainingTime = response[index].data.studentTime
                   } else {
-                    this.quizzes[index].remainingTime = true
+                    this.quizzes[index].started = false
+                    this.quizzes[index].timeAvailable = true
                   }
                 })
               }),
