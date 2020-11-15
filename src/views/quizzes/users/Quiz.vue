@@ -5,7 +5,8 @@
       <v-container>
         <v-row>
           <v-col class="col-12 col-md-9">
-            <Question :question="questions[selectedQuestion]"
+            <Question v-if="fetch.questions"
+                      :question="questions[selectedQuestion]"
                       :mcq="true" :selected-choice="submissions[selectedQuestion]"
                       @updateChoice="updateChoice"
                       :selected-question.sync="selectedQuestion"
@@ -16,7 +17,8 @@
             ></Question>
           </v-col>
           <v-col class="col-12 col-md-3" v-if="quiz !== null">
-            <QuestionsNavigator :submissions="submissions"
+            <QuestionsNavigator v-if="fetch.quiz && fetch.questions"
+                                :submissions="submissions"
                                 :questions="questions"
                                 :selected-question.sync="selectedQuestion"
                                 :isReview="isReview"
@@ -52,6 +54,10 @@ export default {
       quiz: null,
       isReview: this.$route.params.action === 'review',
       saving: false,
+      fetch: {
+        questions: false,
+        quiz: false,
+      }
     }
   },
   computed: {
@@ -86,6 +92,7 @@ export default {
             }
         // to convince Vue that the array actually changed
         // this.submissions = this.submissions.slice()
+        this.fetch.questions = true
       })
       // GET SUBMISSIONS
     },
@@ -97,15 +104,6 @@ export default {
         await this.submissions.splice(this.selectedQuestion, 1, 0)
         this.submissions.splice(this.selectedQuestion, 1, oldValue)
       }
-    },
-    createQuizGrade() {
-      let formData = new FormData()
-      formData.append("quizID", this.quiz.ID)
-      api({
-        method: "POST",
-        url: "/quizzes/grades",
-        data: formData,
-      })
     },
     getQuiz() {
       return api({
@@ -121,8 +119,7 @@ export default {
     this.getQuiz().then(response => {
       this.quiz = response.data.quiz
       this.getQuestions()
-      if (!this.isReview)
-        this.createQuizGrade()
+      this.fetch.quiz = true
     })
   },
 }

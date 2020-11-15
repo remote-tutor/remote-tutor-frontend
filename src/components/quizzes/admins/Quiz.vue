@@ -42,6 +42,24 @@
             <input v-model="quiz.endTime" v-show="false"/>
             <div class="red--text">{{ errors[0] }}</div>
           </ValidationProvider>
+
+          <v-row v-if="maxStudentDuration !== 0">
+            <v-col cols="12">
+              <span class="subheading">Student Duration</span>
+            </v-col>
+
+            <v-slider v-model="quiz.studentTime" :max="maxStudentDuration" :min="0" class="align-center">
+              <template v-slot:append>
+                <v-text-field
+                    v-model="hours" class="mt-0 pt-0 mr-1" label="Hours" type="number" style="width: 45px"
+                ></v-text-field>
+                <v-text-field
+                    v-model="minutes" class="mt-0 pt-0" label="Minutes" type="number" style="width: 45px"
+                ></v-text-field>
+              </template>
+            </v-slider>
+          </v-row>
+
         </form>
       </ValidationObserver>
     </v-card-text>
@@ -55,6 +73,7 @@
 
 <script>
 import api from "@/gateways/api.js";
+import moment from "moment";
 import {mapState} from "vuex";
 
 export default {
@@ -67,6 +86,7 @@ export default {
         title: "",
         startTime: "",
         endTime: "",
+        studentTime: 30,
       },
     };
   },
@@ -79,6 +99,38 @@ export default {
     },
     selectedClass() {
       return this.classes.values[this.classes.selectedClass].classHash
+    },
+    hours: {
+      get() {
+        return Math.floor(this.quiz.studentTime / 60)
+      }, set(val) {
+        if (val === "")
+          this.quiz.studentTime = this.minutes
+        else {
+          this.quiz.studentTime = Math.min(this.maxStudentDurationInHours, parseInt(val)) * 60 + this.minutes
+        }
+      }
+    },
+    minutes: {
+      get() {
+        return this.quiz.studentTime % 60
+      },
+      set(val) {
+        if (val === "")
+          this.quiz.studentTime = this.hours * 60
+        else
+          this.quiz.studentTime = this.hours * 60 + Math.min(59, parseInt(val))
+      }
+    },
+    maxStudentDuration() {
+      if (this.quiz.startTime === "" || this.quiz.endTime === "")
+        return 0
+      let start = moment(new Date(this.quiz.startTime))
+      let end = moment(new Date(this.quiz.endTime))
+      return end.diff(start, "minutes")
+    },
+    maxStudentDurationInHours() {
+      return Math.floor(this.maxStudentDuration / 60)
     },
     ...mapState(['userData', 'classes'])
   },
@@ -94,6 +146,7 @@ export default {
         formData.append("selectedClass", this.selectedClass);
         formData.append("startTime", Date.parse(this.quiz.startTime));
         formData.append("endTime", Date.parse(this.quiz.endTime));
+        formData.append("studentTime", this.quiz.studentTime)
         api({
           method: this.method,
           url: "/admin/quizzes",

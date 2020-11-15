@@ -1,5 +1,5 @@
 <template>
-  <v-card class="elevation-12" v-if="question">
+  <v-card class="elevation-12">
     <v-toolbar color="primary" flat dark>
       <v-spacer></v-spacer>
 
