@@ -128,6 +128,7 @@ export default {
         choices: this.staticChoices || [],
         correctAnswer: this.staticCorrectAnswer || -1,
       },
+      choicesToBeDeleted: [],
       totalCreatedChoices: 0,
       canCreateNew: true,
       new: false
@@ -170,9 +171,8 @@ export default {
       let id = options.id;
       this.questionData.choices.forEach((element, index) => {
         if (element.ID === id) {
-          if (this.questionData.correctAnswer === element.ID) {
-            this.questionData.correctAnswer = -1
-          }
+          if (!options.isNew)
+            this.choicesToBeDeleted.push(this.deleteChoice(id))
           this.questionData.choices.splice(index, 1);
         }
       });
@@ -186,7 +186,7 @@ export default {
         }
       });
     },
-    async pushQuestion() {
+    pushQuestion() {
       let formData = new FormData();
       formData.append("id", this.questionData.question.ID);
       formData.append("text", this.questionData.question.text);
@@ -195,7 +195,7 @@ export default {
       formData.append("correctAnswer", this.questionData.correctAnswer);
       formData.append("image", this.questionData.question.image)
       let method = this.new ? "POST" : "PUT";
-      let response = await api({
+      api({
         method: method,
         url: "/admin/quizzes/questions/mcq",
         data: formData,
@@ -204,54 +204,49 @@ export default {
             'Content-Type': 'multipart/form-data'
           }
         }
+      }).then(response => {
+        this.questionData.question.ID = response.data.mcq.question.ID;
+        this.questionData.question.imagePath = response.data.mcq.question.imagePath
+        if (method === "POST")
+          this.questionData.question.image = []
       })
-      this.questionData.question.ID = response.data.mcq.question.ID;
-      this.questionData.question.imagePath = response.data.mcq.question.imagePath
-      if (method === "POST")
-        this.questionData.question.image = []
-
     },
-    async sendChoices() {
-      let validQuestion = await this.$refs.observer.validate();
-      let choicesLength = this.questionData.choices.length
-      if (choicesLength === 0) {
-        this.$store.dispatch("viewSnackbar", {
-          text: "Please add choices before submitting",
-          color: "error",
-        });
-      } else if (this.questionData.correctAnswer === -1) {
-        this.$store.dispatch("viewSnackbar", {
-          text: "You must select an answer",
-          color: "error",
-        });
-      }
-      validQuestion = validQuestion && (choicesLength > 0) && (this.questionData.correctAnswer !== -1);
-      if (validQuestion) {
-        this.loading = true
-        await Promise.all(
-            this.questionData.choices.map(async (choice, index) => {
-              await this.pushChoice(choice, index)
-            }));
-
+    sendChoices() {
+      this.loading = true
+      Promise.all(this.choicesToBeDeleted).then(() => {
+        let updateChoices = []
+        this.questionData.choices.forEach((choice, index) => {
+          updateChoices.push(this.pushChoice(choice, index))
+        })
+        return Promise.all(updateChoices)
+      }).then(() => {
         this.$emit("placeholderFilled", {
           questionData: this.questionData,
           new: this.new,
         });
         this.new = false;
-        this.pushQuestion().then(() => {
-          this.loading = false
-          this.changeEditMode()
-        })
-      }
-
+        return this.pushQuestion()
+      }).then(() => {
+        this.loading = false
+        this.changeEditMode()
+      })
     },
-    async pushChoice(choice, index) {
+    deleteChoice(choiceID) {
+      let formData = new FormData();
+      formData.append("id", choiceID)
+      api({
+        method: "DELETE",
+        url: "/admin/quizzes/choices",
+        data: formData,
+      })
+    },
+    pushChoice(choice, index) {
       let formData = new FormData();
       formData.append("id", choice.ID)
       formData.append("text", choice.text);
       formData.append("mcqID", this.questionData.question.ID);
       let method = choice.isNew ? "POST" : "PUT";
-      await api({
+      return api({
         method: method,
         url: "/admin/quizzes/choices",
         data: formData,
