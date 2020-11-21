@@ -51,6 +51,12 @@
                 prepend-icon="mdi-format-text"
                 counter>
             </v-text-field>
+            <v-text-field
+                label="Hours to Watch / Part"
+                v-model.number="studentHours"
+                prepend-icon="mdi-timer-outline"
+                counter>
+            </v-text-field>
             <v-date-picker v-model="dates" full-width first-day-of-week="5" range></v-date-picker>
             <v-btn block rounded color="primary" @click="updateVideo" :loading="loading" :disabled="title.length === 0">
               Save
@@ -113,7 +119,16 @@ export default {
         this.video.title = val
         this.saved = false
       }
-    }
+    },
+    studentHours: {
+      get() {
+        return this.video.studentHours
+      },
+      set(val) {
+        this.video.studentHours = val
+        this.saved = false
+      }
+    },
   },
   data() {
     return {
@@ -129,6 +144,7 @@ export default {
       let formData = new FormData()
       formData.append("id", this.video.ID)
       formData.append("title", this.video.title)
+      formData.append("studentTime", this.video.studentHours)
       formData.append("availableFrom", new Date(this.video.availableFrom).getTime())
       formData.append("availableTo", new Date(this.video.availableTo).getTime())
       api({

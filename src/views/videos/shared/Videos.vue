@@ -6,55 +6,72 @@
         <v-row v-if="userData.admin">
           <div>Please note that the video will be created with the chosen settings (Year, Selected Day, and Title)</div>
         </v-row>
-        <v-row>
-          <v-col cols="12" md="3" v-if="userData.admin">
+        <ValidationObserver ref="observer" v-slot="{ invalid }">
+          <form @submit.prevent="createVideo">
             <v-row>
+              <v-col cols="12" md="3" v-if="userData.admin">
+                <v-row>
+                  <v-col>
+                    <v-date-picker v-model="dates" full-width first-day-of-week="5" range
+                                   :picker-date.sync="pickedMonth"></v-date-picker>
+                  </v-col>
+                </v-row>
+                <ValidationProvider v-slot="{errors}" rules="required">
+                  <v-row>
+                    <v-text-field
+                        label="Title"
+                        v-model.trim="newVideoTitle"
+                        prepend-icon="mdi-format-text"
+                        :error-messages="errors"
+                        counter>
+                    </v-text-field>
+                  </v-row>
+                </ValidationProvider>
+                <ValidationProvider v-slot="{errors}" rules="required|numeric|min_value:1">
+                  <v-row>
+                    <v-text-field
+                        label="Hours to Watch / Part"
+                        v-model.number="newVideoAvailableTime"
+                        :error-messages="errors"
+                        prepend-icon="mdi-timer-outline">
+                    </v-text-field>
+                  </v-row>
+                </ValidationProvider>
+                <v-row>
+                  <v-btn color="primary" @click="createVideo" block :loading="createLoading"
+                         :disabled="invalid">Create Video
+                  </v-btn>
+                </v-row>
+              </v-col>
+              <v-col cols="12" md="3" v-else>
+                <v-date-picker
+                    v-model="pickedMonth"
+                    type="month"
+                ></v-date-picker>
+              </v-col>
               <v-col>
-                <v-date-picker v-model="dates" full-width first-day-of-week="5" range
-                               :picker-date.sync="pickedMonth"></v-date-picker>
+                <v-row v-if="userData.admin">
+                  <AdminVideoCard
+                      v-for="(video, index) in videos"
+                      :key="video.ID"
+                      :index="index + 1"
+                      :video="video"
+                      @videoUpdated="getVideos"
+                      @videoDeleted="getVideos"
+                  ></AdminVideoCard>
+                </v-row>
+                <v-row v-else>
+                  <UserVideoCard
+                      v-for="(video, index) in videos"
+                      :key="video.ID"
+                      :index="index + 1"
+                      :video="video"
+                  ></UserVideoCard>
+                </v-row>
               </v-col>
             </v-row>
-            <v-row>
-              <v-text-field
-                  label="Title"
-                  v-model.trim="newVideoTitle"
-                  prepend-icon="mdi-format-text"
-                  counter>
-              </v-text-field>
-            </v-row>
-            <v-row>
-              <v-btn color="primary" @click="createVideo" block :loading="createLoading"
-                     :disabled="newVideoTitle.length === 0">Create Video
-              </v-btn>
-            </v-row>
-          </v-col>
-          <v-col cols="12" md="3" v-else>
-            <v-date-picker
-                v-model="pickedMonth"
-                type="month"
-            ></v-date-picker>
-          </v-col>
-          <v-col>
-            <v-row v-if="userData.admin">
-              <AdminVideoCard
-                  v-for="(video, index) in videos"
-                  :key="video.ID"
-                  :index="index + 1"
-                  :video="video"
-                  @videoUpdated="getVideos"
-                  @videoDeleted="getVideos"
-              ></AdminVideoCard>
-            </v-row>
-            <v-row v-else>
-              <UserVideoCard
-                  v-for="(video, index) in videos"
-                  :key="video.ID"
-                  :index="index + 1"
-                  :video="video"
-              ></UserVideoCard>
-            </v-row>
-          </v-col>
-        </v-row>
+          </form>
+        </ValidationObserver>
       </v-container>
     </v-main>
 
@@ -98,6 +115,7 @@ export default {
       dates: [new Date().toISOString().substr(0, 10), new Date().toISOString().substr(0, 10)],
       menu: false,
       newVideoTitle: '',
+      newVideoAvailableTime: 3,
       pickedMonth: new Date().toISOString().substr(0, 7),
       createLoading: false,
       videos: [],
@@ -126,6 +144,7 @@ export default {
       formData.append("availableFrom", new Date(this.orderedDates[0]).getTime())
       formData.append("availableTo", new Date(this.orderedDates[1]).getTime())
       formData.append("title", this.newVideoTitle)
+      formData.append("studentTime", this.newVideoAvailableTime)
       api({
         method: "POST",
         url: "/admin/videos",

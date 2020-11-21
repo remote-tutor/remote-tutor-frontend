@@ -16,6 +16,7 @@
                   </div>
                   <div v-else-if="new Date() < new Date(watches[index].validTill)">
                     <Timer :end-time="watches[index].validTill" :time-up.sync="timers[index]"></Timer>
+                    <div>{{ watches[index].validTill | momentFormatDate }}</div>
                   </div>
                   <div v-else>You've watched this part</div>
                 </v-list-item-subtitle>
@@ -34,7 +35,7 @@
         </v-card-text>
       </v-card>
     </v-col>
-    <v-col cols="12" sm="6" md="8" v-if="video !== null">
+    <v-col cols="12" sm="6" md="8">
       <Player ref="player" :video="video"></Player>
     </v-col>
 
@@ -45,7 +46,7 @@
         </v-card-title>
         <v-card-subtitle>{{ partName }}</v-card-subtitle>
         <v-card-text>
-          Are you sure you want to start this part ? You'll have 3 hours from now to finish it, after that you won't
+          Are you sure you want to start this part ? You'll have {{ video.studentHours }} hours from now to finish it, after that you won't
           able to watch it
         </v-card-text>
         <v-divider></v-divider>
@@ -76,6 +77,7 @@
 import api from "@/gateways/api";
 import Timer from "@/components/utils/Timer";
 import Player from "@/components/videos/shared/Player";
+import moment from 'moment'
 
 export default {
   name: "VideoParts",
@@ -173,6 +175,11 @@ export default {
         }
       },
       deep: true
+    },
+  },
+  filters: {
+    momentFormatDate: function (date) {
+      return moment(date).format('dddd Do MMM YYYY, h:mm a');
     },
   },
   mounted() {

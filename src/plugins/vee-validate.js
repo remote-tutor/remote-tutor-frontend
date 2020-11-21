@@ -1,4 +1,4 @@
-import {required, email, confirmed, excluded, numeric, max, min, image, required_if} from 'vee-validate/dist/rules';
+import {required, email, confirmed, excluded, numeric, max, min, image, required_if, min_value} from 'vee-validate/dist/rules';
 import {extend} from 'vee-validate';
 
 extend('required', {
@@ -36,6 +36,11 @@ extend('min', {
     ...min,
     params: ['length'],
     message: 'Minimum is {length} characters'
+})
+
+extend('min_value', {
+    ...min_value,
+    message: 'Minimum is {min} or more'
 })
 
 extend('image', {
