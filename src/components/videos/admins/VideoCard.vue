@@ -20,7 +20,10 @@
           <span>Video data is not saved!</span>
         </v-tooltip>
       </v-card-subtitle>
-      <v-card-text>Available At: {{ video.availableFrom | moment }}</v-card-text>
+      <v-card-text>
+        <p>Available From: {{ video.availableFrom | moment }}</p>
+        <p>Available To: {{ video.availableTo | moment }}</p>
+      </v-card-text>
       <v-card-actions>
         <v-btn outlined :to="{name: 'ViewVideo', params: {videoHash: video.hash}}">Parts</v-btn>
         <v-spacer></v-spacer>
@@ -48,7 +51,13 @@
                 prepend-icon="mdi-format-text"
                 counter>
             </v-text-field>
-            <v-date-picker v-model="date" full-width first-day-of-week="5"></v-date-picker>
+            <v-text-field
+                label="Hours to Watch / Part"
+                v-model.number="studentHours"
+                prepend-icon="mdi-timer-outline"
+                counter>
+            </v-text-field>
+            <v-date-picker v-model="dates" full-width first-day-of-week="5" range></v-date-picker>
             <v-btn block rounded color="primary" @click="updateVideo" :loading="loading" :disabled="title.length === 0">
               Save
             </v-btn>
@@ -79,13 +88,27 @@ export default {
   components: {ConfirmationDialog},
   props: ['index', 'video'],
   computed: {
-    date: {
+    dates: {
       get() {
-        return moment(this.video.availableFrom).format("YYYY-MM-DD")
+        if (this.video.availableTo === "")
+          return [moment(this.video.availableFrom).format("YYYY-MM-DD")]
+
+        return [moment(this.video.availableFrom).format("YYYY-MM-DD"),
+          moment(this.video.availableTo).format("YYYY-MM-DD")]
       },
       set(val) {
-        this.video.availableFrom = val
-        this.saved = false
+        if (val.length === 1) {
+          this.video.availableFrom = val[0]
+          this.video.availableTo = ""
+          return
+        }
+        if (new Date(val[0]).getTime() < new Date(val[1]).getTime()) {
+          this.video.availableFrom = val[0]
+          this.video.availableTo = val[1]
+          return
+        }
+        this.video.availableFrom = val[1]
+        this.video.availableTo = val[0]
       }
     },
     title: {
@@ -96,7 +119,16 @@ export default {
         this.video.title = val
         this.saved = false
       }
-    }
+    },
+    studentHours: {
+      get() {
+        return this.video.studentHours
+      },
+      set(val) {
+        this.video.studentHours = val
+        this.saved = false
+      }
+    },
   },
   data() {
     return {
@@ -112,7 +144,9 @@ export default {
       let formData = new FormData()
       formData.append("id", this.video.ID)
       formData.append("title", this.video.title)
+      formData.append("studentTime", this.video.studentHours)
       formData.append("availableFrom", new Date(this.video.availableFrom).getTime())
+      formData.append("availableTo", new Date(this.video.availableTo).getTime())
       api({
         method: "PUT",
         url: "/admin/videos",

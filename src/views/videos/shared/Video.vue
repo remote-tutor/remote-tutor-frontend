@@ -2,7 +2,7 @@
   <v-app>
     <AppBar page-name="Video"></AppBar>
     <v-main>
-      <v-container>
+      <v-container v-if="mounted">
         <AdminVideoParts v-if="userData.admin" :video="video"></AdminVideoParts>
         <UserVideoParts v-else :video="video"></UserVideoParts>
       </v-container>
@@ -22,7 +22,8 @@ export default {
   components: {UserVideoParts, AppBar, AdminVideoParts},
   data() {
     return {
-      video: null
+      video: null,
+      mounted: false,
     }
   },
   computed: {
@@ -37,6 +38,7 @@ export default {
       }
     }).then(response => {
       this.video = response.data.video
+      this.mounted = true
     })
   }
 }
