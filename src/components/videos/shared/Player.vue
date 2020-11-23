@@ -54,16 +54,23 @@ export default {
         method: "GET",
         url: "videos/part",
         params: {
-          id: this.partID
+          id: this.partID,
         }
       }).then(response => {
         this.videoSource.splice(0, 1, {
           src: response.data.url,
           size: 1080,
         })
+      }).catch(() => {
+        this.loading = false
+        this.partName = "Error retrieving the link, try again later"
       })
     },
     errorOccurred() {
+      this.$store.dispatch('viewSnackbar', {
+        text: 'Expired link, fetching another one now...',
+        color: 'error',
+      })
       this.startPart()
     },
     stop() {
