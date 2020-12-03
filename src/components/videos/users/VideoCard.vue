@@ -23,7 +23,6 @@
       </v-card-subtitle>
       <v-card-text>
         <p>Available From: {{ video.availableFrom | moment }}</p>
-        <p>Available To: {{ video.availableTo | moment }}</p>
       </v-card-text>
       <v-card-actions v-if="isAvailableToWatch">
         <v-btn outlined :to="{name: 'ViewVideo', params: {videoHash: video.hash}}">Parts</v-btn>
@@ -47,8 +46,7 @@ export default {
   },
   computed: {
     isAvailableToWatch() {
-      return new Date() >= new Date(this.video.availableFrom) &&
-          new Date() < new Date(this.video.availableTo) && this.access;
+      return new Date() >= new Date(this.video.availableFrom) && this.access;
     }
   },
   methods: {

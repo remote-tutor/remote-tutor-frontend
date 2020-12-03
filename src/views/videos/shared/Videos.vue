@@ -12,7 +12,7 @@
               <v-col cols="12" md="3" v-if="userData.admin">
                 <v-row>
                   <v-col>
-                    <v-date-picker v-model="dates" full-width first-day-of-week="5" range
+                    <v-date-picker v-model="date" full-width first-day-of-week="5"
                                    :picker-date.sync="pickedMonth"></v-date-picker>
                   </v-col>
                 </v-row>
@@ -102,17 +102,10 @@ export default {
     selectedClass() {
       return this.classes.values[this.classes.selectedClass].classHash
     },
-    orderedDates() {
-      if (this.dates.length === 1)
-        return [this.dates[0], this.dates[0]]
-      if (new Date(this.dates[0]).getTime() < new Date(this.dates[1]).getTime())
-        return this.dates
-      return this.dates.slice().reverse()
-    },
   },
   data() {
     return {
-      dates: [new Date().toISOString().substr(0, 10), new Date().toISOString().substr(0, 10)],
+      date: new Date().toISOString().substr(0, 10),
       menu: false,
       newVideoTitle: '',
       newVideoAvailableTime: 3,
@@ -141,8 +134,7 @@ export default {
       this.createLoading = true
       let formData = new FormData()
       formData.append("selectedClass", this.selectedClass)
-      formData.append("availableFrom", new Date(this.orderedDates[0]).getTime())
-      formData.append("availableTo", new Date(this.orderedDates[1]).getTime())
+      formData.append("availableFrom", new Date(this.date).getTime())
       formData.append("title", this.newVideoTitle)
       formData.append("studentTime", this.newVideoAvailableTime)
       api({
