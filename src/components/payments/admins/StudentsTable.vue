@@ -18,9 +18,11 @@
             full-width
             :allowed-dates="allowedDates"
         ></v-date-picker>
+        <v-btn block rounded color="primary" @click="updatePayments">Save</v-btn>
       </v-col>
       <v-col cols="12" md="9">
         <v-data-table
+            v-model="selected"
             :headers="headers"
             :items="students"
             :options.sync="options"
@@ -33,6 +35,8 @@
       }"
             :items-per-page="10"
             class="elevation-1"
+            show-select
+            item-key="user.username"
         ></v-data-table>
       </v-col>
     </v-row>
@@ -50,6 +54,7 @@ export default {
       searchBy: '',
       totalStudents: 0,
       students: [],
+      selected: [],
       loading: false,
       options: {},
       headers: [
@@ -92,15 +97,44 @@ export default {
           .then((response) => {
             this.students = response.data.students;
             this.totalStudents = response.data.totalStudents;
+            this.getPayments()
           })
           .finally(() => {
             this.loading = false;
           })
     },
+    getPayments() {
+      this.loading = true
+      this.selected = []
+      api({
+        method: "GET",
+        url: '/admin/payments/week',
+        params: {
+          date: new Date(this.date).getTime(),
+          usersIDs: this.students.map(student => student.userID),
+        },
+      }).then(response => {
+        this.originalAccess = response.data.payments
+        this.originalAccess.forEach(payment => {
+          this.students.forEach(student => {
+            if (payment.userID === student.userID)
+              this.selected.push(student)
+          })
+        })
+      }).finally(() => {
+        this.loading = false
+      })
+    },
+    updatePayments() {},
     allowedDates: val => new Date(val).getDay() === 5,
   },
   mounted() {
     this.getStudents()
+    let currentDate = new Date()
+    while(currentDate.getDay() !== 5) {
+      currentDate.setDate(currentDate.getDate() - 1)
+    }
+    this.date = currentDate.toISOString().substr(0, 10)
   },
   watch: {
     options: {
@@ -113,6 +147,9 @@ export default {
       this.options.page = 1
       this.getStudents()
     },
+    date() {
+      this.getPayments()
+    }
   },
 }
 </script>
