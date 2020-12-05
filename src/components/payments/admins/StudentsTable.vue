@@ -18,7 +18,7 @@
             full-width
             :allowed-dates="allowedDates"
         ></v-date-picker>
-        <v-btn block rounded color="primary" @click="updatePayments">Save</v-btn>
+        <v-btn block rounded color="primary" @click="confirmationTable = true">Save</v-btn>
       </v-col>
       <v-col cols="12" md="9">
         <v-data-table
@@ -37,18 +37,23 @@
             class="elevation-1"
             show-select
             item-key="user.username"
+            @item-selected="itemSelected"
         ></v-data-table>
       </v-col>
     </v-row>
+    <ConfirmationTable :dialog.sync="confirmationTable" :added-to="accessChanges.addedTo"
+                       :removed-from="accessChanges.removedFrom"></ConfirmationTable>
   </v-card>
 </template>
 
 <script>
 import api from "@/gateways/api";
 import {mapState} from "vuex";
+import ConfirmationTable from "@/components/payments/admins/ConfirmationTable";
 
 export default {
   name: "StudentsTable",
+  components: {ConfirmationTable},
   data() {
     return {
       searchBy: '',
@@ -63,6 +68,11 @@ export default {
         {text: "Phone Number", value: "user.phoneNumber", sortable: false},
       ],
       date: '',
+      accessChanges: {
+        addedTo: [],
+        removedFrom: [],
+      },
+      confirmationTable: false,
     }
   },
   computed: {
@@ -92,6 +102,7 @@ export default {
           sortDesc: sortDesc,
           pending: this.pending,
           searchByValue: this.searchBy.value,
+          studentsOnly: true, // to avoid retrieving the admins users
         },
       })
           .then((response) => {
@@ -125,13 +136,29 @@ export default {
         this.loading = false
       })
     },
-    updatePayments() {},
+    updatePayments() {
+    },
+    itemSelected(item) {
+      if (item.value) {  // row is selected
+        let index = this.accessChanges.removedFrom.indexOf(item.item) // get the index of the item
+        if (index === -1) // check if the item was not found in the removedFrom array
+          this.accessChanges.addedTo.push(item.item) // item is newly added
+        else // item was removed (so there's no point adding it -  just deleting it from the removedFrom array is enough)
+          this.accessChanges.removedFrom.splice(index, 1)
+      } else { // row is deselected
+        let index = this.accessChanges.addedTo.indexOf(item.item) // get the index of the item
+        if (index === -1) // check if the item was not found in the addedTo array
+          this.accessChanges.removedFrom.push(item.item) // item is newly removed
+        else // item was added (so there's no point removing it - just deleting it from the addedTo array)
+          this.accessChanges.addedTo.splice(index, 1)
+      }
+    },
     allowedDates: val => new Date(val).getDay() === 5,
   },
   mounted() {
     this.getStudents()
     let currentDate = new Date()
-    while(currentDate.getDay() !== 5) {
+    while (currentDate.getDay() !== 5) {
       currentDate.setDate(currentDate.getDate() - 1)
     }
     this.date = currentDate.toISOString().substr(0, 10)
