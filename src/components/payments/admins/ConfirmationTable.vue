@@ -1,7 +1,7 @@
 <template>
   <div class="text-center">
     <v-dialog
-        @click:outside="() => $emit('update:dialog', false)"
+        @click:outside="closeDialog"
         v-model="dialog"
         persistent
     >
@@ -51,7 +51,8 @@
         <v-card-actions>
           <v-btn
               text
-              @click="() => $emit('update:dialog', false)"
+              :disabled="loading"
+              @click="closeDialog"
           >
             Cancel
           </v-btn>
@@ -59,7 +60,8 @@
           <v-btn
               color="primary"
               text
-              @click="() => $emit('update:dialog', false)"
+              :loading="loading"
+              @click="pushPayments"
           >
             Confirm
           </v-btn>
@@ -69,15 +71,51 @@
   </div>
 </template>
 <script>
+import api from "@/gateways/api";
+import {mapState} from "vuex";
+
 export default {
   name: "ConfirmationTable",
-  props: ['dialog', 'addedTo', 'removedFrom'],
+  props: ['dialog', 'addedTo', 'removedFrom', 'date'],
+  computed: {
+    ...mapState(['userData', 'classes']),
+    selectedClass() {
+      return this.classes.values[this.classes.selectedClass].classHash
+    },
+  },
   data() {
     return {
       headers: [
         {text: "Full Name", value: "user.fullName"}
-      ]
+      ],
+      loading: false
     }
+  },
+  methods: {
+    closeDialog() {
+      if (this.loading)
+        return
+      this.$emit('update:dialog', false)
+    },
+    pushPayments() {
+      this.loading = true
+      let formData = new FormData()
+      formData.append("selectedClass", this.selectedClass)
+      formData.append("startDate", new Date(this.date).getTime())
+      formData.append("addedTo[]", this.addedTo.map(student => student.userID))
+      formData.append("removedFrom[]", this.removedFrom.map(student => student.userID))
+      api({
+        method: "POST",
+        url: "/admin/payments/week",
+        data: formData
+      }).then(() => {
+        this.$emit('saved')
+        this.loading = false
+        this.closeDialog()
+      }).catch(() => {
+        this.loading = false
+      })
+    },
   }
 }
 </script>

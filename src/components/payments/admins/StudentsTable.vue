@@ -9,6 +9,7 @@
           label="Search by Username, Full Name, or Phone Number"
           single-line
           clearable
+          @input="search"
       ></v-text-field>
     </v-card-title>
     <v-row>
@@ -43,7 +44,9 @@
       </v-col>
     </v-row>
     <ConfirmationTable :dialog.sync="confirmationTable" :added-to="accessChanges.addedTo"
-                       :removed-from="accessChanges.removedFrom"></ConfirmationTable>
+                       :removed-from="accessChanges.removedFrom" :date="date"
+                       @saved="savedSuccessfully"
+    ></ConfirmationTable>
   </v-card>
 </template>
 
@@ -84,6 +87,14 @@ export default {
     }
   },
   methods: {
+    search() {
+      this.options.page = 1;
+      this.getStudents();
+    },
+    savedSuccessfully() {
+      this.accessChanges.addedTo = []
+      this.accessChanges.removedFrom = []
+    },
     getStudents() {
       this.students = []
       this.totalStudents = 0
@@ -103,7 +114,7 @@ export default {
           sortBy: modifiedSortBy,
           sortDesc: sortDesc,
           pending: this.pending,
-          searchByValue: this.searchBy.value,
+          searchByValue: this.searchBy,
           studentsOnly: true, // to avoid retrieving the admins users
         },
       })
@@ -206,6 +217,9 @@ export default {
     },
     selectedClass() {
       this.options.page = 1
+      this.selected = []
+      this.accessChanges.addedTo = []
+      this.accessChanges.removedFrom = []
       this.getStudents()
     },
     date() {
