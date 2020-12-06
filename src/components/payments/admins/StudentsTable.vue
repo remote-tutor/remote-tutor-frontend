@@ -29,7 +29,7 @@
             :server-items-length="totalStudents"
             :loading="loading"
             :footer-props="{
-        'items-per-page-options': [10, 15, 20],
+        'items-per-page-options': [10, 15, 20, -1],
         'show-current-page': true,
         'show-first-last-page': true,
       }"
@@ -38,6 +38,7 @@
             show-select
             item-key="user.username"
             @item-selected="itemSelected"
+            @toggle-select-all="toggleSelectAll"
         ></v-data-table>
       </v-col>
     </v-row>
@@ -72,6 +73,7 @@ export default {
         addedTo: [],
         removedFrom: [],
       },
+      retrievedAccessUsersIDs: new Set(), // set to hold the IDs of the users who's access has been retrieved before
       confirmationTable: false,
     }
   },
@@ -116,42 +118,74 @@ export default {
     },
     getPayments() {
       this.loading = true
-      this.selected = []
-      api({
-        method: "GET",
-        url: '/admin/payments/week',
-        params: {
-          date: new Date(this.date).getTime(),
-          usersIDs: this.students.map(student => student.userID),
-        },
-      }).then(response => {
-        this.originalAccess = response.data.payments
-        this.originalAccess.forEach(payment => {
-          this.students.forEach(student => {
-            if (payment.userID === student.userID)
-              this.selected.push(student)
+      let usersIDs = this.students.filter(student => {
+        if (!this.retrievedAccessUsersIDs.has(student.userID)) {
+          this.retrievedAccessUsersIDs.add(student.userID)
+          return student
+        }
+      }).map(student => student.userID)
+      if (usersIDs.length > 0) {
+        api({
+          method: "GET",
+          url: '/admin/payments/week',
+          params: {
+            date: new Date(this.date).getTime(),
+            usersIDs: usersIDs,
+          },
+        }).then(response => {
+          let access = response.data.payments
+          access.forEach(payment => {
+            this.students.forEach(student => {
+              if (student.userID === payment.userID)
+                this.selected.push(student)
+            })
           })
+        }).finally(() => {
+          this.loading = false
         })
-      }).finally(() => {
-        this.loading = false
-      })
+      }
+
     },
     updatePayments() {
     },
     itemSelected(item) {
       if (item.value) {  // row is selected
-        let index = this.accessChanges.removedFrom.indexOf(item.item) // get the index of the item
-        if (index === -1) // check if the item was not found in the removedFrom array
-          this.accessChanges.addedTo.push(item.item) // item is newly added
-        else // item was removed (so there's no point adding it -  just deleting it from the removedFrom array is enough)
-          this.accessChanges.removedFrom.splice(index, 1)
+        let removedUser = this.isUserInArray(this.accessChanges.removedFrom, item.item.userID) // get the index of the item
+        let isSelected = this.isUserInArray(this.selected, item.item.userID)
+        if (removedUser.found) { // item was removed (so there's no point adding it -  just deleting it from the removedFrom array is enough)
+          this.accessChanges.removedFrom.splice(removedUser.index, 1)
+        } else { // item is not in the removedFrom array (we want to add access to new user)
+          if (!isSelected.found) // if the item is already selected, then do nothing (would trigger from the selectAll button)
+            this.accessChanges.addedTo.push(item.item) // item is newly added
+        }
       } else { // row is deselected
-        let index = this.accessChanges.addedTo.indexOf(item.item) // get the index of the item
-        if (index === -1) // check if the item was not found in the addedTo array
-          this.accessChanges.removedFrom.push(item.item) // item is newly removed
-        else // item was added (so there's no point removing it - just deleting it from the addedTo array)
-          this.accessChanges.addedTo.splice(index, 1)
+        let addedUser = this.isUserInArray(this.accessChanges.addedTo, item.item.userID) // get the index of the item
+        let isSelected = this.isUserInArray(this.selected, item.item.userID)
+        if (addedUser.found) { // item was added (so there's no point removing it - just deleting it from the addedTo array)
+          this.accessChanges.addedTo.splice(addedUser.index, 1)
+        } else { // item is not in the addedTo array ( we want to remove access from user-with-existing-access)
+          if (isSelected.found) { // if the item is selected, then add it to the removedFrom
+            // while if it's not selected, then do nothing
+            this.accessChanges.removedFrom.push(item.item) // item is newly removed
+          }
+        }
       }
+    },
+    isUserInArray(arr, userID) {
+      let found = false
+      let index = -1
+      arr.forEach((student, i) => {
+        if (student.userID === userID) {
+          found = true
+          index = i
+        }
+      })
+      return {found: found, index: index}
+    },
+    toggleSelectAll(items) {
+      items.items.forEach(item => {
+        this.itemSelected({item: item, value: items.value})
+      })
     },
     allowedDates: val => new Date(val).getDay() === 5,
   },
