@@ -155,8 +155,6 @@ export default {
       }
 
     },
-    updatePayments() {
-    },
     itemSelected(item) {
       if (item.value) {  // row is selected
         let removedUser = this.isUserInArray(this.accessChanges.removedFrom, item.item.userID) // get the index of the item
@@ -218,9 +216,15 @@ export default {
       this.selected = []
       this.accessChanges.addedTo = []
       this.accessChanges.removedFrom = []
+      this.retrievedAccessUsersIDs = new Set()
       this.getStudents()
     },
     date() {
+      this.options.page = 1
+      this.selected = []
+      this.accessChanges.addedTo = []
+      this.accessChanges.removedFrom = []
+      this.retrievedAccessUsersIDs = new Set()
       this.getPayments()
     }
   },
