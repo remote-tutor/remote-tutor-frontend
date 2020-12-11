@@ -84,6 +84,17 @@
           {{ item.usedByUser.fullName }}
         </template>
 
+        <template v-slot:item.delete="{item}">
+          <ConfirmationDialog v-if="item.usedByUserID !== 0"
+              buttonText="Remove"
+              :mainText="'Remove Access from (' + item.usedByUser.fullName + ') ?'"
+              message="The selected user won't be able to access this video anymore - Unless you accessed him again"
+              video-code
+              :deleted-item-name="item.usedByUser.fullName"
+              @confirm="removeAccess($event, item)"
+          ></ConfirmationDialog>
+        </template>
+
       </v-data-table>
     </v-card>
   </div>
@@ -92,9 +103,11 @@
 <script>
 import api from "@/gateways/api";
 import moment from "moment";
+import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
 
 export default {
   name: "VideoCodes",
+  components: {ConfirmationDialog},
   props: ['video'],
   data() {
     return {
@@ -108,6 +121,7 @@ export default {
         {text: 'Generated At', value: 'created_at'},
         {text: 'Used', value: 'used_by_user_id', width: "10%"},
         {text: 'Used By', value: 'used_by_user.full_name', width: "20%"},
+        {text: 'Delete', value: 'delete', sortable: false}
       ],
       codes: [],
       options: {
@@ -158,6 +172,21 @@ export default {
         this.loading = false
       })
     },
+    removeAccess($event, item) {
+      this.loading = true
+      let formData = new FormData()
+      formData.append("codeValue", item.value)
+      formData.append("typedValue", $event.typedValue)
+      api({
+        method: "DELETE",
+        url: "/admin/videos/codes/code",
+        data: formData
+      }).then(() => {
+        this.getCodes()
+      }).finally(() => {
+        this.loading = false
+      })
+    }
   },
   watch: {
     options: {
