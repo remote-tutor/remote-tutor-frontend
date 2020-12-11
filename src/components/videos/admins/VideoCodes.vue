@@ -34,6 +34,20 @@
           </v-col>
         </v-row>
       </v-card-subtitle>
+
+      <v-card-text>
+        <v-row justify="center">
+          <v-radio-group v-model="accessedBy" row @change="getCodes">
+            <template v-slot:label>
+              Access given by:
+            </template>
+            <v-radio label="Manual" value="manual"></v-radio>
+            <v-radio label="Code" value="code"></v-radio>
+            <v-radio label="Both" value="both"></v-radio>
+          </v-radio-group>
+        </v-row>
+      </v-card-text>
+
       <v-data-table
           :headers="headers"
           :items="codes"
@@ -105,6 +119,7 @@ export default {
       loading: false,
       totalCodes: 0,
       search: '',
+      accessedBy: 'both',
     }
   },
   computed: {
@@ -136,6 +151,7 @@ export default {
           sortBy: sortBy,
           sortDesc: sortDesc,
           search: this.search,
+          accessedBy: this.accessedBy
         }
       }).then(response => {
         this.codes = response.data.codes
