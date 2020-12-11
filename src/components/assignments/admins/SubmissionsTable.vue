@@ -207,10 +207,7 @@ export default {
     },
     save(submission) {
       if (isNaN(submission.mark) || submission.mark < 0 || submission.mark > this.totalMark) {
-        this.$store.dispatch('viewSnackbar', {
-          text: 'You must put a valid mark value',
-          color: 'error',
-        })
+        this.$store.dispatch('viewErrorSnackbar', 'You must put a valid mark value')
         return
       }
       this.saveSubmissionDialog = true

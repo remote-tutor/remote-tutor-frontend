@@ -141,15 +141,9 @@ export default {
       })
       Promise.all(paymentsToPush).then(() => {
         this.$emit('update:dialog', false)
-        this.$store.dispatch('viewSnackbar', {
-          text: "Payments updates successfully",
-          color: "success"
-        })
+        this.$store.dispatch('viewSuccessSnackbar', 'Payments updates successfully')
       }).catch(() => {
-        this.$store.dispatch('viewSnackbar', {
-          text: "An error occurred while trying to update the payments",
-          color: "error"
-        })
+        this.$store.dispatch('viewErrorSnackbar', 'An error occurred while trying to update the payments')
       }).finally(() => {
         this.loadingDialog = false
       })

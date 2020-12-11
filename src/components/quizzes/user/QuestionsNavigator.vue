@@ -99,16 +99,10 @@ export default {
           (new Date().getTime() < new Date(this.quiz.startTime).getTime() ||
               new Date().getTime() > new Date(this.validTill).getTime())) {
         this.$router.push({name: 'Quizzes'})
-        this.$store.dispatch('viewSnackbar', {
-          text: 'Invalid request',
-          color: 'error'
-        })
+        this.$store.dispatch('viewErrorSnackbar', 'Invalid request')
       } else if (this.isReview && new Date().getTime() < new Date(this.quiz.endTime)) {
         this.$router.push({name: 'Quizzes'})
-        this.$store.dispatch('viewSnackbar', {
-          text: 'Invalid request',
-          color: 'error'
-        })
+        this.$store.dispatch('viewErrorSnackbar', 'Invalid request')
       } else {
         this.getQuizPermission()
       }
@@ -123,10 +117,7 @@ export default {
       }).then(response => {
         if (!response.data.status) {
           this.$router.push({name: 'Quizzes'})
-          this.$store.dispatch('viewSnackbar', {
-            text: "You don't have access to take this quiz. Contact the administrator for help",
-            color: 'error'
-          })
+          this.$store.dispatch('viewErrorSnackbar', 'You don\'t have access to take this quiz. Contact the administrator for help')
         }
       })
     },

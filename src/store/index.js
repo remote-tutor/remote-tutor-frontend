@@ -23,9 +23,14 @@ export default new Vuex.Store({
     paths: ['userData', 'classes']
   })],
   mutations: {
-    VIEW_SNACKBAR(state, options) {
-      state.color = options.color
-      state.text = options.text
+    VIEW_SUCCESS_SNACKBAR(state, text) {
+      state.color = "success"
+      state.text = text
+      state.visible = true
+    },
+    VIEW_ERROR_SNACKBAR(state, text) {
+      state.color = "error"
+      state.text = text
       state.visible = true
     },
     SET_USER_DATA(state, userData) {
@@ -42,8 +47,11 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    viewSnackbar({ commit }, options) {
-      commit('VIEW_SNACKBAR', options)
+    viewSuccessSnackbar({ commit }, options) {
+      commit('VIEW_SUCCESS_SNACKBAR', options)
+    },
+    viewErrorSnackbar({ commit }, options) {
+      commit('VIEW_ERROR_SNACKBAR', options)
     },
     setUserData({commit}, options) {
       commit('SET_USER_DATA', options)

@@ -67,10 +67,7 @@ export default {
       })
     },
     errorOccurred() {
-      this.$store.dispatch('viewSnackbar', {
-        text: 'Expired link, fetching another one now...',
-        color: 'error',
-      })
+      this.$store.dispatch('viewErrorSnackbar', 'Expired link, fetching another one now...')
       this.startPart()
     },
     stop() {

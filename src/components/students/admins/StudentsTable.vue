@@ -237,12 +237,6 @@ export default {
             this.students = response.data.students;
             this.totalStudents = response.data.totalStudents;
           })
-          .catch((error) => {
-            this.$store.dispatch("viewSnackbar", {
-              text: error.response.data.message,
-              color: "error",
-            });
-          })
           .finally(() => {
             this.loading = false;
           });
@@ -285,10 +279,7 @@ export default {
       if (this.pending)
         return
       if (user.admin) {
-        this.$store.dispatch('viewSnackbar', {
-          text: "This user is an admin, you can't view admin payments",
-          color: "error",
-        })
+        this.$store.dispatch('viewErrorSnackbar', 'This user is an admin, you can\'t view admin payments')
         return
       }
       this.payment.dialog = true

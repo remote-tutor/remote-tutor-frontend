@@ -25,10 +25,7 @@ api.interceptors.request.use(function (config) {
 // RESPONSE interceptors
 api.interceptors.response.use(function (response) {
     if (response.data.message !== undefined) {
-        store.dispatch("viewSnackbar", {
-            text: response.data.message,
-            color: "success"
-        })
+        store.dispatch('viewSuccessSnackbar', response.data.message)
     }
     return response;
 }, function (error) {
@@ -38,10 +35,7 @@ api.interceptors.response.use(function (response) {
         router.push({name: 'Login'})
     }
     if (error.response.data.message !== undefined) {
-        store.dispatch("viewSnackbar", {
-            text: error.response.data.message,
-            color: "error"
-        })
+        store.dispatch('viewErrorSnackbar', error.response.data.message)
     }
     if (error.response.data.route !== undefined) {
         router.push({name: error.response.data.route})

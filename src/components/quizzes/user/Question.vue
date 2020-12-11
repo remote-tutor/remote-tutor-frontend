@@ -62,19 +62,13 @@ export default {
         url: "/quizzes/submissions/mcq",
         data: formData
       }).then(() => {
-        this.$store.dispatch('viewSnackbar', {
-          text: 'Question #' + (this.selectedQuestion + 1) + ' has been saved successfully',
-          color: 'success'
-        })
+        this.$store.dispatch('viewSuccessSnackbar', 'Question #' + (this.selectedQuestion + 1) + ' has been saved successfully')
         this.$emit('updateChoice', {
           choice: userChoice,
           status: true
         })
       }).catch(() => {
-        this.$store.dispatch('viewSnackbar', {
-          text: 'Error saving question #' + (this.selectedQuestion + 1) + '. Please refresh the page and try again',
-          color: 'error'
-        })
+        this.$store.dispatch('viewErrorSnackbar', 'Error saving question #' + (this.selectedQuestion + 1) + '. Please refresh the page and try again')
         this.$emit('updateChoice', {
           choice: userChoice,
           status: false

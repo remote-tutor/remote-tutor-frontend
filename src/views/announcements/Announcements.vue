@@ -130,10 +130,7 @@ export default {
     },
     createPlaceholder() {
       if (this.placeholderExists) {
-        this.$store.dispatch("viewSnackbar", {
-          text: "Please fill the unfinished one first",
-          color: "error",
-        });
+        this.$store.dispatch('viewErrorSnackbar', 'Please fill the unfinished one first')
       } else {
         this.placeholderExists = true;
         this.announcements.unshift({ isNew: true, ID: 0 });
