@@ -23,7 +23,18 @@
       </v-card-title>
       <v-card-subtitle>
         <v-row>
-          <v-col>Video Title: {{ video.title }}</v-col>
+          <v-col>
+            Video Title: {{ video.title }}
+            <br>
+            <v-radio-group v-model="accessedBy" row @change="options.page = 1; getCodes();">
+              <template v-slot:label>
+                Access given by:
+              </template>
+              <v-radio label="Manual" value="manual"></v-radio>
+              <v-radio label="Code" value="code"></v-radio>
+              <v-radio label="Both" value="both"></v-radio>
+            </v-radio-group>
+          </v-col>
           <v-col cols="6" md="4">
             <v-text-field
                 v-model="search"
@@ -34,19 +45,6 @@
           </v-col>
         </v-row>
       </v-card-subtitle>
-
-      <v-card-text>
-        <v-row justify="center">
-          <v-radio-group v-model="accessedBy" row @change="getCodes">
-            <template v-slot:label>
-              Access given by:
-            </template>
-            <v-radio label="Manual" value="manual"></v-radio>
-            <v-radio label="Code" value="code"></v-radio>
-            <v-radio label="Both" value="both"></v-radio>
-          </v-radio-group>
-        </v-row>
-      </v-card-text>
 
       <v-data-table
           :headers="headers"
