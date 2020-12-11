@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="dialog" width="500">
-    <template v-slot:activator="{ on, attrs }" v-if="datatable">
+    <template v-slot:activator="{ on, attrs }" v-if="datatable || videoCode">
       <v-icon small v-bind="attrs" v-on="on">mdi-delete</v-icon>
     </template>
 
@@ -38,12 +38,16 @@
         <strong>You must verify the item name (<i>{{ deletedItemName }}</i>) - without the parentheses - before deleting</strong>
         <v-text-field label="Deleted Item Name" v-model="typedValue"></v-text-field>
       </v-card-text>
+      <v-card-text v-else-if="videoCode">
+        <strong>You must verify the user's full name (<i>{{ deletedItemName }}</i>) - without the parentheses - before confirming</strong>
+        <v-text-field label="User's Full Name" v-model="typedValue"></v-text-field>
+      </v-card-text>
       <v-divider></v-divider>
 
       <v-card-actions>
         <v-btn color="green darken-1" text @click="hideDialog">Cancel</v-btn>
         <v-spacer></v-spacer>
-        <v-btn color="error" text @click="confirm" v-if="video || videoPart"
+        <v-btn color="error" text @click="confirm" v-if="video || videoPart || videoCode"
                :disabled="deletedItemName !== typedValue">Confirm</v-btn>
         <v-btn color="error" text @click="confirm" v-else>Confirm</v-btn>
       </v-card-actions>
@@ -62,6 +66,7 @@ export default {
     datatable: Boolean,
     video: Boolean,
     videoPart: Boolean,
+    videoCode: Boolean,
     adminStatus: Boolean,
     deletedItemName: String,
   },

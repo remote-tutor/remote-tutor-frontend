@@ -4,15 +4,13 @@
       {{ tableTitle }}
       <v-spacer></v-spacer>
       <v-text-field
-          v-model="searchBy.value"
+          v-model="searchBy"
           append-icon="mdi-magnify"
-          label="Search"
+          label="Search by Username, Full Name, or Phone Number"
           single-line
           clearable
           @input="search"
       ></v-text-field>
-      <v-spacer></v-spacer>
-      <v-select :items="searchByItems" v-model="searchBy.field" label="Search By" @input="search"></v-select>
     </v-card-title>
     <v-card-subtitle v-if="!pending">
       All Students Access
@@ -165,10 +163,7 @@ export default {
         {text: "Username", value: "username"},
         {text: "Full Name", value: "fullName"},
       ],
-      searchBy: {
-        value: "",
-        field: "username",
-      },
+      searchBy: "",
       years: [
         {text: "First Year", value: 1},
         {text: "Second Year", value: 2},
@@ -235,8 +230,7 @@ export default {
           sortBy: modifiedSortBy,
           sortDesc: sortDesc,
           pending: this.pending,
-          searchByValue: this.searchBy.value,
-          searchByField: this.searchBy.field,
+          searchByValue: this.searchBy,
         },
       })
           .then((response) => {

@@ -14,16 +14,26 @@
           </template>
           <span>You have access to view this video when it's available</span>
         </v-tooltip>
+        <div v-else-if="typingCode">
+          <v-text-field
+              label="Code"
+              single-line
+              prepend-icon="mdi-barcode"
+              append-icon="mdi-check"
+              @click:append="checkCode"
+              type="text"
+              v-model="codeToUse"
+          ></v-text-field>
+        </div>
         <v-tooltip bottom v-else>
           <template v-slot:activator="{ on, attrs }">
-            <v-icon color="red" dark v-bind="attrs" v-on="on">mdi-close-circle</v-icon>
+            <v-icon color="red" dark v-bind="attrs" v-on="on" @click="typingCode = true">mdi-close-circle</v-icon>
           </template>
-          <span>You don't have access to view this video. If you think there's an error, please contact the administrator</span>
+          <span>Click to use code</span>
         </v-tooltip>
       </v-card-subtitle>
       <v-card-text>
         <p>Available From: {{ video.availableFrom | moment }}</p>
-        <p>Available To: {{ video.availableTo | moment }}</p>
       </v-card-text>
       <v-card-actions v-if="isAvailableToWatch">
         <v-btn outlined :to="{name: 'ViewVideo', params: {videoHash: video.hash}}">Parts</v-btn>
@@ -43,12 +53,13 @@ export default {
     return {
       access: false,
       pendingAccess: false,
+      codeToUse: '',
+      typingCode: false
     }
   },
   computed: {
     isAvailableToWatch() {
-      return new Date() >= new Date(this.video.availableFrom) &&
-          new Date() < new Date(this.video.availableTo) && this.access;
+      return new Date() >= new Date(this.video.availableFrom) && this.access;
     }
   },
   methods: {
@@ -56,9 +67,9 @@ export default {
       this.pendingAccess = true
       api({
         method: "GET",
-        url: "/payments/week",
+        url: "/videos/codes/code",
         params: {
-          eventDate: new Date(this.video.availableFrom).getTime()
+          videoID: this.video.ID
         }
       }).then(response => {
         this.access = response.data.status
@@ -66,7 +77,24 @@ export default {
         this.pendingAccess = false
       })
     },
-
+    checkCode() {
+      this.typingCode = false
+      this.pendingAccess = true
+      let formData = new FormData()
+      formData.append("code", this.codeToUse)
+      formData.append("videoID", this.video.ID)
+      api({
+        method: "PUT",
+        url: "/videos/codes/code",
+        data: formData,
+      }).then(() => {
+        this.access = true
+      }).catch(() => {
+        this.typingCode = true
+      }).finally(() => {
+        this.pendingAccess = false
+      })
+    }
   },
   mounted() {
     this.getVideoPermission()

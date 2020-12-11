@@ -15,6 +15,7 @@ import Video from "@/views/videos/shared/Video";
 import Videos from "@/views/videos/shared/Videos";
 import EnrolledClasses from "@/views/classes/shared/EnrolledClasses";
 import AllClasses from "@/views/classes/shared/AllClasses";
+import Access from "@/views/payments/admins/Access";
 
 Vue.use(VueRouter)
 
@@ -60,6 +61,14 @@ const routes = [
     meta: {
       title: 'Students'
     } 
+  },
+  {
+    path: '/access',
+    name: 'Access',
+    component: Access,
+    meta: {
+      title: 'Students Access'
+    }
   },
   {
     path: '/quizzes',

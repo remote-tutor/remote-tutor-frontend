@@ -51,6 +51,12 @@
               </v-list-item-icon>
               <v-list-item-title>Students</v-list-item-title>
             </v-list-item>
+            <v-list-item :to="{ name: 'Access' }" v-if="userData.admin">
+              <v-list-item-icon>
+                <v-icon>mdi-calendar-check</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Access</v-list-item-title>
+            </v-list-item>
             <v-list-item :to="{ name: 'Videos' }">
               <v-list-item-icon>
                 <v-icon>mdi-video</v-icon>
