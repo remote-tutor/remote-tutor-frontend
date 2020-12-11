@@ -30,7 +30,7 @@
             :server-items-length="totalStudents"
             :loading="loading"
             :footer-props="{
-        'items-per-page-options': [10, 15, 20, -1],
+        'items-per-page-options': [10, 15, 20],
         'show-current-page': true,
         'show-first-last-page': true,
       }"
@@ -96,8 +96,6 @@ export default {
       this.accessChanges.removedFrom = []
     },
     getStudents() {
-      this.students = []
-      this.totalStudents = 0
       this.loading = true;
       const {sortBy, sortDesc, page, itemsPerPage} = this.options;
       let modifiedSortBy = []

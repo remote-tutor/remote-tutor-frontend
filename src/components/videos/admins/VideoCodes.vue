@@ -129,7 +129,6 @@ export default {
           search: this.search,
         }
       }).then(response => {
-        console.log(response.data.codes)
         this.codes = response.data.codes
         this.totalCodes = response.data.total
       }).finally(() => {
