@@ -15,6 +15,9 @@
             @input="search"
         ></v-text-field>
       </v-card-title>
+      <v-card-subtitle>
+        <v-col>Video Title: {{ video.title }}</v-col>
+      </v-card-subtitle>
       <v-data-table
           v-model="selected"
           :headers="headers"
@@ -33,6 +36,11 @@
           item-key="user.username"
           must-sort
       ></v-data-table>
+
+      <v-card-actions>
+        <v-btn color="primary" block @click="saveVideoAccess" :disabled="selected.length === 0">Save</v-btn>
+      </v-card-actions>
+
     </v-card>
   </div>
 </template>
@@ -104,6 +112,22 @@ export default {
     search() {
       this.options.page = 1
       this.getStudents()
+    },
+    saveVideoAccess() {
+      this.loading = true
+      let formData = new FormData()
+      formData.append("videoID", this.video.ID)
+      formData.append("addedTo[]", this.selected.map(student => student.userID))
+      api({
+        method: "POST",
+        url: "/admin/videos/codes/manual",
+        data: formData
+      }).then(() => {
+        this.selected = []
+        this.getStudents()
+      }).finally(() => {
+        this.loading = false
+      })
     },
   },
 }
