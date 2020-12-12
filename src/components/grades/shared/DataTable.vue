@@ -2,7 +2,7 @@
   <v-data-table
       :headers="headers"
       :items="grades"
-      item-key="fullName"
+      item-key="user.username"
       class="elevation-1"
       :loading="loading"
       :search="search"
@@ -78,9 +78,9 @@
 
     <template v-slot:expanded-item="{headers, item}">
       <td :colspan="headers.length">
-        Phone Number: {{ item.phoneNumber }}
+        Phone Number: {{ item.user.phoneNumber }}
         <v-spacer></v-spacer>
-        Parent Number: {{ item.parentNumber }}
+        Parent Number: {{ item.user.parentNumber }}
       </td>
 
     </template>
@@ -111,9 +111,9 @@ export default {
   computed: {
     url() {
       if (this.userData.admin)
-        return "admin/quizzes/grades"
+        return "admin/quizzes/grades/month"
       else
-        return "quizzes/grades"
+        return "quizzes/grades/month"
     },
     ...mapState(['userData', 'classes']),
     selectedClass() {
@@ -123,75 +123,45 @@ export default {
 
   watch: {
     selectedClass() {
-      this.getQuizzesGrades()
+      this.getAllGrades()
     }
   },
   methods: {
     saveMonth() {
       this.$refs.menu.save(this.date)
-      this.getQuizzesGrades()
+      this.getAllGrades()
     },
-    async getQuizzesGrades() {
-      this.headers = []
-      this.grades = []
-      this.quizzesTotalMarks = 0
+    getAllGrades() {
       this.loading = true
-      let result = await api({
+      api({
         method: "GET",
-        url: "quizzes/month",
+        url: this.url,
         params: {
-          date: new Date(this.date).getTime(),
+          "month": new Date(this.date).getTime(),
         }
-      })
-      this.quizzes = result.data.quizzes
-      this.quizzes.forEach(quiz => {
-        this.quizzesTotalMarks += quiz.totalMark
-      })
-      let headers = [{text: '', value: 'data-table-expand'}, {text: 'Full Name', value: 'fullName'}]
+      }).then(response => {
+        this.headers = [
+          {text: '', value: 'data-table-expand'},
+          {text: 'Full Name', value: 'user.fullName'},
+        ]
+        this.quizzesTotalMarks = response.data.quizzesTotalMarks
+        this.grades = response.data.grades
+        this.quizzes = response.data.quizzes
+        this.quizzes.forEach(quiz => {
+          if (this.$vuetify.breakpoint.mdAndUp)
+            this.headers.push({text: `${quiz.title}`, value: quiz.ID.toString()})
+          else
+            this.headers.push({text: `${quiz.title} (${quiz.totalMark})`, value: quiz.ID.toString()})
 
-      let gradesMap = new Map()
-      for (let i = 0; i < this.quizzes.length; i++) {
-        let quiz = this.quizzes[i]
-        if (this.$vuetify.breakpoint.mdAndUp)
-          headers.push({text: `${quiz.title} #${i + 1}`, value: quiz.ID.toString()})
-        else
-          headers.push({text: `${quiz.title} #${i + 1} (${quiz.totalMark})`, value: quiz.ID.toString()})
-        await api({
-          method: "GET",
-          url: this.url,
-          params: {
-            quizID: quiz.ID
-          }
-        }).then(response => {
-          let usersGrades = (this.userData.admin) ? response.data.quizGrades : response.data.quizGrade
-          usersGrades.forEach((userGrade) => {
-            if (userGrade.userID !== 0) {
-              if (!gradesMap.has(userGrade.user.username))
-                gradesMap.set(userGrade.user.username, {
-                  fullName: userGrade.user.fullName,
-                  phoneNumber: userGrade.user.phoneNumber,
-                  parentNumber: userGrade.user.parentNumber,
-                  total: 0
-                })
-              let userGrades = gradesMap.get(userGrade.user.username)
-              userGrades[`${quiz.ID}`] = userGrade.grade
-              userGrades.total += userGrade.grade
-            }
-          })
         })
-      }
-      let grades = []
-      gradesMap.forEach(value => {
-        grades.push(value)
+        this.headers.push({text: 'Total', value: 'total'})
+      }).finally(() => {
+        this.loading = false
       })
-      headers.push({text: 'Total', value: 'total'})
-      this.headers = headers.slice()
-      this.grades = grades.slice()
-      this.loading = false
-    },
+    }
   },
   created() {
-    this.getQuizzesGrades()
+    this.getAllGrades()
   }
 }
 </script>
