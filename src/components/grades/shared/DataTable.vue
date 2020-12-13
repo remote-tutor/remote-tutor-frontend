@@ -16,13 +16,25 @@
   >
     <template v-slot:top>
       <v-row>
-        <v-toolbar flat color="white">
+        <v-toolbar flat>
           <v-toolbar-title>
             {{ title }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
 
-          <v-col cols="6" sm="3">
+          <v-col cols="2" align="right">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn v-bind="attrs" v-on="on"
+                       v-if="userData.admin" icon
+                       :loading="loadingPDF" @click="getGradesPDF">
+                  <v-icon large>mdi-pdf-box</v-icon>
+                </v-btn>
+              </template>
+              <span>Download as PDF</span>
+            </v-tooltip>
+          </v-col>
+          <v-col cols="5" sm="3">
             <v-menu
                 ref="menu"
                 v-model="menu"
@@ -49,7 +61,7 @@
               </v-date-picker>
             </v-menu>
           </v-col>
-          <v-col cols="6" sm="3" v-if="userData.admin">
+          <v-col cols="5" sm="3" v-if="userData.admin">
             <v-text-field
                 v-model="search"
                 prepend-icon="mdi-magnify"
@@ -106,6 +118,7 @@ export default {
     grades: [],
     quizzes: [],
     quizzesTotalMarks: 0,
+    loadingPDF: false,
   }),
 
   computed: {
@@ -158,7 +171,25 @@ export default {
       }).finally(() => {
         this.loading = false
       })
-    }
+    },
+    getGradesPDF() {
+      this.loadingPDF = true
+      api({
+        method: "GET",
+        url: "/admin/quizzes/grades/month/pdf",
+        responseType: 'blob',
+        params: {
+          month: new Date(this.date).getTime()
+        }
+      }).then(response => {
+        let url = URL.createObjectURL(response.data)
+        window.open(url, "_blank")
+      }).catch(() => {
+        this.$store.dispatch('viewErrorSnackbar', 'Unexpected error occurred, please try again later')
+      }).finally(() => {
+        this.loadingPDF = false
+      })
+    },
   },
   created() {
     this.getAllGrades()
