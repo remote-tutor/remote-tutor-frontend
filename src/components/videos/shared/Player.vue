@@ -11,7 +11,7 @@
         <v-progress-circular indeterminate></v-progress-circular>
       </v-row>
 
-      <vue-plyr ref="plyr" @error="errorOccurred" @play="play" @pause="pause" @seeking="seeking" v-show="!loading">
+      <vue-plyr ref="plyr" @error="errorOccurred" @play="play" v-show="!loading">
         <video autoplay>
           <!--<source src="https://media.vued.vanthink.cn/sparkle_your_name_am360p.mp4" type="video/mp4" size="360">-->
           <!--<source src="https://media.vued.vanthink.cn/sparkle_your_name_am720p.mp4" type="video/mp4" size="720">-->
@@ -36,25 +36,19 @@ export default {
   data() {
     return {
       partName: '',
-      partID: -1,
       videoSource: [],
-      lastTimestamp: 0,
       loading: false,
     }
   },
   methods: {
     startPart(part, index) {
       this.loading = true
-      if (part) {
-        this.partID = part.ID
-        this.partName = `Part#${index + 1}: ${part.name}`
-        this.lastTimestamp = 0
-      }
+      this.partName = `Part#${index + 1}: ${part.name}`
       api({
         method: "GET",
         url: "videos/part",
         params: {
-          id: this.partID,
+          id: part.ID,
         }
       }).then(response => {
         this.videoSource.splice(0, 1, {
@@ -67,28 +61,20 @@ export default {
       })
     },
     errorOccurred() {
-      this.$store.dispatch('viewErrorSnackbar', 'Expired link, fetching another one now...')
-      this.startPart()
+      this.$store.dispatch('viewErrorSnackbar', 'Unexpected error occurred, please try again')
     },
     stop() {
       this.player.stop()
     },
-    seeking() {
-      this.lastTimestamp = this.player.currentTime // save the position that the user wants to seek to
-    },
     play() {
-      this.player.currentTime = this.lastTimestamp; // Seeks to the last seeked value the user requested
       this.loading = false
-    },
-    pause() {
-      this.lastTimestamp = this.player.currentTime
     },
   },
   watch: {
     videoSource: {
       handler(val) {
         this.player.source = {
-          type: 'video',
+          type: "video",
           sources: val,
         }
       },

@@ -59,7 +59,7 @@
         <v-card-text>
           <v-row v-for="(progress, index) in progressIndicators" :key="progress.id">
             <v-col>
-              <v-progress-linear v-model="progress.value"
+              <v-progress-linear :value="progress.value"
                                  height="40"
                                  :color="(progress.finished) ? 'success' : 'blue-grey'"
                                  :indeterminate="progress.value > 99 && !progress.finished">
