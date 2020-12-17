@@ -29,18 +29,21 @@
                 <div v-else>We couldn't find the questions file for this assignment</div>
               </v-col>
               <v-col cols="12" md="6">
-                <v-btn outlined v-if="assignment.modelAnswer.length > 0"
+                <div v-if="!showModelAnswer">
+                  <span v-if="assignment.modelAnswerPeriod === 0">
+                    The model answer will be available immediately after the deadline (if found)
+                  </span>
+                  <span v-else>
+                    The model answer will be available after the deadline by {{ assignment.modelAnswerPeriod }} hour(s)
+                    (if found)
+                  </span>
+                </div>
+                <v-btn outlined v-else-if="assignment.modelAnswer.length > 0"
                        @click="getUrl(answersLoading, assignment.modelAnswer)" :loading="answersLoading.value">
                   Model Answer
                   <v-icon>mdi-cloud-download</v-icon>
                 </v-btn>
-                <div v-else-if="assignment.modelAnswerPeriod === 0">
-                  The model answer will be available immediately after the deadline (if found)
-                </div>
-                <div v-else>
-                  The model answer will be available after the deadline by {{ assignment.modelAnswerPeriod }} hour(s)
-                  (if found)
-                </div>
+                <div v-else>We couldn't find the model answer file for this assignment</div>
               </v-col>
             </v-row>
           </v-card-text>
