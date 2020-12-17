@@ -57,10 +57,13 @@ export default {
         })
       }).catch(() => {
         this.loading = false
-        this.partName = "Error retrieving the link, try again later"
+        this.partName = "Error fetching video link"
+        this.player.poster = require("@/assets/video-error.png")
       })
     },
     errorOccurred() {
+      this.player.poster = require("@/assets/video-error.png")
+      this.loading = false
       this.$store.dispatch('viewErrorSnackbar', 'Unexpected error occurred, please try again')
     },
     stop() {
