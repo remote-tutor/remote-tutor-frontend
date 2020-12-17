@@ -1,98 +1,118 @@
 <template>
-  <v-col cols="12">
-    <v-card class="elevation-12">
-      <v-toolbar color="primary" flat dark>
-        <v-spacer></v-spacer>
+  <v-card class="elevation-12">
+    <v-toolbar color="primary" flat dark>
+      <v-spacer></v-spacer>
 
-        <span>Marks</span>
-        <v-col cols="3" md="2">
-          <ValidationObserver ref="markObserver">
-            <ValidationProvider v-slot="{errors}" rules="required|numeric|max:1">
-              <v-text-field v-if="editMode"
-                            solo
-                            rounded
-                            v-model="questionData.question.totalMark"
-                            v-click-outside="validateMark"
-                            class="mt-10"
-                            :error-messages="errors"
-              ></v-text-field>
-              <template v-else>
-                <v-btn icon large :readonly="true">
-                  {{ questionData.question.totalMark }}
-                </v-btn>
-              </template>
-            </ValidationProvider>
-          </ValidationObserver>
-        </v-col>
-      </v-toolbar>
-      <v-card-text>
-        <ValidationObserver ref="observer">
-          <form>
-
-            <v-row v-if="editMode">
-              <v-col cols="12" sm="8">
-                <ValidationProvider v-slot="{errors}" vid="question-text">
-                  <v-textarea
-                      ref="question-text"
-                      label="Question Text"
-                      type="text"
-                      v-model="questionData.question.text"
-                      prepend-icon="mdi-script-text"
-                      rows="2"
-                      :error-messages="errors"
-                  ></v-textarea>
-                </ValidationProvider>
-              </v-col>
-              <v-col cols="12" sm="4">
-                <ValidationProvider v-slot="{errors}" rules="image" vid="question-image">
-                  <v-file-input accept="image/*" small-chips show-size
-                                label="Question" v-model="questionData.question.image" @change="previewImage"
-                                prepend-icon="mdi-file-question" :error-messages="errors"></v-file-input>
-                </ValidationProvider>
-              </v-col>
-            </v-row>
-
-            <v-card-title class="headline" v-else>
-              {{ questionData.question.text }}
-            </v-card-title>
-
-            <v-img v-if="questionData.question.imageSrc.length > 0"
-                   :src="questionData.question.imageSrc"></v-img>
-
-            <div v-if="questionData.mcq">
-              <v-radio-group v-model="questionData.correctAnswer" :readonly="!editMode" :disabled="!editMode" mandatory>
-                <Choice
-                    v-for="choice in questionData.choices"
-                    :key="choice.ID"
-                    :staticText="choice.text"
-                    :value="choice.ID"
-                    :id="choice.ID"
-                    :editMode="editMode"
-                    @changeText="changeText"
-                    @clearChoice="clearChoice"
-                ></Choice>
-              </v-radio-group>
-            </div>
-          </form>
+      <span>Marks</span>
+      <v-col cols="3" md="2">
+        <ValidationObserver ref="markObserver">
+          <ValidationProvider v-slot="{errors}" rules="required|numeric|max:1">
+            <v-text-field v-if="editMode"
+                          solo
+                          rounded
+                          v-model="questionData.question.totalMark"
+                          v-click-outside="validateMark"
+                          class="mt-10"
+                          :error-messages="errors"
+            ></v-text-field>
+            <template v-else>
+              <v-btn icon large :readonly="true">
+                {{ questionData.question.totalMark }}
+              </v-btn>
+            </template>
+          </ValidationProvider>
         </ValidationObserver>
-      </v-card-text>
-      <v-card-actions v-if="userData.admin">
-        <v-btn color="primary" v-if="!editMode" @click="changeEditMode">Edit</v-btn>
-        <v-btn color="primary" v-if="editMode" @click="addChoice">Add Choice</v-btn>
-        <v-btn color="success" v-if="editMode" @click="sendChoices" :loading="loading">Save</v-btn>
+      </v-col>
+    </v-toolbar>
+    <v-card-text>
+      <ValidationObserver ref="observer">
+        <form>
 
-        <v-spacer></v-spacer>
-        <!--        <v-btn color="secondary" v-if="editMode" class="mr-2">Cancel</v-btn>-->
-        <ConfirmationDialog
-            v-if="!this.new"
-            buttonText="Delete"
-            mainText="Delete This Item?"
-            message="You won't be able to restore the deleted question"
-            @confirm="deleteQuestion"
-        ></ConfirmationDialog>
-      </v-card-actions>
-    </v-card>
-  </v-col>
+          <v-row v-if="editMode">
+            <v-col cols="12" sm="8">
+              <ValidationProvider v-slot="{errors}" vid="question-text">
+                <v-textarea
+                    ref="question-text"
+                    label="Question Text"
+                    type="text"
+                    v-model="questionData.question.text"
+                    prepend-icon="mdi-script-text"
+                    rows="2"
+                    :error-messages="errors"
+                ></v-textarea>
+              </ValidationProvider>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <ValidationProvider v-slot="{errors}" rules="image" vid="question-image">
+                <v-file-input accept="image/*" small-chips show-size
+                              label="Question" v-model="questionData.question.image" @change="previewImage"
+                              prepend-icon="mdi-file-question" :error-messages="errors"></v-file-input>
+              </ValidationProvider>
+            </v-col>
+          </v-row>
+
+          <v-card-title class="headline" v-else>
+            {{ questionData.question.text }}
+          </v-card-title>
+
+          <v-img v-if="questionData.question.imageSrc.length > 0"
+                 :src="questionData.question.imageSrc"></v-img>
+
+          <v-radio-group v-model="questionData.correctAnswer" :readonly="!editMode" :disabled="!editMode" mandatory>
+            <!--<div
+                v-for="(choice, index) in questionData.choices"
+                :key="choice.ID">
+              <ValidationObserver ref="observer">
+                <ValidationProvider v-slot="{errors}" rules="required">
+                  <v-row>
+                    <v-col>
+                      <v-text-field v-if="editMode"
+                                    v-model="questionData.choices[index].ID"
+                                    filled
+                                    label="Answer"
+                                    :error-messages="errors"
+                                    @input="changeText"
+                                    append-icon="mdi-close"
+                                    @click:append="clearChoice"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                </ValidationProvider>
+              </ValidationObserver>
+              <v-radio :label="choice.text" :value="choice.ID"></v-radio>
+            </div>-->
+
+            <Choice
+                v-for="choice in choices"
+                :key="choice.ID"
+                :staticText="choice.text"
+                :value="choice.ID"
+                :id="choice.ID"
+                :editMode="editMode"
+                @changeText="changeText"
+                @clearChoice="clearChoice"
+            ></Choice>
+
+          </v-radio-group>
+        </form>
+      </ValidationObserver>
+    </v-card-text>
+    <v-card-actions v-if="userData.admin">
+      <v-btn color="primary" v-if="!editMode" @click="changeEditMode">Edit</v-btn>
+      <v-btn color="primary" v-if="editMode" @click="addChoice">Add Choice</v-btn>
+      <v-btn color="success" v-if="editMode" @click="sendChoices" :loading="loading">Save</v-btn>
+
+      <v-spacer></v-spacer>
+      <!--        <v-btn color="secondary" v-if="editMode" class="mr-2">Cancel</v-btn>-->
+      <ConfirmationDialog
+          v-if="!this.isNew"
+          buttonText="Delete"
+          mainText="Delete This Item?"
+          message="You won't be able to restore the deleted question"
+          @confirm="deleteQuestion"
+      ></ConfirmationDialog>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script>
@@ -107,31 +127,32 @@ export default {
     Choice,
     ConfirmationDialog,
   },
-  props: ['staticID', 'staticText', 'staticTotalMark', 'staticChoices', 'staticCorrectAnswer', 'staticImage', 'staticImagePath', 'isNew', 'quiz'],
+  props: ['question', 'isNew', 'quiz', 'editMode'],
   computed: {
-    ...mapState(['userData'])
+    ...mapState(['userData']),
+    questionData() {
+      return {
+        question: {
+          ID: this.question.question.ID || 0,
+          text: this.question.question.text || "",
+          totalMark: this.question.question.totalMark || 1,
+          image: [],
+          imagePath: this.question.question.imagePath || '',
+          imageSrc: '',
+        },
+        correctAnswer: this.question.correctAnswer || -1,
+      }
+    },
+    choices() {
+      return this.question.choices || []
+    }
   },
   data() {
     return {
-      editMode: false,
       loading: false,
-      questionData: {
-        question: {
-          ID: this.staticID || 0,
-          text: this.staticText || "",
-          totalMark: this.staticTotalMark || 1,
-          image: [],
-          imagePath: this.staticImagePath || '',
-          imageSrc: '',
-        },
-        mcq: true,
-        choices: this.staticChoices || [],
-        correctAnswer: this.staticCorrectAnswer || -1,
-      },
       choicesToBeDeleted: [],
       totalCreatedChoices: 0,
       canCreateNew: true,
-      new: false
     };
   },
 
@@ -144,18 +165,15 @@ export default {
     async addChoice() {
       let isValid = await this.$refs.observer.validate();
       if (isValid) {
-        if (this.questionData.choices.length === 0) {
-          await this.pushQuestion();
-        }
         if (this.canCreateNew) {
-          this.questionData.choices.push({
-            ID: this.totalCreatedChoices,
+          this.choices.push({
+            ID: this.totalCreatedChoices++,
             text: "",
             isNew: true,
           });
-          this.totalCreatedChoices++;
+          console.log(this.choices)
         }
-        this.updateCanCreateNew();
+        // this.updateCanCreateNew();
       }
     },
     changeText(options) {
@@ -194,7 +212,7 @@ export default {
       formData.append("quizID", this.quiz.ID);
       formData.append("correctAnswer", this.questionData.correctAnswer);
       formData.append("image", this.questionData.question.image)
-      let method = this.new ? "POST" : "PUT";
+      let method = this.isNew ? "POST" : "PUT";
       api({
         method: method,
         url: "/admin/quizzes/questions/mcq",
@@ -275,7 +293,7 @@ export default {
       })
     },
     changeEditMode() {
-      this.editMode = !this.editMode
+      this.$emit('update:editMode', !this.editMode)
     },
     previewImage() {
       (this.questionData.question.image === undefined) ?
@@ -287,10 +305,7 @@ export default {
     }
   },
   created() {
-    if (this.isNew) {
-      this.new = true;
-      this.editMode = true;
-    } else {
+    if (!this.isNew) {
       this.getImage()
     }
   },
