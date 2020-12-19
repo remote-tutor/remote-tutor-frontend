@@ -1,6 +1,7 @@
 <template>
   <v-card class="elevation-12">
     <v-card-title>
+      Watches
       <v-spacer></v-spacer>
       <v-col cols="12" md="4">
         <v-select
@@ -11,6 +12,9 @@
             label="Select Part"
             dense
             @change="options.page = 1; getPartWatches();"
+            :append-outer-icon="(selectedID !== 0) ? 'mdi-download' : ''"
+            @click:append-outer="downloadPDF"
+            :loading="loadingPDF"
         ></v-select>
       </v-col>
 
@@ -71,6 +75,7 @@ export default {
         sortDesc: ['true']
       },
       totalWatches: 0,
+      loadingPDF: false,
     }
   },
   methods: {
@@ -90,11 +95,33 @@ export default {
       }).then(response => {
         this.totalWatches = response.data.total
         this.watches = response.data.watches
-        console.log(this.watches)
       }).finally(() => {
         this.loading = false
       })
-    }
+    },
+    downloadPDF() {
+      this.loadingPDF = true
+      const {sortBy, sortDesc} = this.options
+      api({
+        method: "GET",
+        url: "admin/videos/watches/part/pdf",
+        responseType: 'blob',
+        params: {
+          partID: this.selectedID,
+          page: 0,
+          itemsPerPage: 0,
+          sortBy: sortBy,
+          sortDesc: sortDesc,
+        }
+      }).then(response => {
+        let url = URL.createObjectURL(response.data)
+        window.open(url, "_blank")
+      }).catch(() => {
+        this.$store.dispatch('viewErrorSnackbar', 'Unexpected error occurred, please try again later')
+      }).finally(() => {
+        this.loadingPDF = false
+      })
+    },
   },
   watch: {
     options: {
