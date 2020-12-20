@@ -43,7 +43,7 @@
                 @input="getCodes"
                 @click:append-outer="generatePDF"
                 :loading="loadingPDF"
-                :append-outer-icon="(loadingPDF) ? '' : 'mdi-download'"
+                :append-outer-icon="(loadingPDF) ? '' : 'mdi-pdf-box'"
             ></v-text-field>
 
           </v-col>

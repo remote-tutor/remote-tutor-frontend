@@ -12,7 +12,7 @@
             label="Select Part"
             dense
             @change="options.page = 1; getPartWatches();"
-            :append-outer-icon="(selectedID !== 0) ? 'mdi-download' : ''"
+            :append-outer-icon="(selectedID !== 0) ? 'mdi-pdf-box' : ''"
             @click:append-outer="downloadPDF"
             :loading="loadingPDF"
         ></v-select>
