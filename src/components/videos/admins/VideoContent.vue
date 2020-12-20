@@ -43,13 +43,16 @@
             </div>
           </transition-group>
         </draggable>
+        <v-btn v-if="allParts.length > 0" block color="primary" @click="saveVideoParts">Save</v-btn>
       </v-col>
       <v-col cols="12" sm="6" md="8">
         <Player ref="player" :video="video"></Player>
       </v-col>
     </v-row>
 
-    <v-btn v-if="allParts.length > 0" block color="primary" @click="saveVideoParts">Save</v-btn>
+
+    <VideoPartWatches :parts="savedParts"></VideoPartWatches>
+
 
     <v-dialog v-model="progressDialog" persistent width="500">
       <v-card>
@@ -97,14 +100,16 @@
 import api from "@/gateways/api";
 import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
 import Player from "@/components/videos/shared/Player";
+import VideoPartWatches from "@/components/videos/admins/VideoPartWatches";
 
 export default {
   name: "VideoContent",
-  components: {Player, ConfirmationDialog},
+  components: {VideoPartWatches, Player, ConfirmationDialog},
   props: ['video'],
   data() {
     return {
       partsToUpload: [],
+      savedParts: [], // parts retrieved from the API call
       allParts: [],
       progressDialog: false,
       progressIndicators: [],
@@ -183,6 +188,7 @@ export default {
           videoHash: this.$route.params.videoHash
         }
       }).then(response => {
+        this.savedParts = response.data.parts
         this.allParts = []
         this.allParts = this.allParts.concat(response.data.parts)
       })

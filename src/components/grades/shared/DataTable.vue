@@ -2,7 +2,7 @@
   <v-data-table
       :headers="headers"
       :items="grades"
-      item-key="fullName"
+      item-key="user.username"
       class="elevation-1"
       :loading="loading"
       :search="search"
@@ -16,13 +16,25 @@
   >
     <template v-slot:top>
       <v-row>
-        <v-toolbar flat color="white">
+        <v-toolbar flat>
           <v-toolbar-title>
             {{ title }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
 
-          <v-col cols="6" sm="3">
+          <v-col cols="2" align="right">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn v-bind="attrs" v-on="on"
+                       v-if="userData.admin" icon
+                       :loading="loadingPDF" @click="getGradesPDF">
+                  <v-icon large>mdi-pdf-box</v-icon>
+                </v-btn>
+              </template>
+              <span>Download as PDF</span>
+            </v-tooltip>
+          </v-col>
+          <v-col cols="5" sm="3">
             <v-menu
                 ref="menu"
                 v-model="menu"
@@ -49,7 +61,7 @@
               </v-date-picker>
             </v-menu>
           </v-col>
-          <v-col cols="6" sm="3" v-if="userData.admin">
+          <v-col cols="5" sm="3" v-if="userData.admin">
             <v-text-field
                 v-model="search"
                 prepend-icon="mdi-magnify"
@@ -78,9 +90,9 @@
 
     <template v-slot:expanded-item="{headers, item}">
       <td :colspan="headers.length">
-        Phone Number: {{ item.phoneNumber }}
+        Phone Number: {{ item.user.phoneNumber }}
         <v-spacer></v-spacer>
-        Parent Number: {{ item.parentNumber }}
+        Parent Number: {{ item.user.parentNumber }}
       </td>
 
     </template>
@@ -106,14 +118,15 @@ export default {
     grades: [],
     quizzes: [],
     quizzesTotalMarks: 0,
+    loadingPDF: false,
   }),
 
   computed: {
     url() {
       if (this.userData.admin)
-        return "admin/quizzes/grades"
+        return "admin/quizzes/grades/month"
       else
-        return "quizzes/grades"
+        return "quizzes/grades/month"
     },
     ...mapState(['userData', 'classes']),
     selectedClass() {
@@ -123,75 +136,63 @@ export default {
 
   watch: {
     selectedClass() {
-      this.getQuizzesGrades()
+      this.getAllGrades()
     }
   },
   methods: {
     saveMonth() {
       this.$refs.menu.save(this.date)
-      this.getQuizzesGrades()
+      this.getAllGrades()
     },
-    async getQuizzesGrades() {
-      this.headers = []
-      this.grades = []
-      this.quizzesTotalMarks = 0
+    getAllGrades() {
       this.loading = true
-      let result = await api({
+      api({
         method: "GET",
-        url: "quizzes/month",
+        url: this.url,
         params: {
-          date: new Date(this.date).getTime(),
+          "month": new Date(this.date).getTime(),
         }
-      })
-      this.quizzes = result.data.quizzes
-      this.quizzes.forEach(quiz => {
-        this.quizzesTotalMarks += quiz.totalMark
-      })
-      let headers = [{text: '', value: 'data-table-expand'}, {text: 'Full Name', value: 'fullName'}]
+      }).then(response => {
+        this.headers = [
+          {text: '', value: 'data-table-expand'},
+          {text: 'Full Name', value: 'user.fullName'},
+        ]
+        this.quizzesTotalMarks = response.data.quizzesTotalMarks
+        this.grades = response.data.grades
+        this.quizzes = response.data.quizzes
+        this.quizzes.forEach(quiz => {
+          if (this.$vuetify.breakpoint.mdAndUp)
+            this.headers.push({text: `${quiz.title}`, value: quiz.ID.toString()})
+          else
+            this.headers.push({text: `${quiz.title} (${quiz.totalMark})`, value: quiz.ID.toString()})
 
-      let gradesMap = new Map()
-      for (let i = 0; i < this.quizzes.length; i++) {
-        let quiz = this.quizzes[i]
-        if (this.$vuetify.breakpoint.mdAndUp)
-          headers.push({text: `${quiz.title} #${i + 1}`, value: quiz.ID.toString()})
-        else
-          headers.push({text: `${quiz.title} #${i + 1} (${quiz.totalMark})`, value: quiz.ID.toString()})
-        await api({
-          method: "GET",
-          url: this.url,
-          params: {
-            quizID: quiz.ID
-          }
-        }).then(response => {
-          let usersGrades = (this.userData.admin) ? response.data.quizGrades : response.data.quizGrade
-          usersGrades.forEach((userGrade) => {
-            if (userGrade.userID !== 0) {
-              if (!gradesMap.has(userGrade.user.username))
-                gradesMap.set(userGrade.user.username, {
-                  fullName: userGrade.user.fullName,
-                  phoneNumber: userGrade.user.phoneNumber,
-                  parentNumber: userGrade.user.parentNumber,
-                  total: 0
-                })
-              let userGrades = gradesMap.get(userGrade.user.username)
-              userGrades[`${quiz.ID}`] = userGrade.grade
-              userGrades.total += userGrade.grade
-            }
-          })
         })
-      }
-      let grades = []
-      gradesMap.forEach(value => {
-        grades.push(value)
+        this.headers.push({text: 'Total', value: 'total'})
+      }).finally(() => {
+        this.loading = false
       })
-      headers.push({text: 'Total', value: 'total'})
-      this.headers = headers.slice()
-      this.grades = grades.slice()
-      this.loading = false
+    },
+    getGradesPDF() {
+      this.loadingPDF = true
+      api({
+        method: "GET",
+        url: "/admin/quizzes/grades/month/pdf",
+        responseType: 'blob',
+        params: {
+          month: new Date(this.date).getTime()
+        }
+      }).then(response => {
+        let url = URL.createObjectURL(response.data)
+        window.open(url, "_blank")
+      }).catch(() => {
+        this.$store.dispatch('viewErrorSnackbar', 'Unexpected error occurred, please try again later')
+      }).finally(() => {
+        this.loadingPDF = false
+      })
     },
   },
   created() {
-    this.getQuizzesGrades()
+    this.getAllGrades()
   }
 }
 </script>
