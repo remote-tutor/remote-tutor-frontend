@@ -3,21 +3,16 @@
     <AppBar page-name="Quiz"></AppBar>
     <v-main>
       <v-container>
-        <!--        <Question v-if="placeholderExists" :isNew="true"-->
-        <!--                  @deleteNewQuestion="deleteNewQuestion"-->
-        <!--                  @placeholderFilled="placeholderFilled"-->
-        <!--                  :quiz="quiz"-->
-        <!--                  :admin="admin">-->
-        <!--        </Question>-->
-
         <v-row>
           <v-col cols="12" md="9">
             <Question
-                v-if="fetch.questions && fetch.quiz"
+                v-if="fetch.questions && fetch.quiz && questions.length > 0"
                 :question="questions[selectedQuestion]"
                 :quiz="quiz"
                 :is-new.sync="newQuestion"
                 :edit-mode.sync="editMode"
+                @updateQuestion="updateQuestion"
+                @deleteQuestion="deleteQuestion"
             ></Question>
           </v-col>
           <v-col cols="12" md="3">
@@ -29,14 +24,6 @@
             ></QuestionsNavigator>
           </v-col>
         </v-row>
-
-
-        <v-btn fixed dark fab right bottom color="primary" @click="createPlaceholder">
-          <v-icon>mdi-plus</v-icon>
-        </v-btn>
-        <!-- to add extra space for the FAB if the user scrolled to the bottom of the page-->
-        <div style="height: 60px;"></div>
-
       </v-container>
     </v-main>
   </v-app>
@@ -59,7 +46,6 @@ export default {
     return {
       questions: [],
       admin: true,
-      placeholderExists: false,
       quiz: null,
       selectedQuestion: 0,
       editMode: false,
@@ -89,38 +75,34 @@ export default {
         }
       }).then(response => {
         this.questions = response.data.mcqs
+        for (let i = 0; i < this.questions.length; i++) {
+          this.questions[i].question.imageSrc = this.questions[i].question.imagePath
+        }
         this.fetch.questions = true
       })
     },
     createPlaceholder() {
-      if (this.placeholderExists) {
-        this.$store.dispatch('viewErrorSnackbar', 'Please fill the unfinished one first')
-      } else {
-        this.placeholderExists = true
-        this.editMode = true
-        this.newQuestion = true
-        this.questions.push({
-          question: {},
-        })
-      }
+      this.editMode = true
+      this.newQuestion = true
+      this.questions.push({
+        question: {},
+      })
 
     },
-    deleteNewQuestion() {
-      this.placeholderExists = false;
-    },
-    placeholderFilled(options) {
-      this.placeholderExists = false;
-      if (options.new) {
-        let questionData = options.questionData
-        this.questions.unshift(questionData);
-      }
-    },
-    deleteQuestion(options) {
-      this.questions.forEach((question, index) => {
-        if (options.id === question.question.ID) {
-          this.questions.splice(index, 1)
-        }
+    updateQuestion(question) {
+      question.choices.forEach((choices, index) => {
+        question.choices[index].isNew = false
       })
+      this.questions[this.selectedQuestion] = question
+      this.newQuestion = false
+    },
+    deleteQuestion() {
+      if (this.selectedQuestion >= (this.questions.length - 1)) {
+        this.selectedQuestion = this.questions.length - 2
+        this.questions.splice(-1, 1)
+      } else {
+        this.questions.splice(this.selectedQuestion, 1)
+      }
     }
   },
   mounted() {

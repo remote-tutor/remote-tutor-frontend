@@ -59,31 +59,8 @@
                  :src="questionData.question.imageSrc"></v-img>
 
           <v-radio-group v-model="questionData.correctAnswer" :readonly="!editMode" :disabled="!editMode" mandatory>
-            <!--<div
-                v-for="(choice, index) in questionData.choices"
-                :key="choice.ID">
-              <ValidationObserver ref="observer">
-                <ValidationProvider v-slot="{errors}" rules="required">
-                  <v-row>
-                    <v-col>
-                      <v-text-field v-if="editMode"
-                                    v-model="questionData.choices[index].ID"
-                                    filled
-                                    label="Answer"
-                                    :error-messages="errors"
-                                    @input="changeText"
-                                    append-icon="mdi-close"
-                                    @click:append="clearChoice"
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                </ValidationProvider>
-              </ValidationObserver>
-              <v-radio :label="choice.text" :value="choice.ID"></v-radio>
-            </div>-->
-
             <Choice
-                v-for="choice in choices"
+                v-for="choice in questionData.choices"
                 :key="choice.ID"
                 :staticText="choice.text"
                 :value="choice.ID"
@@ -105,7 +82,7 @@
       <v-spacer></v-spacer>
       <!--        <v-btn color="secondary" v-if="editMode" class="mr-2">Cancel</v-btn>-->
       <ConfirmationDialog
-          v-if="!this.isNew"
+          v-if="!this.newQuestion"
           buttonText="Delete"
           mainText="Delete This Item?"
           message="You won't be able to restore the deleted question"
@@ -130,22 +107,6 @@ export default {
   props: ['question', 'isNew', 'quiz', 'editMode'],
   computed: {
     ...mapState(['userData']),
-    questionData() {
-      return {
-        question: {
-          ID: this.question.question.ID || 0,
-          text: this.question.question.text || "",
-          totalMark: this.question.question.totalMark || 1,
-          image: [],
-          imagePath: this.question.question.imagePath || '',
-          imageSrc: '',
-        },
-        correctAnswer: this.question.correctAnswer || -1,
-      }
-    },
-    choices() {
-      return this.question.choices || []
-    }
   },
   data() {
     return {
@@ -153,6 +114,19 @@ export default {
       choicesToBeDeleted: [],
       totalCreatedChoices: 0,
       canCreateNew: true,
+      newQuestion: this.isNew,
+      questionData: {
+        question: {
+          ID: this.question.question.ID || 0,
+          text: this.question.question.text || "",
+          totalMark: this.question.question.totalMark || 1,
+          image: [],
+          imagePath: this.question.question.imagePath || '',
+          imageSrc: this.question.question.imageSrc || '',
+        },
+        correctAnswer: this.question.correctAnswer || -1,
+        choices: this.question.choices || []
+      }
     };
   },
 
@@ -166,14 +140,13 @@ export default {
       let isValid = await this.$refs.observer.validate();
       if (isValid) {
         if (this.canCreateNew) {
-          this.choices.push({
+          this.questionData.choices.push({
             ID: this.totalCreatedChoices++,
             text: "",
             isNew: true,
           });
-          console.log(this.choices)
         }
-        // this.updateCanCreateNew();
+        this.updateCanCreateNew();
       }
     },
     changeText(options) {
@@ -189,9 +162,10 @@ export default {
       let id = options.id;
       this.questionData.choices.forEach((element, index) => {
         if (element.ID === id) {
-          if (!options.isNew)
+          if (element.isNew)
+            this.questionData.choices.splice(index, 1);
+          else
             this.choicesToBeDeleted.push(this.deleteChoice(id))
-          this.questionData.choices.splice(index, 1);
         }
       });
       this.updateCanCreateNew();
@@ -212,8 +186,8 @@ export default {
       formData.append("quizID", this.quiz.ID);
       formData.append("correctAnswer", this.questionData.correctAnswer);
       formData.append("image", this.questionData.question.image)
-      let method = this.isNew ? "POST" : "PUT";
-      api({
+      let method = this.newQuestion ? "POST" : "PUT";
+      return api({
         method: method,
         url: "/admin/quizzes/questions/mcq",
         data: formData,
@@ -222,16 +196,17 @@ export default {
             'Content-Type': 'multipart/form-data'
           }
         }
-      }).then(response => {
-        this.questionData.question.ID = response.data.mcq.question.ID;
-        this.questionData.question.imagePath = response.data.mcq.question.imagePath
-        if (method === "POST")
-          this.questionData.question.image = []
       })
     },
     sendChoices() {
       this.loading = true
-      Promise.all(this.choicesToBeDeleted).then(() => {
+      this.pushQuestion().then(response => {
+        this.questionData.question.ID = response.data.mcq.question.ID;
+        this.questionData.question.imagePath = response.data.mcq.question.imagePath
+        if (this.newQuestion)
+          this.questionData.question.image = []
+        return Promise.all(this.choicesToBeDeleted)
+      }).then(() => {
         let updateChoices = []
         this.questionData.choices.forEach((choice, index) => {
           updateChoices.push(this.pushChoice(choice, index))
@@ -240,12 +215,13 @@ export default {
       }).then(() => {
         this.$emit("placeholderFilled", {
           questionData: this.questionData,
-          new: this.new,
+          new: this.newQuestion,
         });
-        this.new = false;
+        this.newQuestion = false;
         return this.pushQuestion()
       }).then(() => {
         this.loading = false
+        this.$emit('updateQuestion', this.questionData)
         this.changeEditMode()
       })
     },
@@ -300,13 +276,24 @@ export default {
           this.questionData.question.imageSrc = '' :
           this.questionData.question.imageSrc = URL.createObjectURL(this.questionData.question.image)
     },
-    getImage() {
-      this.questionData.question.imageSrc = this.questionData.question.imagePath
-    }
   },
-  created() {
-    if (!this.isNew) {
-      this.getImage()
+  watch: {
+    question() {
+      this.questionData = {
+        question: {
+          ID: this.question.question.ID || 0,
+          text: this.question.question.text || "",
+          totalMark: this.question.question.totalMark || 1,
+          image: [],
+          imagePath: this.question.question.imagePath || '',
+          imageSrc: this.question.question.imageSrc || '',
+        },
+        correctAnswer: this.question.correctAnswer || -1,
+        choices: this.question.choices || [],
+      }
+    },
+    isNew(val) {
+      this.newQuestion = val
     }
   },
 };

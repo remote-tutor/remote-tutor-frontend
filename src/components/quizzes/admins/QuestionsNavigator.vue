@@ -5,7 +5,7 @@
         <v-col>
           <p>MCQs</p>
           <v-btn-toggle
-              @change="(val) => $emit('update:selectedQuestion', val)"
+              @change="changeSelectedQuestion"
               tile
               color="deep-purple accent-3"
               group>
@@ -27,8 +27,9 @@
               </v-col>
             </v-row>
           </v-btn-toggle>
-          <span v-if="editMode">Save the current question to navigate</span>
-
+          <v-row>
+            <span v-if="editMode">Save the current question to navigate</span>
+          </v-row>
         </v-col>
       </v-list-item-content>
 
@@ -40,6 +41,13 @@
 export default {
   name: "QuestionsNavigator",
   props: ['questions', 'selectedQuestion', 'editMode'],
+  methods: {
+    changeSelectedQuestion(val) {
+      if (val !== undefined) {
+        this.$emit('update:selectedQuestion', val)
+      }
+    }
+  }
 }
 </script>
 
