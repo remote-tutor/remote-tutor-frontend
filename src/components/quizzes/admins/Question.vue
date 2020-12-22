@@ -1,98 +1,95 @@
 <template>
-  <v-col cols="12">
-    <v-card class="elevation-12">
-      <v-toolbar color="primary" flat dark>
-        <v-spacer></v-spacer>
+  <v-card class="elevation-12">
+    <v-toolbar color="primary" flat dark>
+      <v-spacer></v-spacer>
 
-        <span>Marks</span>
-        <v-col cols="3" md="2">
-          <ValidationObserver ref="markObserver">
-            <ValidationProvider v-slot="{errors}" rules="required|numeric|max:1">
-              <v-text-field v-if="editMode"
-                            solo
-                            rounded
-                            v-model="questionData.question.totalMark"
-                            v-click-outside="validateMark"
-                            class="mt-10"
-                            :error-messages="errors"
-              ></v-text-field>
-              <template v-else>
-                <v-btn icon large :readonly="true">
-                  {{ questionData.question.totalMark }}
-                </v-btn>
-              </template>
-            </ValidationProvider>
-          </ValidationObserver>
-        </v-col>
-      </v-toolbar>
-      <v-card-text>
-        <ValidationObserver ref="observer">
-          <form>
-
-            <v-row v-if="editMode">
-              <v-col cols="12" sm="8">
-                <ValidationProvider v-slot="{errors}" vid="question-text">
-                  <v-textarea
-                      ref="question-text"
-                      label="Question Text"
-                      type="text"
-                      v-model="questionData.question.text"
-                      prepend-icon="mdi-script-text"
-                      rows="2"
-                      :error-messages="errors"
-                  ></v-textarea>
-                </ValidationProvider>
-              </v-col>
-              <v-col cols="12" sm="4">
-                <ValidationProvider v-slot="{errors}" rules="image" vid="question-image">
-                  <v-file-input accept="image/*" small-chips show-size
-                                label="Question" v-model="questionData.question.image" @change="previewImage"
-                                prepend-icon="mdi-file-question" :error-messages="errors"></v-file-input>
-                </ValidationProvider>
-              </v-col>
-            </v-row>
-
-            <v-card-title class="headline" v-else>
-              {{ questionData.question.text }}
-            </v-card-title>
-
-            <v-img v-if="questionData.question.imageSrc.length > 0"
-                   :src="questionData.question.imageSrc"></v-img>
-
-            <div v-if="questionData.mcq">
-              <v-radio-group v-model="questionData.correctAnswer" :readonly="!editMode" :disabled="!editMode" mandatory>
-                <Choice
-                    v-for="choice in questionData.choices"
-                    :key="choice.ID"
-                    :staticText="choice.text"
-                    :value="choice.ID"
-                    :id="choice.ID"
-                    :editMode="editMode"
-                    @changeText="changeText"
-                    @clearChoice="clearChoice"
-                ></Choice>
-              </v-radio-group>
-            </div>
-          </form>
+      <span>Marks</span>
+      <v-col cols="3" md="2">
+        <ValidationObserver ref="markObserver">
+          <ValidationProvider v-slot="{errors}" rules="required|numeric|max:1">
+            <v-text-field v-if="editMode"
+                          solo
+                          rounded
+                          v-model="questionData.question.totalMark"
+                          v-click-outside="validateMark"
+                          class="mt-10"
+                          :error-messages="errors"
+            ></v-text-field>
+            <template v-else>
+              <v-btn icon large :readonly="true">
+                {{ questionData.question.totalMark }}
+              </v-btn>
+            </template>
+          </ValidationProvider>
         </ValidationObserver>
-      </v-card-text>
-      <v-card-actions v-if="userData.admin">
-        <v-btn color="primary" v-if="!editMode" @click="changeEditMode">Edit</v-btn>
-        <v-btn color="primary" v-if="editMode" @click="addChoice">Add Choice</v-btn>
-        <v-btn color="success" v-if="editMode" @click="sendChoices" :loading="loading">Save</v-btn>
+      </v-col>
+    </v-toolbar>
+    <v-card-text>
+      <ValidationObserver ref="observer">
+        <form>
 
-        <v-spacer></v-spacer>
-        <!--        <v-btn color="secondary" v-if="editMode" class="mr-2">Cancel</v-btn>-->
-        <ConfirmationDialog
-            v-if="!this.new"
-            buttonText="Delete"
-            mainText="Delete This Item?"
-            message="You won't be able to restore the deleted question"
-            @confirm="deleteQuestion"
-        ></ConfirmationDialog>
-      </v-card-actions>
-    </v-card>
-  </v-col>
+          <v-row v-if="editMode">
+            <v-col cols="12" sm="8">
+              <ValidationProvider v-slot="{errors}" vid="question-text">
+                <v-textarea
+                    ref="question-text"
+                    label="Question Text"
+                    type="text"
+                    v-model="questionData.question.text"
+                    prepend-icon="mdi-script-text"
+                    rows="2"
+                    :error-messages="errors"
+                ></v-textarea>
+              </ValidationProvider>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <ValidationProvider v-slot="{errors}" rules="image" vid="question-image">
+                <v-file-input accept="image/*" small-chips show-size
+                              label="Question" v-model="questionData.question.image" @change="previewImage"
+                              prepend-icon="mdi-file-question" :error-messages="errors"></v-file-input>
+              </ValidationProvider>
+            </v-col>
+          </v-row>
+
+          <v-card-title class="headline" v-else>
+            {{ questionData.question.text }}
+          </v-card-title>
+
+          <v-img v-if="questionData.question.imageSrc.length > 0"
+                 :src="questionData.question.imageSrc"></v-img>
+
+          <v-radio-group v-model="questionData.correctAnswer" :readonly="!editMode" :disabled="!editMode" mandatory>
+            <Choice
+                v-for="choice in questionData.choices"
+                :key="choice.ID"
+                :staticText="choice.text"
+                :value="choice.ID"
+                :id="choice.ID"
+                :editMode="editMode"
+                @changeText="changeText"
+                @clearChoice="clearChoice"
+            ></Choice>
+
+          </v-radio-group>
+        </form>
+      </ValidationObserver>
+    </v-card-text>
+    <v-card-actions v-if="userData.admin">
+      <v-btn color="primary" v-if="!editMode" @click="changeEditMode">Edit</v-btn>
+      <v-btn color="primary" v-if="editMode" @click="addChoice">Add Choice</v-btn>
+      <v-btn color="success" v-if="editMode" @click="sendChoices" :loading="loading">Save</v-btn>
+
+      <v-spacer></v-spacer>
+      <v-btn color="secondary" text v-if="editMode" class="mr-2" @click="cancelChanges">Cancel</v-btn>
+      <ConfirmationDialog
+          v-if="!this.newQuestion"
+          buttonText="Delete"
+          mainText="Delete This Item?"
+          message="You won't be able to restore the deleted question"
+          @confirm="deleteQuestion"
+      ></ConfirmationDialog>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script>
@@ -107,31 +104,29 @@ export default {
     Choice,
     ConfirmationDialog,
   },
-  props: ['staticID', 'staticText', 'staticTotalMark', 'staticChoices', 'staticCorrectAnswer', 'staticImage', 'staticImagePath', 'isNew', 'quiz'],
+  props: ['question', 'isNew', 'quiz', 'editMode'],
   computed: {
-    ...mapState(['userData'])
+    ...mapState(['userData']),
   },
   data() {
     return {
-      editMode: false,
       loading: false,
-      questionData: {
-        question: {
-          ID: this.staticID || 0,
-          text: this.staticText || "",
-          totalMark: this.staticTotalMark || 1,
-          image: [],
-          imagePath: this.staticImagePath || '',
-          imageSrc: '',
-        },
-        mcq: true,
-        choices: this.staticChoices || [],
-        correctAnswer: this.staticCorrectAnswer || -1,
-      },
       choicesToBeDeleted: [],
       totalCreatedChoices: 0,
       canCreateNew: true,
-      new: false
+      newQuestion: this.isNew,
+      questionData: {
+        question: {
+          ID: this.question.question.ID || 0,
+          text: this.question.question.text || "",
+          totalMark: this.question.question.totalMark || 1,
+          image: [],
+          imagePath: this.question.question.imagePath || '',
+          imageSrc: this.question.question.imageSrc || '',
+        },
+        correctAnswer: this.question.correctAnswer || -1,
+        choices: this.question.choices || []
+      },
     };
   },
 
@@ -144,16 +139,12 @@ export default {
     async addChoice() {
       let isValid = await this.$refs.observer.validate();
       if (isValid) {
-        if (this.questionData.choices.length === 0) {
-          await this.pushQuestion();
-        }
         if (this.canCreateNew) {
           this.questionData.choices.push({
-            ID: this.totalCreatedChoices,
+            ID: this.totalCreatedChoices++,
             text: "",
             isNew: true,
           });
-          this.totalCreatedChoices++;
         }
         this.updateCanCreateNew();
       }
@@ -171,8 +162,9 @@ export default {
       let id = options.id;
       this.questionData.choices.forEach((element, index) => {
         if (element.ID === id) {
-          if (!options.isNew)
-            this.choicesToBeDeleted.push(this.deleteChoice(id))
+          if (!element.isNew) {
+            this.choicesToBeDeleted.push(id)
+          }
           this.questionData.choices.splice(index, 1);
         }
       });
@@ -194,8 +186,8 @@ export default {
       formData.append("quizID", this.quiz.ID);
       formData.append("correctAnswer", this.questionData.correctAnswer);
       formData.append("image", this.questionData.question.image)
-      let method = this.new ? "POST" : "PUT";
-      api({
+      let method = this.newQuestion ? "POST" : "PUT";
+      return api({
         method: method,
         url: "/admin/quizzes/questions/mcq",
         data: formData,
@@ -204,16 +196,21 @@ export default {
             'Content-Type': 'multipart/form-data'
           }
         }
-      }).then(response => {
-        this.questionData.question.ID = response.data.mcq.question.ID;
-        this.questionData.question.imagePath = response.data.mcq.question.imagePath
-        if (method === "POST")
-          this.questionData.question.image = []
       })
     },
     sendChoices() {
       this.loading = true
-      Promise.all(this.choicesToBeDeleted).then(() => {
+      this.pushQuestion().then(response => {
+        this.questionData.question.ID = response.data.mcq.question.ID;
+        this.questionData.question.imagePath = response.data.mcq.question.imagePath
+        if (this.newQuestion)
+          this.questionData.question.image = []
+        let deleteChoices = []
+        this.choicesToBeDeleted.forEach(id => {
+          deleteChoices.push(this.deleteChoice(id))
+        })
+        return Promise.all(deleteChoices)
+      }).then(() => {
         let updateChoices = []
         this.questionData.choices.forEach((choice, index) => {
           updateChoices.push(this.pushChoice(choice, index))
@@ -222,19 +219,20 @@ export default {
       }).then(() => {
         this.$emit("placeholderFilled", {
           questionData: this.questionData,
-          new: this.new,
+          new: this.newQuestion,
         });
-        this.new = false;
+        this.newQuestion = false;
         return this.pushQuestion()
       }).then(() => {
         this.loading = false
+        this.$emit('updateQuestion', this.questionData)
         this.changeEditMode()
       })
     },
     deleteChoice(choiceID) {
       let formData = new FormData();
       formData.append("id", choiceID)
-      api({
+      return api({
         method: "DELETE",
         url: "/admin/quizzes/choices",
         data: formData,
@@ -275,23 +273,34 @@ export default {
       })
     },
     changeEditMode() {
-      this.editMode = !this.editMode
+      this.$emit('update:editMode', !this.editMode)
     },
     previewImage() {
       (this.questionData.question.image === undefined) ?
           this.questionData.question.imageSrc = '' :
           this.questionData.question.imageSrc = URL.createObjectURL(this.questionData.question.image)
     },
-    getImage() {
-      this.questionData.question.imageSrc = this.questionData.question.imagePath
-    }
   },
-  created() {
-    if (this.isNew) {
-      this.new = true;
-      this.editMode = true;
-    } else {
-      this.getImage()
+  watch: {
+    question() {
+      this.questionData = {
+        question: {
+          ID: this.question.question.ID || 0,
+          text: this.question.question.text || "",
+          totalMark: this.question.question.totalMark || 1,
+          image: [],
+          imagePath: this.question.question.imagePath || '',
+          imageSrc: this.question.question.imageSrc || '',
+        },
+        correctAnswer: this.question.correctAnswer || -1,
+        choices: this.question.choices || [],
+      }
+      this.choicesToBeDeleted = []
+      this.totalCreatedChoices = 0
+      this.canCreateNew = true
+    },
+    isNew(val) {
+      this.newQuestion = val
     }
   },
 };
