@@ -162,10 +162,10 @@ export default {
       let id = options.id;
       this.questionData.choices.forEach((element, index) => {
         if (element.ID === id) {
-          if (element.isNew)
-            this.questionData.choices.splice(index, 1);
-          else
-            this.choicesToBeDeleted.push(this.deleteChoice(id))
+          if (!element.isNew) {
+            this.choicesToBeDeleted.push(id)
+          }
+          this.questionData.choices.splice(index, 1);
         }
       });
       this.updateCanCreateNew();
@@ -205,7 +205,11 @@ export default {
         this.questionData.question.imagePath = response.data.mcq.question.imagePath
         if (this.newQuestion)
           this.questionData.question.image = []
-        return Promise.all(this.choicesToBeDeleted)
+        let deleteChoices = []
+        this.choicesToBeDeleted.forEach(id => {
+          deleteChoices.push(this.deleteChoice(id))
+        })
+        return Promise.all(deleteChoices)
       }).then(() => {
         let updateChoices = []
         this.questionData.choices.forEach((choice, index) => {
@@ -228,7 +232,7 @@ export default {
     deleteChoice(choiceID) {
       let formData = new FormData();
       formData.append("id", choiceID)
-      api({
+      return api({
         method: "DELETE",
         url: "/admin/quizzes/choices",
         data: formData,
