@@ -12,53 +12,6 @@
           @input="search"
       ></v-text-field>
     </v-card-title>
-    <v-card-subtitle v-if="!pending">
-      All Students Access
-      <v-row>
-        <v-col cols="6" md="4">
-          <v-select
-              return-object
-              label="Week"
-              :items="weeks"
-              item-text="textValue"
-              v-model="selectedWeek"
-          >
-          </v-select>
-        </v-col>
-        <v-col cols="6" md="2">
-          <v-menu
-              ref="menu"
-              v-model="menu"
-              :close-on-content-click="false"
-              :return-value.sync="date"
-              transition="scale-transition">
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                  v-model="date"
-                  label="Month"
-                  readonly
-                  v-bind="attrs"
-                  v-on="on"
-              ></v-text-field>
-            </template>
-            <v-date-picker
-                v-model="date"
-                type="month"
-                no-title
-                scrollable>
-              <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
-              <v-btn text color="primary" @click="saveMonth">OK</v-btn>
-            </v-date-picker>
-          </v-menu>
-        </v-col>
-        <v-col>
-          <v-btn block color="primary"
-                 :disabled="Object.keys(selectedWeek).length === 0" @click="giveAccessToAllStudents">
-            Give Access to All Students
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-card-subtitle>
     <v-data-table
         :headers="headers"
         :items="students"
@@ -290,17 +243,6 @@ export default {
       this.$refs.menu.save(this.date)
       this.weeks = initializeMonthWeeks(this.date)
     },
-    giveAccessToAllStudents() {
-      let formData = new FormData()
-      formData.append("startDate", new Date(this.selectedWeek.from).getTime())
-      formData.append("endDate", new Date(this.selectedWeek.to).getTime())
-      formData.append("selectedClass", this.selectedClass)
-      api({
-        method: "POST",
-        url: "/admin/payments/all",
-        data: formData,
-      })
-    }
   },
 };
 </script>
