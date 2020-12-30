@@ -135,7 +135,6 @@ export default {
       })
     },
     view(assignment) {
-      console.log(assignment)
       this.$router.push({name: 'Assignment', params: {assignmentHash: assignment.hash}})
     }
   },

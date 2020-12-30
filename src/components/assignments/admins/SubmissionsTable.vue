@@ -3,14 +3,28 @@
     <v-card-title>
       Submissions
       <v-spacer></v-spacer>
-      <v-text-field
-          v-model="searchBy"
-          append-icon="mdi-magnify"
-          label="Search"
-          single-line
-          clearable
-          @input="search"
-      ></v-text-field>
+
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn v-bind="attrs" v-on="on" icon
+                 :loading="loadingPDF" @click="getSubmissionsPDF">
+            <v-icon large>mdi-pdf-box</v-icon>
+          </v-btn>
+        </template>
+        <span>Download as PDF</span>
+      </v-tooltip>
+
+      <v-col cols="12" sm="4">
+        <v-text-field
+            v-model="searchBy"
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            clearable
+            @input="search"
+        ></v-text-field>
+      </v-col>
+
     </v-card-title>
     <v-data-table
         :headers="headers"
@@ -146,6 +160,7 @@ export default {
       validateMark: mark => (mark >= 0 && mark <= this.totalMark) || 'You must enter a valid mark value',
       saveSubmissionDialog: false,
       assignment: {},
+      loadingPDF: false,
     }
   },
   mounted() {
@@ -244,6 +259,33 @@ export default {
         link.click()
       }).finally(() => {
         submission.file = fileLink
+      })
+    },
+    getSubmissionsPDF() {
+      this.loadingPDF = true
+      const {sortBy, sortDesc} = this.options
+      let modifiedSortBy = []
+      for (let i = 0; i < sortBy.length; i++) {
+        modifiedSortBy.push(sortBy[i].replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`))
+      }
+      api({
+        method: "GET",
+        url: "/admin/assignments/submissions/pdf",
+        responseType: 'blob',
+        params: {
+          assignmentID: this.assignment.ID,
+          page: 0,
+          itemsPerPage: 0,
+          sortBy: modifiedSortBy,
+          sortDesc: sortDesc,
+        }
+      }).then(response => {
+        let url = URL.createObjectURL(response.data)
+        window.open(url, "_blank")
+      }).catch(() => {
+        this.$store.dispatch('viewErrorSnackbar', 'Unexpected error occurred, please try again later')
+      }).finally(() => {
+        this.loadingPDF = false
       })
     },
   },
