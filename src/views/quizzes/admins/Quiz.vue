@@ -86,6 +86,12 @@ export default {
       this.newQuestion = true
       this.questions.push({
         question: {},
+        choices: [
+          {ID: 0, text: 'A', isNew: true},
+          {ID: 1, text: 'B', isNew: true},
+          {ID: 2, text: 'C', isNew: true},
+          {ID: 3, text: 'D', isNew: true},
+        ]
       })
 
     },

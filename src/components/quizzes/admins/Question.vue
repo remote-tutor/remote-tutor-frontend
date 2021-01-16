@@ -80,7 +80,6 @@
       <v-btn color="success" v-if="editMode" @click="sendChoices" :loading="loading">Save</v-btn>
 
       <v-spacer></v-spacer>
-      <v-btn color="secondary" text v-if="editMode" class="mr-2" @click="cancelChanges">Cancel</v-btn>
       <ConfirmationDialog
           v-if="!this.newQuestion"
           buttonText="Delete"
@@ -112,7 +111,7 @@ export default {
     return {
       loading: false,
       choicesToBeDeleted: [],
-      totalCreatedChoices: 0,
+      totalCreatedChoices: 4,
       canCreateNew: true,
       newQuestion: this.isNew,
       questionData: {
@@ -296,7 +295,7 @@ export default {
         choices: this.question.choices || [],
       }
       this.choicesToBeDeleted = []
-      this.totalCreatedChoices = 0
+      this.totalCreatedChoices = 4
       this.canCreateNew = true
     },
     isNew(val) {
