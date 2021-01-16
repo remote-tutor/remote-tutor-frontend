@@ -8,9 +8,14 @@
             <v-list-item three-line>
               <v-list-item-content>
                 <v-list-item-title class="list-group-item">
-                  Part#{{ index + 1 }}: {{ element.name }}
+                  <div v-if="element.isVideo">
+                    Part#{{ player.getVideoPartNumber(element.ID, parts) }}: {{ element.name }}
+                  </div>
+                  <div v-else>
+                    File: {{ element.name }}
+                  </div>
                 </v-list-item-title>
-                <v-list-item-subtitle v-if="watches[index] !== undefined">
+                <v-list-item-subtitle v-if="watches[index] !== undefined && element.isVideo">
                   <div v-if="watches[index].userID === 0 && watches[index].videoPartID === 0">
                     You haven't started watching this part yet
                   </div>
@@ -22,12 +27,19 @@
                 </v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-icon>
-                <v-progress-circular indeterminate v-if="watches.length === 0"></v-progress-circular>
-                <v-icon @click="viewPart(element, index)"
-                        v-else-if="watches[index].userID === 0 && watches[index].videoPartID === 0 ||
-                        new Date() < new Date(watches[index].validTill)">
-                  mdi-play
-                </v-icon>
+                <v-progress-circular indeterminate v-if="watches.length === 0 && element.isVideo"></v-progress-circular>
+                <v-btn icon v-else-if="(watches[index] !== undefined && element.isVideo) &&
+                        (watches[index].userID === 0 && watches[index].videoPartID === 0 ||
+                        new Date() < new Date(watches[index].validTill))">
+                  <v-icon @click="viewPart(element, index)">
+                    mdi-play
+                  </v-icon>
+                </v-btn>
+                <v-btn icon :loading="element.link === null" v-if="!element.isVideo">
+                  <v-icon @click="player.getPDF(element)">
+                    mdi-open-in-new
+                  </v-icon>
+                </v-btn>
               </v-list-item-icon>
             </v-list-item>
             <v-divider></v-divider>
@@ -46,7 +58,8 @@
         </v-card-title>
         <v-card-subtitle>{{ partName }}</v-card-subtitle>
         <v-card-text>
-          Are you sure you want to start this part ? You'll have {{ video.studentHours }} hours from now to finish it, after that you won't
+          Are you sure you want to start this part ? You'll have {{ video.studentHours }} hours from now to finish it,
+          after that you won't
           able to watch it
         </v-card-text>
         <v-divider></v-divider>

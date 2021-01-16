@@ -5,7 +5,9 @@
     </template>
 
     <template v-slot:activator="{ on, attrs }" v-else-if="videoPart">
-      <v-icon v-bind="attrs" v-on="on">mdi-delete-forever</v-icon>
+      <v-btn icon>
+        <v-icon v-bind="attrs" v-on="on">mdi-delete-forever</v-icon>
+      </v-btn>
     </template>
 
     <template v-slot:activator="{ on, attrs }" v-else-if="video">

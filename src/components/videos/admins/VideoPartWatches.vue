@@ -5,7 +5,7 @@
       <v-spacer></v-spacer>
       <v-col cols="12" md="4">
         <v-select
-            :items="parts"
+            :items="parts.filter(part => part.isVideo)"
             v-model="selectedID"
             item-text="name"
             item-value="ID"

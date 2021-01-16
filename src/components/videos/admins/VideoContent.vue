@@ -23,9 +23,21 @@
                 <v-list-item-icon>
                   <v-icon class="reorder handle">mdi-reorder-horizontal</v-icon>
                 </v-list-item-icon>
-                <v-list-item-title class="list-group-item">Part#{{ index + 1 }}: {{ element.name }}</v-list-item-title>
+                <v-list-item-title class="list-group-item">
+                  <div v-if="element.isVideo">
+                    Part#{{ player.getVideoPartNumber(element.ID, allParts) }}: {{ element.name }}
+                  </div>
+                  <div v-else>
+                    File: {{ element.name }}
+                  </div>
+                </v-list-item-title>
                 <v-list-item-icon v-if="element.ID">
-                  <v-icon @click="viewPart(element, index)">mdi-play</v-icon>
+                  <v-btn v-if="element.isVideo" icon>
+                    <v-icon @click="viewPart(element, index)">mdi-play</v-icon>
+                  </v-btn>
+                  <v-btn v-else icon :loading="element.link === null">
+                    <v-icon @click="player.getPDF(element)">mdi-open-in-new</v-icon>
+                  </v-btn>
                 </v-list-item-icon>
                 <v-list-item-icon>
                   <ConfirmationDialog
@@ -217,8 +229,6 @@ export default {
     viewPart(element, index) {
       this.player.startPart(element, index)
     },
-    test() {
-    }
   },
   mounted() {
     this.getParts()

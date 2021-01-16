@@ -61,6 +61,35 @@ export default {
         this.player.poster = require("@/assets/video-error.png")
       })
     },
+    getPDF(pdfPart) {
+      let fileLink = pdfPart.link
+      pdfPart.link = null // to display loading button
+      api({
+        method: "GET",
+        url: "videos/part",
+        params: {
+          id: pdfPart.ID,
+          originalUrl: fileLink
+        }
+      }).then(response => {
+        let link = document.createElement('a')
+        link.href = response.data.url
+        link.target = "_blank"
+        link.click()
+      }).finally(() => {
+        pdfPart.link = fileLink
+      })
+    },
+    getVideoPartNumber(partID, allParts) {
+      let requiredIndex = 1
+      for(let i = 0; i < allParts.length; i++) {
+        if (partID === allParts[i].ID) {
+          return requiredIndex
+        }
+        if (allParts[i].isVideo)
+          requiredIndex++
+      }
+    },
     errorOccurred() {
       this.player.poster = require("@/assets/video-error.png")
       this.loading = false
