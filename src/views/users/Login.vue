@@ -74,6 +74,7 @@ export default {
               name: response.data.name,
               token: response.data.token,
             })
+            this.$store.dispatch("setIsLoggedIn", true)
             this.$router.push({name: 'Classes'})
           })
           .finally(() => {
