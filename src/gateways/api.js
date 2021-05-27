@@ -30,10 +30,10 @@ api.interceptors.response.use(function (response) {
     return response;
 }, function (error) {
     console.log(error)
-    let status = error.response.status
-    if ((status === 400 || status === 401) && router.currentRoute.name !== 'Login') {
-        router.push({name: 'Login'})
-    }
+    // let status = error.response.status
+    // if ((status === 400 || status === 401) && router.currentRoute.name !== 'Login') {
+        // router.push({name: 'Login'})
+    // }
     if (error.response.data.message !== undefined) {
         store.dispatch('viewErrorSnackbar', error.response.data.message)
     }
