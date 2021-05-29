@@ -7,7 +7,8 @@
       "started": true,
       "access": true,
       "consumedMinutes": 45,
-      "daysMargin": 2
+      "daysMargin": 2,
+      "hash": "CURRENT"
     }
   ],
   "upcoming": [
@@ -32,7 +33,9 @@
       "studentTime": 180,
       "access": true,
       "startDaysMargin": 5,
-      "endDaysMargin": 3
+      "endDaysMargin": 3,
+      "hash": "PAST",
+      "totalMark": 5
     }
   ]
 }

@@ -63,10 +63,14 @@
 import api from "@/gateways/api";
 import Timer from "@/components/utils/Timer";
 import QuizReview from "@/components/quizzes/user/QuizReview";
+import {mapState} from "vuex";
 
 export default {
   name: "QuestionsNavigator",
   components: {QuizReview, Timer},
+  computed: {
+    ...mapState(['isLoggedIn']),
+  },
   props: ['selectedQuestion', 'submissions', 'questions', 'isReview', 'quiz'],
   data() {
     return {
@@ -160,14 +164,23 @@ export default {
     }
   },
   mounted() {
-    if (this.isReview)
-      this.getQuizGrade()
-    else
-      this.createQuizGrade().then(response => {
-        this.validTill = response.data.validTill
-        this.fetch.quizGrade = true
-        this.checkQuiz()
+    if(this.isLoggedIn) {
+      if (this.isReview)
+        this.getQuizGrade()
+      else
+        this.createQuizGrade().then(response => {
+          this.validTill = response.data.validTill
+          this.fetch.quizGrade = true
+          this.checkQuiz()
+        })
+    } else {
+      let totalCorrect = 0
+      this.questions.forEach((question, index) => {
+        if (question.correctAnswer === this.submissions[index])
+          totalCorrect++
       })
+      this.quizGrade = {grade: totalCorrect}
+    }
   },
 }
 </script>

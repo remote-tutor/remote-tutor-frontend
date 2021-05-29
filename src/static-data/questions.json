@@ -1,0 +1,136 @@
+[
+  {
+    "question": {
+      "totalMark": 1,
+      "text": "Solve the following",
+      "imagePath": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/quizzes/Q1.png"
+    },
+    "correctAnswer": 4,
+    "choices": [
+      {
+        "ID": 1,
+        "text": "A"
+      },
+      {
+        "ID": 2,
+        "text": "B"
+      },
+      {
+        "ID": 3,
+        "text": "C"
+      },
+      {
+        "ID": 4,
+        "text": "D"
+      }
+    ]
+  },
+  {
+    "question": {
+      "totalMark": 1,
+      "text": "Solve the following",
+      "imagePath": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/quizzes/Q2.png"
+    },
+    "correctAnswer": 4,
+    "choices": [
+      {
+        "ID": 1,
+        "text": "A"
+      },
+      {
+        "ID": 2,
+        "text": "B"
+      },
+      {
+        "ID": 3,
+        "text": "C"
+      },
+      {
+        "ID": 4,
+        "text": "D"
+      }
+    ]
+  },
+  {
+    "question": {
+      "totalMark": 1,
+      "text": "Solve the following",
+      "imagePath": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/quizzes/Q3.png"
+    },
+    "correctAnswer": 2,
+    "choices": [
+      {
+        "ID": 1,
+        "text": "A"
+      },
+      {
+        "ID": 2,
+        "text": "B"
+      },
+      {
+        "ID": 3,
+        "text": "C"
+      },
+      {
+        "ID": 4,
+        "text": "D"
+      }
+    ]
+  },
+  {
+    "question": {
+      "totalMark": 1,
+      "text": "Solve the following",
+      "imagePath": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/quizzes/Q4.png"
+    },
+    "correctAnswer": 1,
+    "choices": [
+      {
+        "ID": 1,
+        "text": "A"
+      },
+      {
+        "ID": 2,
+        "text": "B"
+      },
+      {
+        "ID": 3,
+        "text": "C"
+      },
+      {
+        "ID": 4,
+        "text": "D"
+      }
+    ]
+  },
+  {
+    "question": {
+      "totalMark": 1,
+      "text": "Solve the following",
+      "imagePath": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/quizzes/Q5.png"
+    },
+    "correctAnswer": 1,
+    "choices": [
+      {
+        "ID": 1,
+        "text": "A"
+      },
+      {
+        "ID": 2,
+        "text": "B"
+      },
+      {
+        "ID": 3,
+        "text": "C"
+      },
+      {
+        "ID": 4,
+        "text": "D"
+      },
+      {
+        "ID": 5,
+        "text": "E"
+      }
+    ]
+  }
+]
