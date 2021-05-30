@@ -1,0 +1,45 @@
+[
+  {
+    "title": "Running Assignment",
+    "access": true,
+    "totalMark": 10,
+    "modelAnswerPeriod": 0,
+    "questions": "https:/d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/Questions.pdf",
+    "modelAnswer": "https:/d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/Answers.pdf",
+    "hash": "CURRENT",
+    "submission": {
+      "userID": 1,
+      "assignmentID": 1,
+      "graded": true,
+      "mark": 9,
+      "feedback": "Wrong Questions: Q2(2)",
+      "file": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/user_answer.pdf"
+    }
+  },
+  {
+    "title": "Overdue Assignment",
+    "CreatedAt": "2021-05-01T00:00:00.000Z",
+    "deadline": "2021-05-10T00:00:00.000Z",
+    "access": true,
+    "totalMark": 15,
+    "modelAnswerPeriod": 0,
+    "questions": "https:/d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/Questions.pdf",
+    "modelAnswer": "https:/d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/Answers.pdf",
+    "hash": "OVERDUE",
+    "submission": {
+      "userID": 1,
+      "assignmentID": 1,
+      "graded": true,
+      "mark": 7,
+      "uploadedAt": "2021-05-20T00:00:00.000Z",
+      "feedback": "Wrong Questions: Q2(2) & Late turn-in",
+      "file": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/user_answer.pdf"
+    }
+  },
+  {
+    "title": "Inaccessible",
+    "CreatedAt": "2021-03-01T00:00:00.000Z",
+    "deadline": "2021-03-01T00:00:00.000Z",
+    "access": false
+  }
+]
