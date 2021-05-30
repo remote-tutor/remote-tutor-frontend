@@ -1,0 +1,46 @@
+{
+  "quizzes": [
+    {
+      "ID": 1,
+      "title": "Statics",
+      "totalMark": 10
+    },
+    {
+      "ID": 2,
+      "title": "Related Time Rates",
+      "totalMark": 15
+    },
+    {
+      "ID": 3,
+      "title": "Limits",
+      "totalMark": 10
+    },
+    {
+      "ID": 4,
+      "title": "Behavior of Functions",
+      "totalMark": 10
+    },
+    {
+      "ID": 5,
+      "title": "Midterm",
+      "totalMark": 30
+    }
+  ],
+  "grades": [
+    {
+      "1": 8,
+      "2": 14,
+      "3": 7,
+      "4": 10,
+      "5": 26,
+      "total": 65,
+      "user": {
+        "ID": 1,
+        "fullName": "Demo User",
+        "username": "demo_user",
+        "phoneNumber": "01111111111",
+        "parentNumber": "012222222222"
+      }
+    }
+  ]
+}
