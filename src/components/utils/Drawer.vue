@@ -116,7 +116,7 @@ export default {
       this.$store.dispatch("setIsLoggedIn", false)
       this.$store.dispatch("setUserClasses", [])
       this.$store.dispatch("setUserClass", 0)
-      this.$router.push({name: 'Login'})
+      this.$router.push({name: 'Announcements'})
     }
   },
   watch: {

@@ -98,7 +98,7 @@ export default {
           url: "/register",
           data: formData,
         }).then(() => {
-          this.$router.push({name: 'Login'})
+          this.backToLogin()
         })
             .finally(() => {
               this.loading = false;

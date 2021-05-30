@@ -36,6 +36,7 @@ export default new Vuex.Store({
     },
     SET_USER_DATA(state, userData) {
       state.userData.name = userData.name
+      state.userData.admin = userData.admin
       state.userData.token = userData.token
     },
     SET_USER_CLASS(state, userClass) {
