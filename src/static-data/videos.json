@@ -1,0 +1,41 @@
+[
+  {
+    "ID": 1,
+    "title": "Calculus in Dynamics",
+    "availableFrom": "2021-06-01T00:00:00.000Z",
+    "hash": "CALCINDYNAMICS",
+    "parts": [
+      {
+        "isVideo": true,
+        "name": "Use calculus to solve dynamics",
+        "link": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/videos/CalcInDynamics.mp4"
+      }
+    ]
+  },
+  {
+    "ID": 2,
+    "title": "Differentiation Tricks",
+    "availableFrom": "2021-06-02T00:00:00.000Z",
+    "hash": "DIFFTRCKS",
+    "parts": [
+      {
+        "isVideo": true,
+        "name": "Differentiation trick",
+        "link": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/videos/DifferentiationTrick.mp4"
+      }
+    ]
+  },
+  {
+    "ID": 3,
+    "title": "Omega Power Using Calculator",
+    "availableFrom": "2021-06-03T00:00:00.000Z",
+    "hash": "OMEGAPOWER",
+    "parts": [
+      {
+        "isVideo": true,
+        "name": "get omega power using calculator",
+        "link": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/videos/OmegaUsingCalc.mp4"
+      }
+    ]
+  }
+]

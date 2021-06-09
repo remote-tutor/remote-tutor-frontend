@@ -2,7 +2,7 @@
   <ValidationProvider v-slot="{errors}" rules="required">
     <v-text-field
         :label="label || 'Password'"
-        prepend-icon="mdi-lock"
+        :prepend-icon="hideLockIcon ? '' : 'mdi-lock'"
         :append-icon="hiddenPassword ? 'mdi-eye' : 'mdi-eye-off'"
         @click:append="hiddenPassword = !hiddenPassword"
         :type="hiddenPassword ? 'password' : 'text'"
@@ -16,7 +16,7 @@
 <script>
 export default {
   name: "Password",
-  props: ["password", "label"],
+  props: ["password", "label", "hideLockIcon"],
   data() {
     return {
       updatedPassword: this.password || "",

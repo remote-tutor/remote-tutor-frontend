@@ -12,7 +12,9 @@
         <v-list>
           <v-list-item link>
             <v-list-item-content>
-              <v-list-item-title class="title">{{ userData.name }}</v-list-item-title>
+              <v-list-item-title class="title">{{
+                  (isLoggedIn) ? userData.name : "Hello Student"
+                }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -63,19 +65,19 @@
               </v-list-item-icon>
               <v-list-item-title>Lessons</v-list-item-title>
             </v-list-item>
-            <v-list-item :to="{ name: 'Classes' }">
+            <v-list-item :to="{ name: 'Classes' }" v-if="isLoggedIn">
               <v-list-item-icon>
                 <v-icon>mdi-teach</v-icon>
               </v-list-item-icon>
               <v-list-item-title>Classes</v-list-item-title>
             </v-list-item>
-            <v-list-item :to="{ name: 'ResetPassword' }">
+            <v-list-item :to="{ name: 'ResetPassword' }" v-if="isLoggedIn">
               <v-list-item-icon>
                 <v-icon>mdi-lock</v-icon>
               </v-list-item-icon>
               <v-list-item-title>Change Password</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="logout">
+            <v-list-item @click="logout" v-if="isLoggedIn">
               <v-list-item-icon>
                 <v-icon>mdi-logout</v-icon>
               </v-list-item-icon>
@@ -102,7 +104,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['userData'])
+    ...mapState(['userData', 'isLoggedIn'])
   },
   methods: {
     logout() {
@@ -111,9 +113,10 @@ export default {
         name: '',
         token: ''
       })
+      this.$store.dispatch("setIsLoggedIn", false)
       this.$store.dispatch("setUserClasses", [])
       this.$store.dispatch("setUserClass", 0)
-      this.$router.push({name: 'Login'})
+      this.$router.push({name: 'Announcements'})
     }
   },
   watch: {

@@ -91,12 +91,14 @@ import api from "@/gateways/api";
 import Timer from "@/components/utils/Timer";
 import Player from "@/components/videos/shared/Player";
 import moment from 'moment'
+import {mapState} from "vuex";
 
 export default {
   name: "VideoParts",
   components: {Player, Timer},
   props: ['video'],
   computed: {
+    ...mapState(["isLoggedIn"]),
     player() {
       return this.$refs.player
     }
@@ -139,10 +141,14 @@ export default {
     },
     viewPart(part, index) {
       this.selectedIndex = index
-      if (this.watches[index].userID === 0 && this.watches[index].videoPartID === 0)
-        this.dialog = true
-      else {
-        this.player.startPart(part, index)
+      if (this.isLoggedIn) {
+        if (this.watches[index].userID === 0 && this.watches[index].videoPartID === 0)
+          this.dialog = true
+        else {
+          this.player.startPart(part, index)
+        }
+      } else {
+        this.player.startStaticPart(part, index)
       }
     },
     getUserWatchForPart(partID) {
@@ -196,7 +202,14 @@ export default {
     },
   },
   mounted() {
-    this.getParts()
+    if (this.isLoggedIn)
+      this.getParts()
+    else {
+      this.parts = this.video.parts
+      this.watches = [
+        {validTill: new Date().setHours(new Date().getHours() + 1)}
+      ]
+    }
   }
 }
 </script>

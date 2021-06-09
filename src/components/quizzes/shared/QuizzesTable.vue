@@ -165,6 +165,7 @@ import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
 import {mapState} from "vuex";
 import moment from 'moment'
 import Timer from "@/components/utils/Timer";
+import current_static_quizzes from "@/static-data/current-quizzes.json"
 
 export default {
   components: {Timer, ConfirmationDialog, Quiz},
@@ -199,9 +200,12 @@ export default {
       if (this.type === 1) return "/future"
       return ""
     },
-    ...mapState(['userData', 'classes']),
+    ...mapState(['userData', 'classes', 'isLoggedIn']),
     selectedClass() {
-      return this.classes.values[this.classes.selectedClass].classHash
+      if(this.isLoggedIn)
+        return this.classes.values[this.classes.selectedClass].classHash
+      else
+        return ""
     },
   },
 
@@ -242,59 +246,97 @@ export default {
   },
   methods: {
     getQuizzes() {
-      this.loading = true
-      const {sortBy, sortDesc, page, itemsPerPage} = this.options
-      api({
-        method: "GET",
-        url: "/quizzes" + this.url,
-        params: {
-          page: page,
-          itemsPerPage: itemsPerPage,
-          sortBy: sortBy,
-          sortDesc: sortDesc,
-        }
-      }).then(response => {
-        this.totalQuizzes = response.data.totalQuizzes
-        if (this.type === -1) this.quizzes = response.data.pastQuizzes
-        else if (this.type === 0) this.quizzes = response.data.currentQuizzes
-        else if (this.type === 1) this.quizzes = response.data.futureQuizzes
+      if(this.isLoggedIn) {
+        this.loading = true
+        const {sortBy, sortDesc, page, itemsPerPage} = this.options
+        api({
+          method: "GET",
+          url: "/quizzes" + this.url,
+          params: {
+            page: page,
+            itemsPerPage: itemsPerPage,
+            sortBy: sortBy,
+            sortDesc: sortDesc,
+          }
+        }).then(response => {
+          this.totalQuizzes = response.data.totalQuizzes
+          if (this.type === -1) this.quizzes = response.data.pastQuizzes
+          else if (this.type === 0) this.quizzes = response.data.currentQuizzes
+          else if (this.type === 1) this.quizzes = response.data.futureQuizzes
 
-        let quizzesPermissions = []
-        let studentRemainingTime = []
-        this.quizzes.forEach(quiz => {
-          quizzesPermissions.push(this.getQuizPermission(quiz))
-          studentRemainingTime.push(this.geStudentRemainingTime(quiz))
+          let quizzesPermissions = []
+          let studentRemainingTime = []
+          this.quizzes.forEach(quiz => {
+            quizzesPermissions.push(this.getQuizPermission(quiz))
+            studentRemainingTime.push(this.geStudentRemainingTime(quiz))
+          })
+          let allPromises = [
+            Promise.all(quizzesPermissions)
+                .then(response => {
+                  this.quizzes.forEach((quiz, index) => {
+                    this.quizzes[index].access = response[index].data.status
+                  })
+                }),
+          ]
+          if (this.type === 0)
+            allPromises.push(
+                Promise.all(studentRemainingTime).then(response => {
+                  this.quizzes.forEach((quiz, index) => {
+                    if (response[index].data.recordFound) {
+                      this.quizzes[index].started = true
+                      this.quizzes[index].timeAvailable =
+                          (new Date(response[index].data.studentTime).getTime() >= new Date().getTime())
+                      this.quizzes[index].remainingTime = response[index].data.studentTime
+                    } else {
+                      this.quizzes[index].started = false
+                      this.quizzes[index].timeAvailable = true
+                    }
+                  })
+                }),
+            )
+          return Promise.allSettled(allPromises)
+        }).catch(error => {
+          console.log(error)
+        }).finally(() => {
+          this.loading = false
         })
-        let allPromises = [
-          Promise.all(quizzesPermissions)
-              .then(response => {
-                this.quizzes.forEach((quiz, index) => {
-                  this.quizzes[index].access = response[index].data.status
-                })
-              }),
-        ]
-        if (this.type === 0)
-          allPromises.push(
-              Promise.all(studentRemainingTime).then(response => {
-                this.quizzes.forEach((quiz, index) => {
-                  if (response[index].data.recordFound) {
-                    this.quizzes[index].started = true
-                    this.quizzes[index].timeAvailable =
-                        (new Date(response[index].data.studentTime).getTime() >= new Date().getTime())
-                    this.quizzes[index].remainingTime = response[index].data.studentTime
-                  } else {
-                    this.quizzes[index].started = false
-                    this.quizzes[index].timeAvailable = true
-                  }
-                })
-              }),
-          )
-        return Promise.allSettled(allPromises)
-      }).catch(error => {
-        console.log(error)
-      }).finally(() => {
-        this.loading = false
-      })
+      } else { // to display static data - not important to application logic
+        if(this.type === 0) {
+          this.quizzes = current_static_quizzes.current
+          this.totalQuizzes = this.quizzes.length
+          this.quizzes = this.quizzes.map(staticQuiz => {
+            let currentDate = new Date()
+            return {
+              ...staticQuiz,
+              startTime: new Date().setDate(currentDate.getDate() - staticQuiz.daysMargin), // add days margin variable
+              endTime: new Date().setDate(currentDate.getDate() + staticQuiz.daysMargin),
+              remainingTime: new Date().setMinutes(currentDate.getMinutes() + staticQuiz.consumedMinutes) // subtract consumed minutes from the total time
+            }
+          })
+        } else if (this.type === 1) {
+          this.quizzes = current_static_quizzes.upcoming
+          this.totalQuizzes = this.quizzes.length
+          this.quizzes = this.quizzes.map(staticQuiz => {
+            let currentDate = new Date()
+            return {
+              ...staticQuiz,
+              startTime: new Date().setDate(currentDate.getDate() + staticQuiz.startDaysMargin), // add days margin variable
+              endTime: new Date().setDate(currentDate.getDate() + staticQuiz.endDaysMargin),
+            }
+          })
+        } else if (this.type === -1) {
+          this.quizzes = current_static_quizzes.past
+          this.totalQuizzes = this.quizzes.length
+          this.quizzes = this.quizzes.map(staticQuiz => {
+            let currentDate = new Date()
+            return {
+              ...staticQuiz,
+              startTime: new Date().setDate(currentDate.getDate() - staticQuiz.startDaysMargin), // add days margin variable
+              endTime: new Date().setDate(currentDate.getDate() - staticQuiz.endDaysMargin),
+            }
+          })
+        }
+      }
     },
     getQuizPermission(quiz) {
       return api({

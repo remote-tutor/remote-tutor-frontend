@@ -1,0 +1,41 @@
+{
+  "current": [
+    {
+      "title": "Test Quiz",
+      "studentTime": 120,
+      "timeAvailable": true,
+      "started": true,
+      "access": true,
+      "consumedMinutes": 45,
+      "daysMargin": 2,
+      "hash": "CURRENT"
+    }
+  ],
+  "upcoming": [
+    {
+      "title": "Upcoming Quiz",
+      "studentTime": 90,
+      "access": true,
+      "startDaysMargin": 1,
+      "endDaysMargin": 3
+    },
+    {
+      "title": "Inaccessible",
+      "studentTime": 30,
+      "access": false,
+      "startDaysMargin": 3,
+      "endDaysMargin": 4
+    }
+  ],
+  "past": [
+    {
+      "title": "Past Quiz",
+      "studentTime": 180,
+      "access": true,
+      "startDaysMargin": 5,
+      "endDaysMargin": 3,
+      "hash": "PAST",
+      "totalMark": 5
+    }
+  ]
+}

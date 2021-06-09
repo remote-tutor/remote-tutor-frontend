@@ -40,6 +40,7 @@
 
 <script>
 import api from "@/gateways/api";
+import {mapState} from "vuex";
 
 export default {
   name: "Question",
@@ -98,9 +99,18 @@ export default {
         return this.selectedChoice
       },
       set(val) {
-        this.updateSelectedChoice(val)
+        if(this.isLoggedIn) {
+          this.updateSelectedChoice(val)
+        } else {
+          this.$store.dispatch('viewSuccessSnackbar', 'Question #' + (this.selectedQuestion + 1) + ' has been saved successfully')
+          this.$emit('updateChoice', {
+            choice: val,
+            status: true
+          })
+        }
       }
     },
+    ...mapState(['isLoggedIn']),
   },
 
 }

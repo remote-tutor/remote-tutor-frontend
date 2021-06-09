@@ -31,14 +31,14 @@
         </v-speed-dial>
 
 
-        <v-btn fixed dark fab right bottom color="primary" @click="sheet = true" v-else>
+        <v-btn fixed dark fab right bottom color="primary" @click="sheet = true" v-else-if="isLoggedIn">
           <v-icon>mdi-magnify</v-icon>
         </v-btn>
 
         <!-- to add extra space for the FAB if the user scrolled to the bottom of the page-->
         <div style="height: 10px;"></div>
 
-        <v-bottom-sheet v-model="sheet" inset>
+        <v-bottom-sheet v-model="sheet" inset v-if="isLoggedIn">
           <Search @closeSearchSheet="sheet = false" @search="filterAnnouncements"></Search>
         </v-bottom-sheet>
 
@@ -55,6 +55,7 @@ import Search from "@/components/announcements/shared/Search.vue";
 import api from "@/gateways/api.js";
 import {mapState} from "vuex";
 import AppBar from "@/components/utils/AppBar";
+import static_announcements from '@/static-data/announcements.json'
 
 export default {
   name: "Announcements",
@@ -65,9 +66,12 @@ export default {
     Search
   },
   computed: {
-    ...mapState(['userData', 'classes']),
+    ...mapState(['userData', 'classes', 'isLoggedIn']),
     selectedClass() {
-      return this.classes.values[this.classes.selectedClass].classHash
+      if(this.isLoggedIn)
+        return this.classes.values[this.classes.selectedClass].classHash
+      else
+        return ""
     }
   },
   watch: {
@@ -109,24 +113,28 @@ export default {
   },
   methods: {
     getAnnouncements() {
-      api({
-        method: "GET",
-        url: "/announcements",
-        params: {
-          itemsPerPage: this.options.itemsPerPage,
-          page: this.options.page,
-          sortBy: this.options.sortBy,
-          sortDesc: this.options.sortDesc,
-          title: this.searchValues.title,
-          topic: this.searchValues.topic,
-          content: this.searchValues.content,
-        },
-      })
-          .then((response) => {
-            this.announcements = response.data.announcements;
-            let totalAnnouncements = response.data.total;
-            this.totalPages = Math.ceil(totalAnnouncements / this.options.itemsPerPage);
-          })
+      if(this.isLoggedIn) {
+        api({
+          method: "GET",
+          url: "/announcements",
+          params: {
+            itemsPerPage: this.options.itemsPerPage,
+            page: this.options.page,
+            sortBy: this.options.sortBy,
+            sortDesc: this.options.sortDesc,
+            title: this.searchValues.title,
+            topic: this.searchValues.topic,
+            content: this.searchValues.content,
+          },
+        })
+            .then((response) => {
+              this.announcements = response.data.announcements;
+              let totalAnnouncements = response.data.total;
+              this.totalPages = Math.ceil(totalAnnouncements / this.options.itemsPerPage);
+            })
+      } else {
+        this.announcements = static_announcements
+      }
     },
     createPlaceholder() {
       if (this.placeholderExists) {

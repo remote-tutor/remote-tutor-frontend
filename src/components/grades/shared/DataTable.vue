@@ -103,6 +103,7 @@
 <script>
 import {mapState} from "vuex";
 import api from "@/gateways/api";
+import grades from "@/static-data/grades.json"
 
 export default {
   name: 'DataTable',
@@ -128,9 +129,12 @@ export default {
       else
         return "quizzes/grades/month"
     },
-    ...mapState(['userData', 'classes']),
+    ...mapState(['userData', 'classes', "isLoggedIn"]),
     selectedClass() {
-      return this.classes.values[this.classes.selectedClass].classHash
+      if(this.isLoggedIn)
+        return this.classes.values[this.classes.selectedClass].classHash
+      else
+        return ""
     }
   },
 
@@ -142,7 +146,8 @@ export default {
   methods: {
     saveMonth() {
       this.$refs.menu.save(this.date)
-      this.getAllGrades()
+      if(this.isLoggedIn)
+        this.getAllGrades()
     },
     getAllGrades() {
       this.loading = true
@@ -192,7 +197,24 @@ export default {
     },
   },
   created() {
-    this.getAllGrades()
+    if(this.isLoggedIn)
+      this.getAllGrades()
+    else {
+      this.headers = [
+        {text: 'Full Name', value: 'user.fullName'},
+      ]
+      let quizzes = grades.quizzes
+      quizzes.forEach(quiz => {
+        if (this.$vuetify.breakpoint.mdAndUp)
+          this.headers.push({text: `${quiz.title}`, value: quiz.ID.toString()})
+        else
+          this.headers.push({text: `${quiz.title} (${quiz.totalMark})`, value: quiz.ID.toString()})
+      })
+      this.headers.push({text: 'Total', value: 'total'})
+      this.quizzes = quizzes
+      this.grades = grades.grades
+      this.quizzesTotalMarks = 75
+    }
   }
 }
 </script>

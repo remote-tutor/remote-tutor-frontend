@@ -60,6 +60,7 @@
 <script>
 import api from "@/gateways/api";
 import {mapState} from "vuex";
+import assignments from "@/static-data/assignments.json"
 
 export default {
   name: "AssignmentsTable",
@@ -79,12 +80,24 @@ export default {
     }
   },
   mounted() {
-    this.getAssignments()
+    if(this.isLoggedIn)
+      this.getAssignments()
+    else {
+      this.assignments = assignments
+      let now = new Date()
+      this.assignments[0].CreatedAt = new Date(new Date().setDate(now.getDate() - 3)).toISOString()
+      this.assignments[0].deadline = new Date(new Date().setDate(now.getDate() + 3)).toISOString()
+
+      this.totalAssignments = this.assignments.length
+    }
   },
   computed: {
-    ...mapState(['userData', 'classes']),
+    ...mapState(['userData', 'classes', 'isLoggedIn']),
     selectedClass() {
-      return this.classes.values[this.classes.selectedClass].classHash
+      if(this.isLoggedIn)
+        return this.classes.values[this.classes.selectedClass].classHash
+      else
+        return ""
     },
   },
   methods: {
@@ -141,7 +154,8 @@ export default {
   watch: {
     options: {
       handler() {
-        this.getAssignments();
+        if(this.isLoggedIn)
+          this.getAssignments();
       },
       deep: true,
     },

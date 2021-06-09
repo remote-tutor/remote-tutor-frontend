@@ -61,6 +61,14 @@ export default {
         this.player.poster = require("@/assets/video-error.png")
       })
     },
+    startStaticPart(part, index) {
+      this.loading = true
+      this.partName = `Part#${index + 1}: ${part.name}`
+      this.videoSource.splice(0, 1, {
+        src: part.link,
+        size: 1080,
+      })
+    },
     getPDF(pdfPart) {
       let fileLink = pdfPart.link
       pdfPart.link = null // to display loading button

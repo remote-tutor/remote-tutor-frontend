@@ -14,13 +14,14 @@ export default new Vuex.Store({
       name: '',
       token: '',
     },
+    isLoggedIn: false,
     classes: {
       values: [],
       selectedClass: 0,
     }
   },
   plugins: [createPersistedState({
-    paths: ['userData', 'classes']
+    paths: ['userData', 'classes', 'isLoggedIn']
   })],
   mutations: {
     VIEW_SUCCESS_SNACKBAR(state, text) {
@@ -35,6 +36,7 @@ export default new Vuex.Store({
     },
     SET_USER_DATA(state, userData) {
       state.userData.name = userData.name
+      state.userData.admin = userData.admin
       state.userData.token = userData.token
     },
     SET_USER_CLASS(state, userClass) {
@@ -44,6 +46,9 @@ export default new Vuex.Store({
     },
     SET_USER_CLASSES(state, classes) {
       state.classes.values = classes
+    },
+    SET_IS_LOGGED_IN(state, value) {
+      state.isLoggedIn = value
     },
   },
   actions: {
@@ -62,6 +67,9 @@ export default new Vuex.Store({
     setUserClasses({commit}, options) {
       commit('SET_USER_CLASSES', options)
     },
+    setIsLoggedIn({commit}, options) {
+      commit('SET_IS_LOGGED_IN', options)
+    }
   },
   modules: {
   }

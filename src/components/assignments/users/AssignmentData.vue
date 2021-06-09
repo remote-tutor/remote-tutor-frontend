@@ -21,7 +21,10 @@
           <v-card-text>
             <v-row>
               <v-col cols="12" md="6">
-                <v-btn outlined v-if="assignment.questions.length > 0"
+                <v-btn outlined v-if="!isLoggedIn" :href="assignment.questions" target="_blank">
+                  Questions<v-icon>mdi-cloud-download</v-icon>
+                </v-btn>
+                <v-btn outlined v-else-if="assignment.questions.length > 0"
                        @click="getUrl(questionsLoading, assignment.questions)" :loading="questionsLoading.value">
                   Questions
                   <v-icon>mdi-cloud-download</v-icon>
@@ -38,6 +41,10 @@
                     (if found)
                   </span>
                 </div>
+                <v-btn outlined v-else-if="!isLoggedIn" :href="assignment.modelAnswer" target="_blank">
+                  Model Answer
+                  <v-icon>mdi-cloud-download</v-icon>
+                </v-btn>
                 <v-btn outlined v-else-if="assignment.modelAnswer.length > 0"
                        @click="getUrl(answersLoading, assignment.modelAnswer)" :loading="answersLoading.value">
                   Model Answer
@@ -80,7 +87,11 @@
 
             <v-row v-if="submission.userID !== 0 && submission.assignmentID !== 0">
               <v-col cols="12">
-                <v-btn outlined @click="getUrl(submissionLoading, submission.file)"
+                <v-btn outlined v-if="!isLoggedIn" :href="submission.file" target="_blank">
+                  Your Submission
+                  <v-icon>mdi-cloud-download</v-icon>
+                </v-btn>
+                <v-btn outlined v-else @click="getUrl(submissionLoading, submission.file)"
                        :loading="submissionLoading.value">
                   Your Submission
                   <v-icon>mdi-cloud-download</v-icon>
@@ -121,9 +132,14 @@
 import api from "@/gateways/api";
 import moment from "moment"
 import {getSignedUrl} from '@/components/assignments/shared/signedUrl';
+import {mapState} from "vuex";
+import assignments from "@/static-data/assignments.json"
 
 export default {
   name: "AssignmentData",
+  computed: {
+    ...mapState(['isLoggedIn']),
+  },
   data() {
     return {
       loading: false,
@@ -152,19 +168,36 @@ export default {
     }
   },
   created() {
-    api({
-      method: "GET",
-      url: "/assignments/assignment",
-      params: {
-        assignmentHash: this.$route.params.assignmentHash
+    if(this.isLoggedIn) {
+      api({
+        method: "GET",
+        url: "/assignments/assignment",
+        params: {
+          assignmentHash: this.$route.params.assignmentHash
+        }
+      }).then(response => {
+        this.assignment = response.data.assignment
+        this.showModelAnswer = moment(this.assignment.deadline)
+            .add(this.assignment.modelAnswerPeriod, 'hours')
+            .isBefore(moment()) && this.assignment.modelAnswer.length > 0
+        this.getSubmission()
+      })
+    } else {
+      let assignmentHash = this.$route.params.assignmentHash
+      if (assignmentHash === "CURRENT") {
+        let now = new Date()
+        let assignment = assignments[0]
+        assignment.CreatedAt = new Date(new Date().setDate(now.getDate() - 3))
+        assignment.deadline = new Date(new Date().setDate(now.getDate() + 3))
+        this.assignment = assignment
+      } else {
+        this.assignment = assignments[1]
       }
-    }).then(response => {
-      this.assignment = response.data.assignment
+      this.submission = this.assignment.submission
       this.showModelAnswer = moment(this.assignment.deadline)
           .add(this.assignment.modelAnswerPeriod, 'hours')
           .isBefore(moment()) && this.assignment.modelAnswer.length > 0
-      this.getSubmission()
-    })
+    }
   },
   methods: {
     getSubmission() {

@@ -38,6 +38,8 @@ import api from "@/gateways/api";
 import {mapState} from "vuex";
 import QuestionsNavigator from "@/components/quizzes/user/QuestionsNavigator";
 import AppBar from "@/components/utils/AppBar";
+import questions from "@/static-data/questions.json"
+import quizzes from "@/static-data/current-quizzes.json"
 
 export default {
   name: "Quiz",
@@ -61,7 +63,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['userData']),
+    ...mapState(['userData', 'isLoggedIn']),
   },
   methods: {
     async getQuestions() {
@@ -116,11 +118,26 @@ export default {
     },
   },
   created() {
-    this.getQuiz().then(response => {
-      this.quiz = response.data.quiz
-      this.getQuestions()
+    if (this.isLoggedIn) {
+      this.getQuiz().then(response => {
+        this.quiz = response.data.quiz
+        this.getQuestions()
+        this.fetch.quiz = true
+      })
+    } else {
+      this.questions = questions
+      this.submissions = this.questions.map(() => {
+        let randomChoice = Math.floor(Math.random() * 8 + 1) // generate a random number between 1 and 8
+        if (randomChoice > 4) return null
+        return randomChoice
+      })
+      if(this.$route.params.quizHash === "CURRENT")
+        this.quiz = quizzes.current[0]
+      else
+        this.quiz = quizzes.past[0]
       this.fetch.quiz = true
-    })
+      this.fetch.questions = true
+    }
   },
 }
 </script>
