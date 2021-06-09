@@ -45,6 +45,7 @@
 <script>
 import moment from "moment";
 import api from "@/gateways/api";
+import {mapState} from "vuex";
 
 export default {
   name: "VideoCard",
@@ -58,6 +59,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(["isLoggedIn"]),
     isAvailableToWatch() {
       return new Date() >= new Date(this.video.availableFrom) && this.access;
     }
@@ -97,7 +99,10 @@ export default {
     }
   },
   mounted() {
-    this.getVideoPermission()
+    if (this.isLoggedIn)
+      this.getVideoPermission()
+    else
+      this.access = true
   },
   filters: {
     moment: function (date) {

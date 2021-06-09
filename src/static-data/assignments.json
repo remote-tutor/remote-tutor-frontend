@@ -4,8 +4,8 @@
     "access": true,
     "totalMark": 10,
     "modelAnswerPeriod": 0,
-    "questions": "https:/d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/Questions.pdf",
-    "modelAnswer": "https:/d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/Answers.pdf",
+    "questions": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/Questions.pdf",
+    "modelAnswer": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/Answers.pdf",
     "hash": "CURRENT",
     "submission": {
       "userID": 1,
@@ -23,8 +23,8 @@
     "access": true,
     "totalMark": 15,
     "modelAnswerPeriod": 0,
-    "questions": "https:/d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/Questions.pdf",
-    "modelAnswer": "https:/d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/Answers.pdf",
+    "questions": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/Questions.pdf",
+    "modelAnswer": "https://d18c3p5zqeurpo.cloudfront.net/demo-data/assignments/Answers.pdf",
     "hash": "OVERDUE",
     "submission": {
       "userID": 1,

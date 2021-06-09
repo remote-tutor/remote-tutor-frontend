@@ -93,12 +93,13 @@ import {mapState} from "vuex";
 import api from "@/gateways/api";
 import AdminVideoCard from "@/components/videos/admins/VideoCard";
 import UserVideoCard from "@/components/videos/users/VideoCard";
+import static_videos from "@/static-data/videos.json"
 
 export default {
   name: "Videos",
   components: {AdminVideoCard, UserVideoCard, AppBar},
   computed: {
-    ...mapState(['userData', 'classes']),
+    ...mapState(['userData', 'classes', 'isLoggedIn']),
     selectedClass() {
       return this.classes.values[this.classes.selectedClass].classHash
     },
@@ -117,18 +118,22 @@ export default {
   },
   methods: {
     getVideos() {
-      this.dialog = true
-      api({
-        method: "GET",
-        url: "/videos",
-        params: {
-          date: new Date(this.pickedMonth).getTime(),
-        }
-      }).then(response => {
-        this.videos = response.data.videos
-      }).finally(() => {
-        this.dialog = false
-      })
+      if (this.isLoggedIn) {
+        this.dialog = true
+        api({
+          method: "GET",
+          url: "/videos",
+          params: {
+            date: new Date(this.pickedMonth).getTime(),
+          }
+        }).then(response => {
+          this.videos = response.data.videos
+        }).finally(() => {
+          this.dialog = false
+        })
+      } else {
+        this.videos = static_videos
+      }
     },
     createVideo() {
       this.createLoading = true

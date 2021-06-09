@@ -16,6 +16,7 @@ import AppBar from "@/components/utils/AppBar";
 import {mapState} from "vuex";
 import UserVideoParts from "@/components/videos/users/VideoParts";
 import api from "@/gateways/api";
+import static_videos from "@/static-data/videos.json"
 
 export default {
   name: "Videos",
@@ -27,19 +28,30 @@ export default {
     }
   },
   computed: {
-    ...mapState(['userData']),
+    ...mapState(['userData', 'isLoggedIn']),
   },
   created() {
-    api({
-      method: "GET",
-      url: "/videos/video",
-      params: {
-        videoHash: this.$route.params.videoHash
-      }
-    }).then(response => {
-      this.video = response.data.video
+    if (this.isLoggedIn) {
+      api({
+        method: "GET",
+        url: "/videos/video",
+        params: {
+          videoHash: this.$route.params.videoHash
+        }
+      }).then(response => {
+        this.video = response.data.video
+        this.mounted = true
+      })
+    } else {
+      let videoHash = this.$route.params.videoHash
+      if (videoHash === "CALCINDYNAMICS") {
+        this.video = static_videos[0]
+      } else if (videoHash === "DIFFTRCKS")
+        this.video = static_videos[1]
+      else
+        this.video = static_videos[2]
       this.mounted = true
-    })
+    }
   }
 }
 </script>
