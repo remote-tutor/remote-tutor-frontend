@@ -48,6 +48,17 @@
         {{ item.validTill | moment }}
       </template>
 
+      <template v-slot:item.actions="{item}">
+        <ConfirmationDialog
+          user-watch
+          mainText="Are you sure you want to delete?"
+          message="The student will be able to re-watch this video part"
+          :deleted-item-name="item.user.fullName"
+          :second-confirm-name="item.videoPart.name"
+          @confirm="deleteUserWatch(item)"
+        >
+        </ConfirmationDialog>
+      </template>
     </v-data-table>
   </v-card>
 
@@ -56,10 +67,12 @@
 <script>
 import api from "@/gateways/api";
 import moment from "moment";
+import ConfirmationDialog from "@/components/utils/ConfirmationDialog";
 
 export default {
   name: "VideoPartWatches",
-  props: ['parts'],
+   components: {ConfirmationDialog},
+   props: ['parts'],
   data() {
     return {
       selectedID: 0,
@@ -67,6 +80,7 @@ export default {
         {text: 'Student Name', value: 'User.full_name'},
         {text: 'Start Time', value: 'start_at'},
         {text: 'End Time', value: 'valid_till'},
+        {text: 'Actions', value: 'actions', sortable: false },
       ],
       watches: [],
       loading: false,
@@ -120,6 +134,21 @@ export default {
         this.$store.dispatch('viewErrorSnackbar', 'Unexpected error occurred, please try again later')
       }).finally(() => {
         this.loadingPDF = false
+      })
+    },
+    deleteUserWatch(item) {
+      this.loading = true
+      api({
+        method: "DELETE",
+        url: "/admin/videos/watches",
+        params: {
+          partID: item.videoPartID,
+          userID: item.userID,
+        }
+      }).then(() => {
+        this.getPartWatches();
+      }).finally(() => {
+        this.loading = false;
       })
     },
   },
