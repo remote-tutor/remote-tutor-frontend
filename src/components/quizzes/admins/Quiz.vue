@@ -169,6 +169,13 @@ export default {
   watch: {
     staticQuiz: function (val) {
       this.quiz = val
+    },
+    'quiz.startTime': function (val) {
+      let endTime = moment(new Date(this.quiz.endTime))
+      let startTime = moment(new Date(val))
+      if (endTime.isBefore(startTime)) {
+        this.quiz.endTime = startTime.add(1, 'days').toDate().toISOString()
+      }
     }
   }
 };

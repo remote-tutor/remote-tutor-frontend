@@ -11,13 +11,13 @@
 
         <v-tabs-items v-model="tab">
           <v-tab-item>
-            <QuizzesTable title="Current Quizzes" :type="0"></QuizzesTable>
+            <QuizzesTable title="Current Quizzes" :type="0" :refresh-quizzes="refreshQuizzes" @refreshCompleted="refreshQuizzes = false"></QuizzesTable>
           </v-tab-item>
           <v-tab-item>
-            <QuizzesTable title="Upcoming Quizzes" :type="1"></QuizzesTable>
+            <QuizzesTable title="Upcoming Quizzes" :type="1" :refresh-quizzes="refreshQuizzes" @refreshCompleted="refreshQuizzes = false"></QuizzesTable>
           </v-tab-item>
           <v-tab-item>
-            <QuizzesTable title="Past Quizzes" :type="-1"></QuizzesTable>
+            <QuizzesTable title="Past Quizzes" :type="-1" :refresh-quizzes="refreshQuizzes" @refreshCompleted="refreshQuizzes = false"></QuizzesTable>
           </v-tab-item>
         </v-tabs-items>
       </v-container>
@@ -38,6 +38,12 @@ export default {
   data() {
     return {
       tab: 0,
+      refreshQuizzes: false,
+    }
+  },
+  watch: {
+    tab() {
+      this.refreshQuizzes = true
     }
   }
 }

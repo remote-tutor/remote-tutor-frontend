@@ -119,7 +119,7 @@
     </template>
 
     <template v-slot:item.actions="{ item }" v-if="userData.admin">
-      <v-icon small class="mr-2" @click="editQuiz(item)" v-if="type === 1">
+      <v-icon small class="mr-2" @click="editQuiz(item)">
         mdi-pencil
       </v-icon>
       <ConfirmationDialog v-slot:item.actions="{ item }"
@@ -169,7 +169,7 @@ import current_static_quizzes from "@/static-data/current-quizzes.json"
 
 export default {
   components: {Timer, ConfirmationDialog, Quiz},
-  props: ['title', 'type'],
+  props: ['title', 'type', 'refreshQuizzes'],
   data: () => ({
     loading: false,
     dialog: false,
@@ -222,6 +222,11 @@ export default {
     selectedClass() {
       this.options.page = 1
       this.getQuizzes()
+    },
+    refreshQuizzes(val) {
+      if (val) {
+        this.getQuizzes()
+      }
     }
   },
 
@@ -299,6 +304,7 @@ export default {
           console.log(error)
         }).finally(() => {
           this.loading = false
+          this.$emit('refreshCompleted')
         })
       } else { // to display static data - not important to application logic
         if(this.type === 0) {
